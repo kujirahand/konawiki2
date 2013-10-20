@@ -1,0 +1,34 @@
+/**
+ * konawiki backup sql
+ */
+
+CREATE TABLE oldlogs
+(
+    id      INTEGER PRIMARY KEY AUTO_INCREMENT,
+    log_id  INTEGER,
+    name    TEXT,
+    body    TEXT DEFAULT '',
+    private INTEGER DEFAULT 0,
+    freeze  INTEGER DEFAULT 0,
+    ctime   INTEGER DEFAULT 0,
+    mtime   INTEGER DEFAULT 0
+);
+
+/* --- */
+
+/** HTML をキャッシュする */
+CREATE TABLE cache_logs
+(
+	log_id	INTEGER PRIMARY KEY,
+	html	TEXT,
+	ctime	INTEGER,
+	flag	TEXT
+);
+
+/* --- */
+
+/**
+ * Insert Default Value
+ */
+INSERT INTO oldlogs (id, name, body)
+    VALUES (1, 'FrontPage', 'Welcome to FrontPage');

@@ -1,0 +1,123 @@
+/**
+ * KonaWiki2 Main SQL
+ */
+
+/** Config Int Value Table - 設定保存用テーブル */
+CREATE TABLE id_values
+(
+    id      INTEGER PRIMARY KEY,
+    value   INTEGER DEFAULT 0
+);
+
+/* --- */
+
+/** Config Key/Value Table */
+CREATE TABLE key_values
+(
+    name    TEXT,
+    value   INTEGER DEFAULT 0
+);
+
+/* --- */
+
+/** Wiki Main Log Table */
+CREATE TABLE logs
+(
+    id      INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name    TEXT,
+    body    TEXT DEFAULT '',
+    freeze  INTEGER DEFAULT 0, /* 0:none,  1:freeze  */
+    private INTEGER DEFAULT 0, /* 0:public,1:private */ 
+    ctime   INTEGER DEFAULT 0,
+    mtime   INTEGER DEFAULT 0
+);
+
+/* --- */
+
+/* idから名前の逆引きが多いので index を作成 */
+CREATE UNIQUE INDEX logs_name_index ON logs (name(256));
+
+/* --- */
+
+/** Access Counter Table */
+CREATE TABLE log_counters
+(
+    id      INTEGER PRIMARY KEY,
+    value   INTEGER DEFAULT 0
+);
+
+/* --- */
+
+/** Attachment file Table */
+CREATE TABLE attach
+(
+    id      INTEGER PRIMARY KEY AUTO_INCREMENT,
+    log_id  INTEGER,
+    name    TEXT,
+    ext     TEXT,
+    ctime   INTEGER,
+    mtime   INTEGER
+);
+
+/* --- */
+
+/** Attachment file counter */
+CREATE TABLE attach_counters
+(
+    id          INTEGER PRIMARY KEY AUTO_INCREMENT,
+    view        INTEGER DEFAULT 0,
+    download    INTEGER DEFAULT 0
+);
+
+/* --- */
+
+/** Page Tag Table */
+CREATE TABLE tags
+(
+    log_id  INTEGER,
+    tag     TEXT
+);
+
+/* --- */
+
+/* tagの逆引きが多いので index を作成 */
+CREATE UNIQUE INDEX tags_tag_index ON tags (log_id, tag(256));
+
+/* --- */
+
+/** Page auth page hash */
+CREATE TABLE log_auth_hash (
+  log_id  INTEGER,
+  hash    TEXT
+);
+
+/* --- */
+
+/**
+ * Insert Default Value
+ */
+INSERT INTO logs (id, name, body)
+    VALUES (1, 'FrontPage', 'Welcome to FrontPage');
+
+/* --- */
+
+INSERT INTO log_counters (id, value)
+    VALUES (1, 0);
+
+/* --- */
+
+INSERT INTO logs(id, name, body)
+    VALUES (2, 'MenuBar', '-[[FrontPage]]
+#recent
+#counter');
+
+/* --- */
+
+INSERT INTO logs(id, name, body)
+    VALUES (3, 'SideBar', '#popular');
+
+/* --- */
+
+/* database version */
+INSERT INTO key_values (name, value) VALUES ('version', 105);
+

@@ -1,0 +1,9 @@
+<?php
+// cgi mode ==> #!/usr/local/bin/php
+/*
+ * KonaWiki TOP SCRIPT FILE (use PATH_INFO)
+ */
+define("KONAWIKI_USE_PATH_INFO", TRUE);
+$scriptname = "page";
+include_once('./index.php');
+?>

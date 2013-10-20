@@ -1,0 +1,30 @@
+<!DOCTYPE html> 
+<html><head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="content-style-type" content="text/css" />
+    <base href="<?php echo dirname($baseurl)?>/" />
+<?php if ($norobot): ?>
+    <meta name="Keywords" content="norobot" />
+    <meta name="Robots" content="noindex,nofollow" />
+<?php else: ?>
+    <meta name="Keywords" content="<?php echo $page.(($rawtag)? ",".$rawtag : "") ?>" />
+<?php endif ?>
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="<?php echo getResourceShortURL('konawiki.css', TRUE)?>" />
+    <link rel="stylesheet" type="text/css" href="<?php echo $skin_css ?>" />
+<?php if ($theme): ?>
+    <link rel="stylesheet" type="text/css" href="<?php echo $theme_css ?>" />
+<?php endif ?>
+<?php if ($include_js_css): ?>
+    <!-- include js css -->
+    <?php echo $include_js_css ?>
+<?php endif ?>
+    <title><?php echo $pagetitle?></title>
+    <!-- rss -->
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo  konawiki_getPageURL('get','rss') ?>" />
+    <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<?php echo  konawiki_getPageURL('get','rss2')?>" />
+    <!-- favicon.ico -->
+    <link rel="shortcut icon" href="<?php echo $favicon ?>" />
+</head>
+<body>
+<?php include(getSkinPath('parts_header_title.tpl.php')) ?>

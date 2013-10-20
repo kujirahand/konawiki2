@@ -1,0 +1,65 @@
+■KonaWiki のインストールについて
+
+● (1) アップロード
+
+FTPソフトなどでWikiを設置したいサーバに KonaWiki の全ファイルを
+アップロードします。
+
+● (2) パーミッションの変更
+
+FTPソフトで次のファイルのパーミッションを変更します。
+
+- 拡張子が「.php」のファイル   ---> 655 (或いは 604)
+- フォルダ「attach」と「data」 ---> 777 (或いは 707)
+
+● (3) 設定を変更
+
+※ファイル名を変更します→「temp-konawiki.ini.php」を「konawiki.ini.php」にしてください。
+
+「konawiki.ini.php」を開くと、冒頭にさまざまな設定が記述されています。必要に応じて値を書き換えてください。
+
+konawikiで可能なすべての設定は、config/default.ini.php に記述されています。
+konawiki.ini.php は、default.ini.php との更新差分だけを記述すればよくなっています。
+
+■レンタルサーバーで利用するとき
+
+●ロリポップで利用するとき
+
++ FTP でファイルを全部アップロードします。
++ フォルダ "attach" と "data" のファイル属性を 777 に設定します。
++ <設置したURL> にアクセスします。動作することを確認します。
++ temp-konawiki.ini.php を konawiki.ini.php にファイル名を変更します。
++ konawiki.ini.php の内容を書き換えます。(タイトルやパスワードなど)
+
+●さくらインターネットで利用するとき
+
++ FTP でファイルを全部アップロードします。
++ フォルダ "attach" と "data" のファイル属性を 755 に設定します。
++ <設置したURL> にアクセスします。動作することを確認します。
++ temp-konawiki.ini.php を konawiki.ini.php にファイル名を変更します。
++ konawiki.ini.php の内容を書き換えます。(タイトルやパスワードなど)
+
+■ForceType を使って、URL を短く表現したい場合
+
+konawiki では、Apache の機能 ForceType を利用して、簡易なURLを実現可能です。
+そこで、もし、これが利用できる場合は、次のように設定してください。
+
+▲CGIモード(サクラインターネット)を利用する場合：
+
+for_cgi.htaccess を .htaccess にリネームにして利用します。
+page というファイルの一行目に以下を追加します。
+
+ #!/usr/local/bin/php
+
+そして、page に実行権限を与えます。ファイル属性を 0755 に設定します。
+
+▲モジュールモード(自宅サーバーのPHP)を利用する場合：
+
+for_mod.htaccess を .htaccess にリネームにして利用します。
+
+
+▲ロリポップで使う場合：
+
+for_lolipop.htaccess を .htaccess にリネームにして利用します。
+
+

@@ -1,0 +1,22 @@
+/**
+ * konawiki SubDB sql
+ */
+
+CREATE TABLE sublogs
+(
+    id        INTEGER PRIMARY KEY AUTO_INCREMENT,
+    log_id    INTEGER,
+    plug_name TEXT DEFAULT '',     /* プラグインの名前 */
+    plug_key  TEXT DEFAULT '',     /* ページ内に複数ある際の識別キー */
+    body      TEXT DEFAULT '',     /* データ本体 */
+    ctime     INTEGER DEFAULT 0,
+    mtime     INTEGER DEFAULT 0
+);
+
+/* --- */
+
+/**
+ * Insert Default Value
+ */
+INSERT INTO sublogs (id, log_id, plug_name, body)
+    VALUES (1, 0, "version", "102");
