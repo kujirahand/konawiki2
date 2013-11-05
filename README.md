@@ -1,4 +1,8 @@
 konawiki2
 =========
 
-WIKI clone
+WIKI clone 
+
+[URL] http://konawiki.aoikujira.com/
+[DB]  Sqlite3 / MySQL
+

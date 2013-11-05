@@ -789,7 +789,10 @@ function konawiki_parser_render_plugin($value)
             if (!call_user_func($action, $params)) {
                 $err = isset($plugin_params["error"]) ? $plugin_params["error"] : "";
                 if ($err !== "") $err = "($err)";
-                $text .= "<p class='error'>#プラグイン[$pname]の実行に失敗。{$err}</p>";
+                $msg = konawiki_lang('Failed to execute plugin [%s].');
+                $text .= "<p class='error'>";
+                $text .= sprintf($msg, '#'.$pname);
+                $text .= $err . "</p>";
             }
         }
     }

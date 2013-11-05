@@ -12,7 +12,7 @@ function plugin_recent_convert($params)
 {
 	konawiki_setPluginDynamic(true);
 	
-    $res = "<h5>最新更新:</h5>";
+    $res = "<h5>".konawiki_lang('Recently updated').":</h5>";
     if (!isset($params[0])) $params[0] = 10;
     $count = intval($params[0]);
     if ($count < 1) $count = 10;
@@ -44,4 +44,3 @@ function plugin_recent_convert($params)
 }
 
 
-?>

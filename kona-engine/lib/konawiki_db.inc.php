@@ -19,14 +19,14 @@ function konawiki_getDB()
         $db  = konadb_create_dsn($dsn);
         if (!$db) {
             echo 'DATABASE OPEN ERROR!';
-            echo ' (ディレクトリの書き込み権限を確認してください。)';
+            echo '('.konawiki_lang("Please check dir permission.").')'; 
             exit;
         }
         $konawiki['private']['db.handle'] =& $db;
         $db->debug = $konawiki['private']['debug'];
         if (!$db->open()) {
             echo 'DATABASE OPEN ERROR!';
-            echo ' (データベースを開くことができませんでした。)';
+            echo '('.konawiki_lang("Could not open DB.").')'; 
             exit;
         }
     }
@@ -154,7 +154,7 @@ function konawiki_initDB()
     			    _konawiki_db_init();
     		    }
             konawiki_initDB_versionup($db_version);
-            konawiki_showMessage('データベースを正常にアップデートしました!!');
+            konawiki_showMessage(konawiki_lang('Success to update DB.'));
             exit;
         }
     }
@@ -170,8 +170,7 @@ function _konawiki_db_init()
 {
 	konawiki_initDB_createDB();
 	konawiki_initDB_addHelp();
-	$msg =  'データベースを正常に初期化しました。<br/>'.
-			'インストール作業ご苦労さまでした。';
+	$msg = konawiki_lang('Success to init DB.');
 	konawiki_showMessage($msg);
 	exit;
 }
@@ -199,7 +198,7 @@ function konawiki_initDB_versionup($current_version)
 
 function konawiki_initDB_createDB()
 {
-    $errmsg = "データベースの初期化に失敗しました。";
+    $errmsg = konawiki_lang('Failed to init DB');
     // init main db
     $db = konawiki_getDB();
     $sql = file_get_contents(
@@ -236,6 +235,8 @@ function konawiki_initDB_createDB()
 
 function konawiki_initDB_addHelp()
 {
+    return;
+    // Now not support
     $helps = array(
         'FirstGuide.txt'    =>  konawiki_public("FrontPage"),
         'AboutKonaWiki.txt' =>  'KonaWikiについて',

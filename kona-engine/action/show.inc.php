@@ -96,7 +96,7 @@ function action_show_()
 			"</div>";
    	}
     // check PRIVATE ?
-    if ($log['private']) {
+    if (isset($log['private']) && $log['private']) {
         $log['body'] = '<div clss="contents">'.
                        '<div class="error">'.
                         konawiki_lang('Private Page.').

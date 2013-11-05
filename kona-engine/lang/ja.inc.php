@@ -23,6 +23,19 @@ $ko_lang['Attach'] = '添付';
 $ko_lang['Logout'] = 'ログアウト';
 $ko_lang['Login'] = 'ログイン';
 
+$ko_lang['Recently updated'] = '最新更新';
+$ko_lang['Popular pages'] = '人気のページ';
+$ko_lang['Failed to execute plugin [%s].'] = 'プラグイン[%s]の実行に失敗。';
+
+// error
+$ko_lang['Please check dir permission.'] = 'ディレクトリの書き込み権限を確認してください。';
+$ko_lang['Could not open DB.'] = 'データベースを開くことができませんでした。';
+
+// init
+$ko_lang['Success to init DB.'] = 'データベースを正常に初期化しました。';
+$ko_lang['Success to update DB.'] = 'データベースを正常にアップデートしました。';
+$ko_lang['Failed to init DB.'] = 'データベースの初期化に失敗しました。';
+
 // login page
 $ko_lang['View'] = '閲覧';
 $ko_lang['Please input admin password.'] = '管理者パスワードを入力してください。';

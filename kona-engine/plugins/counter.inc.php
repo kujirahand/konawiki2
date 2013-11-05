@@ -55,7 +55,7 @@ function plugin_counter_getCount()
     header("Content-Type: text/plain");
     $log_id = konawiki_getPageId();
     if (!$log_id) {
-        echo "[counter:unknown page]";
+        echo "(0)";
         exit;
     }
     $pname = 'counter';

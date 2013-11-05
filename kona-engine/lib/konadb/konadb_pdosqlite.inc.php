@@ -86,7 +86,8 @@ class konadb_pdosqlite extends konadb
     
     function escape($sql)
     {
-        return ($sql) ? sqlite_escape_string($sql) : "";
+        $sql = str_replace("'", "''", $sql);
+        return $sql;
     }
     function quote($sql)
     {

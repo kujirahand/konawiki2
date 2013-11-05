@@ -1,7 +1,7 @@
 <?php
 /* vim:set expandtab ts=4 sts=4 sw=4: */
 /** konawiki plugins -- カウンタのあるページの人気ランキングを表示する
- * - [書式] #popular([件数][,期限])
+ * - [書式] #popular([件数])
  * - [引数]
  * -- 件数  .. 表示する件数
  * -- 期限  .. ここに指定した日数内のランキングだけ集計する
@@ -21,7 +21,8 @@ function plugin_popular_convert($params)
     if ($timelimit < 1) $timelimit = 0;
     
     $where_limit = "";
-    $cap = "人気のページ";
+    $cap = konawiki_lang('Popular pages');
+    /*
     if ($timelimit >= 1) {
         $t = time() - $timelimit * 60 * 60 * 24;
         $where_limit = " AND mtime >= $t";
@@ -33,6 +34,7 @@ function plugin_popular_convert($params)
             $cap = "月間人気ページ";
         }
     }
+    */
     
     $sql = "SELECT log_id, ctime FROM sublogs WHERE".
         " plug_name='counter'".
@@ -45,7 +47,7 @@ function plugin_popular_convert($params)
     $res .= "<ul>";
     $r = $db->array_query($sql);
     if ($r == FALSE) {
-        return "{$res}<ul><li>なし</li></ul>\n";
+        return "{$res}<ul><li>none</li></ul>\n";
     }
     $baseurl = konawiki_public("baseurl");
     foreach ($r as $e) {
@@ -63,4 +65,4 @@ function plugin_popular_convert($params)
 }
 
 
-?>
+

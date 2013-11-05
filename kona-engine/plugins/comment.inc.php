@@ -65,11 +65,11 @@ function plugin_comment_convert_sub($pluginname, $params)
             form_input_hidden("plugin", $pluginname).
             form_input_hidden("pid", $plug_key).
             form_input_hidden("comment-mode", "edit").
-            form_input_submit("コメントの編集").
+            form_input_submit("Edit comments").
             "</form>";
         $showlink = konawiki_getPageURL(konawiki_getPage(), FALSE, FALSE, "comment-mode=show");
         $footer = "<div class='rightopt'>".
-            "<a href='$showlink'>→コメント表示</a>".
+            "<a href='$showlink'>→Show comments</a>".
             "</div>";
         $insert_form = "";
     }
@@ -80,7 +80,7 @@ function plugin_comment_convert_sub($pluginname, $params)
         if (konawiki_isLogin_write()) { // ログインしているときだけ編集ボタンを表示
             $editlink = konawiki_getPageURL(konawiki_getPage(), FALSE, FALSE, "comment-mode=edit");
             $footer = "<div class='rightopt'>".
-                "<a href='{$editlink}'>→コメント編集</a>".
+                "<a href='{$editlink}'>→Edit comments</a>".
                 "</div>";
         } else {
             $footer = "<div class='rightopt'>&nbsp;</div>";
@@ -88,7 +88,7 @@ function plugin_comment_convert_sub($pluginname, $params)
     }
     $s = <<<__EOS
 <div class="comment">
-    <div class="caption">コメント:</div><div class="commentlogs">
+    <div class="caption">Comments:</div><div class="commentlogs">
     <div class="commentshort">
     {$logs}
     </div>
@@ -113,10 +113,10 @@ function plugin_comment_getInsertForm($pluginname, $pageurl, $pid)
 <input type="text" name="comment" />
 </div>
 <div>
-<span class="note">お名前:</span>
+<span class="note">Name:</span>
 <input type="text" name="r_name" size="12"/><br/>
 <textarea name="r_comment" cols="64" rows="3" style="padding:4px;"></textarea><br/>
-<input type="submit" value="コメントを挿入"/>
+<input type="submit" value="Insert Comment"/>
 <input type="hidden" name="plugin" value="{$pluginname}"/>
 <input type="hidden" name="pid" value="$pid"/>
 </div></form>
@@ -163,15 +163,15 @@ function plugin_comment_action_sub($pluginname, $params)
     $name    = konawiki_param("r_name");
     if ($dummy1 !== "" || $dummy2 !== "") {
         // maybe spam
-        $plugin_params["error"] = "スパムの可能性があるので書き込みません。";
+        $plugin_params["error"] = "Sorry may be SPAM..";
         $db->rollback();
         return FALSE;
     }
     if ($commentmode != "edit") {
-        if ($name === "") $name = "名無し";
+        if ($name === "") $name = "Noname";
         if ($comment == "") {
             // maybe spam
-            $params["error"] = "コメントの記入が必要です。";
+            $params["error"] = "Need to write body.";
             $db->rollback();
             return FALSE;
         }
@@ -208,7 +208,7 @@ function plugin_comment_action_sub($pluginname, $params)
         return TRUE;
     }
     else {
-        $param["error"] = "書き込みに失敗";
+        $param["error"] = "Failed to write.";
         $db->rollback();
         return FALSE;
     }
@@ -226,7 +226,7 @@ function konawiki_comment_getLog($page)
         $logs .= $line['body'] . "\n";
     }
     if ($logs != "") {
-        $logs = "||コメントの一覧|\n".$logs;
+        $logs = "||Comments|\n".$logs;
         $logs = konawiki_parser_convert($logs);
     }
     $s = <<<__EOS
