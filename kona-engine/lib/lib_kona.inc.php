@@ -259,7 +259,7 @@ function check_is_writable($dir)
 
 function konawiki_insert_jquery()
 {
-	$uri = getResourceShortURL('js/jquery-1.2.6.min.js');
+	$uri = getResourceURL('js/jquery-1.2.6.min.js');
 	return '<script type="text/javascript" src="'.$uri.'"></script>';
 }
 

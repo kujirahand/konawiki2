@@ -5,7 +5,7 @@
 }
 
 #wikibody {
-  width: 640px;
+  width: 630px;
   float:left;
 }
 #wikibody .bodypad {
@@ -16,7 +16,7 @@
 
 #wikinavi {
   /* 336px */
-  width: 340px;
+  width: 350px;
   float:right;
 }
 
