@@ -40,6 +40,7 @@ function action_show_()
     $log['tag'] = _konawiki_show_tag($log['tag'], $log['id']);
     $log['flag_dynamic'] = FALSE;
     $log_id = intval($log['id']);
+    $log['page'] = $page;
     
     // Cache function
     $has_cache = FALSE;

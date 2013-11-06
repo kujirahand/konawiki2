@@ -34,15 +34,15 @@ body {
     width:100%;
 }
 
-#wikicontent {
+#wikicontent { /* TOTAL */
     position: relative;
-    width: 1000px;
+    width: 980px;
     margin: 0 auto;
 }
 
-.LayoutCenterLeft {
+.LayoutCenterLeft { /* LEFT + CENTER */
     float:left;
-    width:820px;
+    width:800px;
     margin-left: auto;
 }
 
@@ -50,16 +50,16 @@ body {
     font-size   : 1em;
     line-height : 1.4em;
     float       : right;
-    width       : 590px;
+    width       : 570px;
 }
 
-#wikinavi {
+#wikinavi { /* LEFT side menu */
     width : 230px;
     height: 100%;
     float: left;
 }
 
-#wikisidebar {
+#wikisidebar { /* RIGHT side bar */
     width: 170px;
     height: 100%;
     float:right;
@@ -67,7 +67,7 @@ body {
 
 #wikifooter {
     padding: 4px;
-    width: 1000px;
+    width: 980px;
     margin: 0 auto 6px;
     border-top: solid 1px #E0e0FF;
     text-align:center;
@@ -89,7 +89,7 @@ body {
     margin-left: auto;
     margin-right: auto;
     padding: 0px;
-    width: 1000px;
+    width: 980px;
     border-radius: 10px;
     -webkit-border-radius: 10px;
     background-color: #f0f0fa; 

@@ -1,21 +1,9 @@
-######################################################################
-# .htaccess for Module Mode
-######################################################################
+#-------------------------------------------------------
+.htaccess
+#-------------------------------------------------------
 
-## PathInfoを有効 (時に指定が必要かも)
-# AcceptPathInfo On
+DirectoryIndex index.php index.html index.htm
 
-## HTTPモジュールの場合
-<FilesMatch "^page$">
-    ForceType application/x-httpd-php
-</FilesMatch>
-
-## CGIモードの場合
-#<FilesMatch "^page$">
-#    ForceType application/x-httpd-cgi
-#</FilesMatch>
-
-DirectoryIndex page index.php index.html index.htm
 <IfModule mod_php4.c>
     php_flag magic_quotes_gpc Off
     php_value mb_internal_encoding UTF-8

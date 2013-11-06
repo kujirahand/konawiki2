@@ -297,8 +297,8 @@ function konawiki_parser_render_hx(&$value)
     }
     $hash   = sprintf("%x",crc32($all_text));
     $uri = htmlspecialchars(konawiki_getPageURL())."#h{$hash}";
-    $anchor = "<a id='h{$hash}' name='h{$hash}' href='$uri' class='anchor_super'>&nbsp;&dagger;</a>";
-    $noanchor = konawiki_param("noanchor", FALSE);
+    $anchor = "<a id='h{$hash}' name='h{$hash}' href='$uri' class='anchor_super'>&nbsp;*</a>";
+    $noanchor = konawiki_param("noanchor", FALSE) || konawiki_public('noanchor', FALSE);
     if ($noanchor) $anchor = "";
     return "<h$i>".konawiki_parser_tohtml($text)."{$anchor}</h$i>{$eol}";
 }

@@ -1109,7 +1109,7 @@ function konawiki_getEditMenu($pos = 'bottom')
 			$menu[] = " - ";
 			continue;
 		}
-		$menu[] = "<span class='adminmenu'><a href='$href'>$cap</a></span>";
+		$menu[] = "<span class='adminmenu'><a href='$href'>[$cap]</a></span>";
 	}
 
 	$ret = join(" ", $menu);

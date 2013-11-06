@@ -1,34 +1,22 @@
-======================================================================
-                                 KonaWiki
-======================================================================
-[作      者] クジラ飛行机 (http://kujirahand.com)
-[ライセンス] 修正 BSDライセンス (*1)
-[公式サイト] http://konawiki.aoikujira.com/
-[対　　　応] PHP 4/5 が動くWebサーバーと、SQLite または MySQL が使えること
-======================================================================
-■KonWiki とは？
+---------------------------------------------------------------------
 
-KonaWiki は、誰でも気軽に Web ページの書き換えができる Wiki というツールの一種です。
-(クジラ飛行机が  http://konawiki.aoikujira.com/ で開発しています。)
+* KonaWiki
 
-●情報共有のための最適のツール
+---------------------------------------------------------------------
 
-誰でも気軽にページの書き換えができるので、ブログや掲示板と違って、
-情報を共有するためのツールとして最適です。
-チームメンバーで情報共有を行うためのドキュメントを書いたり、
-ちょっとしたメモを書きためていくのにも利用できるでしょう。
+| Author   | kujirahand (http://kujirahand.com)
+| License  | BSD2 (http://opensource.org/licenses/bsd-license.php)
+| Web Site | http://konawiki.aoikujira.com/
+| System   | PHP5 with SQLite3(PDO)
 
-======================================================================
-■インストールについて
+* About Konawiki
 
-インストールについては、help/InstallMemo.txt をご覧下さい。
+KonaWiki is one of Wiki.
+A wiki is a web application which allows people to add, modify, or delete content. 
+Text is written using a simplified markup language. 
+KonaWiki's markup language include Japanese text style.
+While a wiki is a type of contetnt management system. 
 
-■Wiki記法/プラグインの一覧など
+---------------------------------------------------------------------
 
-kona-engine/help/WikiFormat.txt, 
-kona-engine/help/plug-ins.txt をご覧下さい。
-これらは、インストール後、
-Wiki のページ(「KonaWikiについて」)から見ることもできます。
 
-======================================================================
-(*1)BSDライセンスについて http://ja.wikipedia.org/wiki/BSD%E3%83%A9%E3%82%A4%E3%82%BB%E3%83%B3%E3%82%B9

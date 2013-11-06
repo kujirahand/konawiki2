@@ -40,6 +40,7 @@ kona_set_pub('tag.link.visible',        TRUE);
 kona_set_pub('tag.link.pages.visible',  TRUE);
 kona_set_pub('wikilink.desc.visible',   TRUE);
 kona_set_pub('norobot', FALSE);   // 検索エンジンに登録されないようにする
+kona_set_pub('noanchor', FALSE); // タイトルにアンカーを表示する
 
 // SKINフォルダ内のlogo.pngが優先して使われます。
 kona_set_pub('logo', 'logo.png'); 

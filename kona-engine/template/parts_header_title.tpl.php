@@ -6,8 +6,10 @@
         <img src="<?php echo $logo ?>" alt="<?php echo $title?>" />
         <?php echo $title?>
       </a>
+      <?php if (!konawiki_getPage() != konawiki_private("FrontPage")): ?>
       <span class="memo">&raquo;</span>
       <span class="pagename"><?php echo $pagelink?></span>
+      <?php endif; ?>
     </span>
   </h1>
   <div class="menu">

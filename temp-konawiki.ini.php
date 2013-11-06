@@ -9,7 +9,8 @@
 $public['title']        = 'KonaWiki2';
 $public['author']       = 'kujirahand';
 $public['description']  = 'KonaWiki - Wiki Clone Application';
-$public['lang']         = 'en'; // ja:Japanese, en:English
+// lang = ja:Japanese, en:English
+$public['lang']         = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0]; 
 $public['timezone']     = 'Asia/Tokyo'; // see PHP timezone 
 //  --- (ex) 'Asia/Kuala_Lumpur' 'Asia/Seou' 'Asia/Taipei' 
 
@@ -140,6 +141,8 @@ $konawiki['private']['show.plugins']['blog'] = array(
         'header.code' => '',
     );
 */
+
+$public['noanchor'] = TRUE; // タイトルにアンカーを表示しない
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 $private['debug'] = FALSE;

@@ -79,17 +79,26 @@ function action_import_()
     if (!$tags)   $tags    = array();
     if (!$sublogs)$sublogs = array();
 
+    $pages = array();
     $db = konawiki_getDB();
     $db->begin();
     $db->exec("delete from logs");
     foreach($logs as $r) {
       $id      = intval(aa($r,'id'));
       $name    = $db->quote(base64_decode(aa($r,'name')));
+      $name_   = htmlspecialchars($name);
       $body    = $db->quote(base64_decode(aa($r,'body')));
       $freeze  = intval(aa($r,'freeze'));
       $private = intval(aa($r,'private'));
       $ctime   = intval(aa($r,'ctime'));
       $mtime   = intval(aa($r,'mtime')); 
+      // check
+      if (isset($pages[$name])) {
+        echo "<p>[$name_] pagename not unique...</p>";
+        continue;
+      }
+      $pages[$name] = true;
+      //
       $sql = "INSERT INTO logs (id, name, body, freeze, private, ctime, mtime)";
       $sql.= "VALUES($id,$name,$body,$freeze,$private,$ctime,$mtime);";
       $r = $db->exec($sql);
@@ -97,7 +106,7 @@ function action_import_()
         $db->rollback();
         konawiki_error(
           "Failed to import.".
-          "<pre>".$db->error."</pre>"
+          "<pre>[$id:$name_]".$db->error."</pre>"
         );
         exit;
       }
