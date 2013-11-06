@@ -28,7 +28,8 @@ $public['description']  = 'KonaWiki - Wiki Clone Application';
 $public['keywords']     = 'konawiki,wiki';
 
 // language --- (ex) ja:Japanese, en:English
-$public['lang'] = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0]; 
+$lang = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']); 
+$public['lang'] = $lang[0];
 // timezone --- (ex) 'Asia/Kuala_Lumpur' 'Asia/Seou' 'Asia/Taipei'
 $public['timezone'] = 'Asia/Tokyo'; // (see PHP timezone manual)
 
