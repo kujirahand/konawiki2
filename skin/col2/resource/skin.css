@@ -1,0 +1,23 @@
+/* skin.css */
+
+#wikicontent {
+  width: 980px;
+}
+
+#wikibody {
+  width: 640px;
+  float:left;
+}
+#wikibody .bodypad {
+  padding-left: 0px;
+  padding-right: 16px;
+  margin-right: 16px;
+}
+
+#wikinavi {
+  /* 336px */
+  width: 340px;
+  float:right;
+}
+
+/* vim:set expandtab ts=4 : */

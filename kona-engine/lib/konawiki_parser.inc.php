@@ -3,7 +3,7 @@
  * konawki parser (UTF-8)
  * 日本語のマークアップも認識します
  */
-include_once("konawiki_lib.inc.php");
+include_once("lib_kona.inc.php");
 
 /**
  * convert text to html

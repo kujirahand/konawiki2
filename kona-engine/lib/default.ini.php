@@ -1,107 +1,72 @@
 <?php
-/**
- * konawiki2 初期設定ファイル
- * konawiki default setting file
- */
-
+//----------------------------------------------------------------------
+// KonaWiki default setting
+//----------------------------------------------------------------------
 global $public, $private, $authusers;
-$konawiki['public']['config']['version'] = 1002;
+$public['KONAWIKI_VERSION'] = "0.5";
+$public['config']['version'] = 1004;
+$public['config.loaded.default'] = TRUE;
+//----------------------------------------------------------------------
+// PUBLIC setting
+//----------------------------------------------------------------------
+$public['title']        = 'KonaWiki2';
+$public['author']       = 'kujirahand';
+$public['description']  = 'KonaWiki - Wiki Clone Application';
+$public['keywords']     = 'konawiki,wiki';
 
-// (ex)
-// ユーザーにパスワードを設定
-// $authusers['test']  = 'password';
-// 読み書き権限を設定 → $private['auth.read.enabled'] と $private['auth.write.enabled'] を TRUE に設定する必要がある
+// language --- (ex) ja:Japanese, en:English
+$public['lang'] = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0]; 
 
-$public['KONAWIKI_VERSION'] = "0.4";
+// timezone --- (ex) 'Asia/Kuala_Lumpur' 'Asia/Seou' 'Asia/Taipei'
+$public['timezone'] = 'Asia/Tokyo'; // (see PHP timezone manual)
 
-function kona_set_pub($key, $def) {
-  global $public;
-  if (!isset($public[$key])) {
-    $public[$key] = $def;
-  }
-}
-function kona_set_pri($key, $def) {
-  global $private;
-  if (!isset($private[$key])) {
-    $private[$key] = $def;
-  }
-}
+// Deny to register to earch engine?
+$public['norobot'] = false; 
 
-/**
- * Wiki public config
- */
-kona_set_pub('title',       'KonaWiki2');
-kona_set_pub('author',      'kujirahand');
-kona_set_pub('description', 'KonaWiki Wiki App');
-kona_set_pub('FrontPage',   'FrontPage');
-kona_set_pub('login.link.visible',      TRUE);
-kona_set_pub('text.link.visible',       FALSE);
-kona_set_pub('tag.link.visible',        TRUE);
-kona_set_pub('tag.link.pages.visible',  TRUE);
-kona_set_pub('wikilink.desc.visible',   TRUE);
-kona_set_pub('norobot', FALSE);   // 検索エンジンに登録されないようにする
-kona_set_pub('noanchor', FALSE); // タイトルにアンカーを表示する
+// OTHER PUBLIC SETTING
+$public['FrontPage'] = 'FrontPage';
+$public['login.link.visible'] = TRUE;
+$public['text.link.visible'] = FALSE;
+$public['tag.link.visible'] = TRUE;
+$public['tag.link.pages.visible'] = TRUE;
+$public['wikilink.desc.visible'] = TRUE;
+$public['noanchor'] = FALSE; // タイトルにアンカーを表示
+$public['logo'] = 'logo.png'; 
+$public['favicon'] = 'resource/favicon.ico';
+$public['skin'] = 'default';
+$public['ogimage'] = 'logo-large.png';
 
-// SKINフォルダ内のlogo.pngが優先して使われます。
-kona_set_pub('logo', 'logo.png'); 
-kona_set_pub('favicon', 'resource/favicon.ico');
-// ログイン時のメッセージ
-kona_set_pub('login.message', 'Success to login!');
-kona_set_pub('login.message.readonly',
-  'Success to login! Thank you.'); 
+// header & footer option
+$public['wikibody_header'] = '';
+$public['wikibody_footer'] = '';
 
-/**
- * スキン（概観の変更）機能について
- */
-// * konawiki 標準スキンを使う場合
-// - skin フォルダの中を見て、スキン名を指定
-// - default, 2column, pedia
-kona_set_pub('skin', 'default');
-// * tdiary のテーマを利用する場合(以下の2行を有効にする)
-// $public['skin']         = 'tdiary';   //  tdiary を指定
-// $public['skin.theme']   = 'noto';     //  /skin/tdiary フォルダにテーマをコピーしてフォルダ名をここに指定する
-
-
-/**
- * Wiki private config
- */
+//----------------------------------------------------------------------
+// PRIVATE setting
+//----------------------------------------------------------------------
 // Date time Format
-kona_set_pri('date_format', 'Y-m-d');
-kona_set_pri('time_format', 'H:i:s');
-// debug
-kona_set_pri('debug', 1);
+$private['date_format'] = 'Y-m-d';
+$private['time_format'] = 'H:i:s';
+$private['debug'] = 1;
 // cache
-kona_set_pri('cache.mode', 'cache'); // cache or nocache
+$private['cache.mode'] = 'cache'; // cache or nocache
 // default database
-if (empty($private['db.dsn'])) {
-  $private['db.dsn']              = 'sqlite://data/konawiki.db';
-  $private['subdb.dsn']           = 'sqlite://data/konawiki_sub.db';
-  $private['backupdb.dsn']        = 'sqlite://data/konawiki_backup.db';
-}
-// auth (強制上書き)
-$private['auth.type']           = "form"; // "form" or "basic" (現在 basic は非サポートです)
-kona_set_pri('auth.read.enabled',  FALSE);
-kona_set_pri('auth.write.enabled', TRUE);
-kona_set_pri('auth.realm', 'KonaWiki Authentication');
-kona_set_pri('admin.key', 'konawiki');
-kona_set_pri('attach.enabled', TRUE);
-kona_set_pri('login.time.limit', 60 * 60 * 6); /* hour */
+$data = $private['dir.data']; // PRI SET
+$private['db.dsn']              = "pdosqlite://$data/konawiki.db";
+$private['subdb.dsn']           = "pdosqlite://$data/konawiki_sub.db";
+$private['backupdb.dsn']        = "pdosqlite://$data/konawiki_backup.db";
+// auth mode ( = "FORM" )
+$private['auth.type']           = "form";
+$private['auth.read.enabled']   = FALSE;
+$private['auth.write.enabled']  = TRUE;
+$private['auth.realm']          = 'KonaWiki Authentication';
+$private['admin.key']           = 'konawiki';
+$private['attach.enabled']      = TRUE;
+$private['login.time.limit']    = 60 * 60 * 6; /* 6 hour */
 
-// plugins setting (デフォルトで無効のプラグイン)
-if (empty($private['plugins.disable'])) {
-  $private['plugins.disable']['html']    = TRUE;
-}
-// konawikiが使うJavaScriptやCSSの追加インクルード
-kona_set_pri('html.head.include',
-  array(
-    // "<link rel='stylesheet' type='text/cs'" href='./resource/konawiki.css' />",
-  )
+// In Header additional setting
+$private['html.head.include'] = array(
+  // "<link rel='stylesheet' type='text/cs'" href='./resource/konawiki.css' />",
 );
-
-// users
-if (count($authusers) == 0) {
-  $authusers['username'] = 'password';
-}
 
 //----------------------------------------------------------
 // Wiki BASIC Parameters
@@ -126,35 +91,19 @@ $private['source_tag_hr']       = "<p class='clear'/><div class='underline'>&nbs
 $private['entry_begin']         = '<div class="entry">';
 $private['entry_end']           = '</div><!-- end of entry -->';
 $private['session.name']        = 'kona2';
+$private['footer.analytics']    = '';
 
+//----------------------------------------------------------
+// Plugin setting
+//----------------------------------------------------------
+// plugins setting
+$private['plugins.disable'] = array();
+$private['plugins.disable']['html'] = TRUE;
+$private['show.plugins'] = array();
 
-/**
- * header & footer option
- */
-kona_set_pub('wikibody_header', '');
-kona_set_pub('wikibody_footer', '');
-
-/**
- * footer option
- */
-kona_set_pri('footer.analytics','');
-
-/**
- * page/show plug-ins
- * ※ページを表示する時にフィルターを指定することが可能です。
- *   使い方はプラグインファイルの先頭をを見てください。
- * - plugins/blogtop.inc.php         .. ブログ風に表示するプラグイン
- * - plugins/show.nadesiko.inc.php   .. なでしこのマニュアル風プラグイン ( http://nadesi.com/man/ )
- * - plugins/show.allpage.inc.php    .. 全てのページに何かを差し込みたい場合に利用するプラグイン
- */
-
-/**
- * plugin option
- */
 // (必要なら) googleadsense plugin
 // [HINT] ライセンスにより、Adsense のサイトから取得したコードをそのまま貼り付けます。
-if (empty($private['googleadsense']['default'])) {
-  $private['googleadsense']['default'] = <<<EOS__
+$private['googleadsense']['default'] = <<<__EOS__
 <script type="text/javascript"><!--
 google_ad_client = "pub-3816223231062294";
 /* konawiki */
@@ -166,8 +115,9 @@ google_ad_height = 60;
 <script type="text/javascript"
 src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </script>
-EOS__;
-}
+__EOS__;
+
+
 
 
 

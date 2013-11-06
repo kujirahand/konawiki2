@@ -1,7 +1,7 @@
 <?php
 /**
- * ログイン画面の表示
- * 実際の認証は、konawiki_lib.inc.php の konawiki_auth() で行われる。
+ * Show Login screen
+ * @see lib/konawiki_auth.inc.php
  */
 function action_login_()
 {
@@ -26,14 +26,14 @@ function action_login_()
     $msg_edit = konawiki_lang('Edit');
     $msg_view = konawiki_lang('View');
     if (konawiki_isLogin_write ()) {
-        $msg = konawiki_public('login.message', "Success to login!");
+        $msg = konawiki_lang("Success to login!");
         $log['body'] =
             "<p>{$msg}</p>".
              "<p><a href='$url_edit'>$msg_edit</a></p>".
              "<p><a href='$url_look'>$msg_view</a></p>";
     }
     else if (konawiki_isLogin_read()) {
-        $msg = konawiki_public('login.message.readonly', "Success to login! Thank you.");
+        $msg = konawiki_lang("Success to login! Thank you.");
         $log['body'] =
             "<p>{$msg}</p>".
              "<p><a href='$url_look'>$msg_view</a></p>";

@@ -214,31 +214,18 @@ function konawiki_execute_action()
 function konawiki_include_config_file()
 {
   global $konawiki;
-	// include default setting
-	require(KONAWIKI_DIR_LIB.'/default.ini.php');
 	// include user setting
 	if (!file_exists('konawiki.ini.php')) { // test mode
 	    // test directory
 	    check_is_writable(KONAWIKI_DIR_DATA);
 	    check_is_writable(KONAWIKI_DIR_ATTACH);
-	} else {
-	    $_konawiki = $konawiki; // copy
-	    // ----------------------------------------------------------------
-	    // バージョンの互換性により初期データがクリアされてしまっている
-	    if (empty($konawiki['public']['config']['version'])) {
-	        foreach ($konawiki as $key => $val) {
-	            if (is_array($val)) {
-	                foreach ($val as $k2 => $v2) {
-	                    $_konawiki[$key][$k2] = $v2;
-	                }
-	            }
-	            else {
-	                $_konawiki[$key] = $val;
-	            }
-	        }
-	        $konawiki = $_konawiki;
-	    }
 	}
+  if (!konawiki_public('config.loaded.default', FALSE)) {
+    konawiki_error(
+      'konawiki.ini.php の書式が変わりました。'.
+      'temp-konawiki.ini.php を元に修正してください。');
+    exit;
+  }
 
   // Timezone
   @date_default_timezone_set( konawiki_public('timezone', 'Asia/Tokyo') );
@@ -340,7 +327,7 @@ function konawiki_page_debug()
   $s = print_r($_SESSION, true);
   echo htmlspecialchars($s);
 	echo "konawiki: ";
-  $s = print_r($konawiki, true);
+  $s = var_dump($konawiki, true);
   echo htmlspecialchars($s);
 	//print_r($_SERVER);
 }
@@ -656,29 +643,9 @@ function konawiki_getSkinPath($fname)
 }
 
 /**
- * Skin 非対応
- */
-function getResourceShortURL($fname, $useversion = FALSE)
-{
-	$skin = konawiki_public("skin");
-	$path = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
-	$uri  = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
-	if ($useversion) {
-		if (file_exists($path)) {
-			$mtime = filemtime($path);
-		} else {
-			$mtime = 0;
-		}
-		return $uri."?v=".$mtime;
-	} else {
-		return $uri;
-	}
-}
-
-/**
  * Skin 対応版
  */
-function getResourceURL($fname, $absolute = FALSE)
+function getResourceURL($fname)
 {
 	// check skin dir
 	// SKIN DIR
@@ -690,14 +657,6 @@ function getResourceURL($fname, $absolute = FALSE)
 		$skin = "default";
 		$path = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
 	  $uri  = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
-	}
-	if ($absolute) {
-		$baseurl = konawiki_public("baseurl");
-		$base = dirname($baseurl);
-		if (substr($uri,0,1) == ".") {
-			$uri = substr($uri, 1);
-		}
-		$uri = $base.$uri;
 	}
 	return $uri;
 }
@@ -1433,6 +1392,18 @@ function konawiki_lang($key, $def = null)
   return $def;
 }
 
+function konawiki_getKeywords($page, $rawtag = "") {
+  $a = array();
+  $a[] = konawiki_public('title');
+  if (konawiki_public('keywords')) {
+    $a[] = konawiki_public('keywords');
+  }
+  if ($page != konawiki_public("FrontPage")) {
+    $a[] = $page;
+  }
+  if ($rawtag) $a[] = $rawtag;
+  return implode(",", $a);
+}
 
 
 

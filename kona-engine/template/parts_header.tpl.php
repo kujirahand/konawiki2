@@ -6,9 +6,7 @@
 $skin     = konawiki_public("skin", "default");
 $skin_css = getResourceURL("skin.css",false);
 $theme    = konawiki_public("skin.theme", false);
-if ($theme) {
-    $theme_css = getThemeURL("{$theme}.css");
-}
+if ($theme) $theme_css = getThemeURL("{$theme}.css");
 
 // logo & favicon.ico
 $logo    = konawiki_public("logo",    "logo.png");

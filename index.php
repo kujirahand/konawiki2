@@ -13,6 +13,7 @@ header("Content-Type: text/html; charset=UTF-8");
 global $konawiki, $public, $private, $authusers, $usrs_perm;
 $scrdir = dirname($_SERVER['SCRIPT_NAME']);
 if ($scrdir == "/") $scrdir = "";
+$scrUri = "http://{$_SERVER['HTTP_HOST']}{$scrdir}";
 $konawiki = array(
   'public'     => array(),
   'private'    => array(
@@ -22,13 +23,13 @@ $konawiki = array(
     // |+ common wiki
     'dir.engine' => dirname(__FILE__).'/kona-engine',
     'dir.skin'   => dirname(__FILE__).'/skin',
-    'uri.skin'   => $scrdir.'/skin',
+    'uri.skin'   => $scrUri.'/skin',
     // |+ branch wiki
     'dir.base'   => dirname(__FILE__),
     'dir.data'   => dirname(__FILE__).'/data',
     'dir.attach' => dirname(__FILE__).'/attach',
-    'uri.base'   => $scrdir,
-    'uri.attach' => $scrdir.'/attach',
+    'uri.base'   => $scrUri,
+    'uri.attach' => $scrUri.'/attach',
   ),
 );
 $public     = &$konawiki['public'];
@@ -59,7 +60,7 @@ if (!file_exists($engineDir)) {
   echo "Please edit Config file : konawiki.ini.php\n";
   exit;
 }
-include_once $engineDir.'/lib/konawiki_lib.inc.php';
+include_once $engineDir.'/lib/lib_kona.inc.php';
 // initialize 
 konawiki_init();
 //--------------------------------------------------------------------
