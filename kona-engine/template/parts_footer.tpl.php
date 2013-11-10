@@ -2,13 +2,14 @@
 <div id="wikifooter">
 <div class="menu"><?php echo  konawiki_getEditMenu() ?></div>
 <?php if (isset($ctime_html)): ?>
+  <div class="pageinfo">
   <?php if ($ctime_html != $mtime_html):?>
-    <div class="pageinfo">
-      <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?>
-      /<?php echo konawiki_lang('Updated time','Updated').': '.$mtime_html?></div>
+    <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?> /
+    <?php echo konawiki_lang('Updated time','Updated').': '.$mtime_html?>
   <?php else: ?>
-      <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?>
+    <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?>
   <?php endif; ?>
+  </div>
 <?php endif ?>
 <div class="menu"><?php
   // URLの表示

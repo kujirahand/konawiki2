@@ -5,16 +5,7 @@
  * konawiki の基本ライブラリ
  * ---------------------------------------------------------------------
  */
-
-// データベース関連のライブラリを取り込む
-require_once dirname(__FILE__).'/konawiki_db.inc.php';
-// 認証関連のライブラリを取り込む
-require_once dirname(__FILE__).'/konawiki_auth.inc.php';
-
-//----------------------------------------------------------------------
-/**
- * check GPC --- $_GET and $_POST and $_COOKIE
- */
+// check GPC --- $_GET and $_POST and $_COOKIE
 if(get_magic_quotes_gpc()){
 	$_GET       = array_map("strip_text_slashes",$_GET);
 	$_POST      = array_map("strip_text_slashes",$_POST);
@@ -29,6 +20,49 @@ function strip_text_slashes($arg){
 	return $arg;
 }
 //----------------------------------------------------------------------
+/**
+ * ディレクトリを設定し初期化する
+ * @return void
+ */
+function konawiki_init()
+{
+  global $konawiki, $public, $private;
+  $engineDir = $private['dir.engine'];
+	// set directory path
+  define('KONAWIKI_DIR_LIB',      dirname(__FILE__));
+  define("KONAWIKI_DIR_ACTION",   $engineDir."/action");
+  define("KONAWIKI_DIR_TEMPLATE", $engineDir."/template");
+  define("KONAWIKI_DIR_JS",       $engineDir."/js");
+  define("KONAWIKI_DIR_PLUGINS",  $engineDir."/plugins");
+  define("KONAWIKI_DIR_HELP",     $engineDir."/help");
+  // public area
+  define("KONAWIKI_DIR_SKIN",     $private['dir.skin']);
+  define("KONAWIKI_URI_SKIN",     $private['uri.skin']);
+  // private area
+  define("KONAWIKI_DIR_DATA",     $private['dir.data']);
+  // public area
+  define("KONAWIKI_DIR_BASE",     $private['dir.base']);
+  define("KONAWIKI_DIR_ATTACH",   $private['dir.attach']);
+  define("KONAWIKI_URI_ATTACH",   $private['uri.attach']);
+
+	require_once(KONAWIKI_DIR_LIB.'/konadb/konadb.inc.php');
+	require_once(KONAWIKI_DIR_LIB.'/html.inc.php');
+	require_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
+	require_once(KONAWIKI_DIR_LIB.'/useragent.inc.php');
+  // データベース関連のライブラリを取り込む
+  require_once(KONAWIKI_DIR_LIB.'/konawiki_db.inc.php');
+  // 認証関連のライブラリを取り込む
+  require_once(KONAWIKI_DIR_LIB.'/konawiki_auth.inc.php');
+
+  // init config
+  konawiki_init_config();
+  konawiki_start_session();
+  konawiki_parseURI();
+  // Initialize Database
+  konawiki_auth_read();
+  konawiki_initDB();
+  konawiki_execute_action();
+}
 
 /**
  * URIパラメータを解析してグローバル変数にセットする
@@ -159,29 +193,6 @@ function konawiki_parseURI()
 	
 }
 
-/**
- * ディレクトリを設定し初期化する
- * @return void
- */
-function konawiki_init()
-{
-  global $konawiki;
-	// set directory path
-	require_once dirname(__FILE__).'/path.ini.php';
-	require_once(KONAWIKI_DIR_LIB.'/konadb/konadb.inc.php');
-	require_once(KONAWIKI_DIR_LIB.'/html.inc.php');
-	require_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
-	require_once(KONAWIKI_DIR_LIB.'/useragent.inc.php');
-
-  // init config
-  konawiki_include_config_file();
-  konawiki_start_session();
-  konawiki_parseURI();
-  // Initialize Database
-  konawiki_auth_read();
-  konawiki_initDB();
-  konawiki_execute_action();
-}
 
 /**
  * アクションを実行する
@@ -211,22 +222,15 @@ function konawiki_execute_action()
  * ユーザー設定ファイルを読み込む
  * @return void
  */
-function konawiki_include_config_file()
+function konawiki_init_config()
 {
   global $konawiki;
 	// include user setting
-	if (!file_exists('konawiki.ini.php')) { // test mode
+	if (konawiki_is_debug()) { // test mode
 	    // test directory
 	    check_is_writable(KONAWIKI_DIR_DATA);
 	    check_is_writable(KONAWIKI_DIR_ATTACH);
 	}
-  if (!konawiki_public('config.loaded.default', FALSE)) {
-    konawiki_error(
-      'konawiki.ini.php の書式が変わりました。'.
-      'temp-konawiki.ini.php を元に修正してください。');
-    exit;
-  }
-
   // Timezone
   @date_default_timezone_set( konawiki_public('timezone', 'Asia/Tokyo') );
   // echo date_default_timezone_get(); // test timezone
@@ -234,16 +238,11 @@ function konawiki_include_config_file()
   // language support
   $lang = konawiki_public('lang', 'en');
   $path = konawiki_private('dir.engine', '..')."/lang/{$lang}.inc.php";
-  if (file_exists($path)) include_once($path);
-
-	// テーマ機能を使うか ?
-	if (konawiki_public("skin.theme") !== "") {
-	    $skin = konawiki_public("skin");
-	    $theme_init = KONAWIKI_DIR_SKIN . "/$skin/theme.inc.php";
-	    if (file_exists($theme_init)) {
-	        include_once($theme_init);
-	    }
-	}
+  if (file_exists($path)) { include_once($path); }
+  else {
+    $lang = "en";
+    $path = konawiki_private('dir.engine','..')."lang/{$lang}.inc.php";
+  } 
 }
 
 function check_is_writable($dir)
