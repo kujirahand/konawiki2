@@ -2,7 +2,6 @@
 /**
  * KonaWiki -- index.php (Main File)
  * @author kujirahand (http://kujirahand.com)
- *
  */
 //--------------------------------------------------------------------
 // set encoding
@@ -60,6 +59,7 @@ if (!file_exists($engineDir)) {
   echo "Please edit Config file : konawiki.ini.php\n";
   exit;
 }
+// include main library
 include_once $engineDir.'/lib/lib_kona.inc.php';
 // initialize 
 konawiki_init();
