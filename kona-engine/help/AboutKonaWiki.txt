@@ -1,12 +1,6 @@
-KonaWiki とは何か。どんなことができるのかを紹介します。
-
-- [[KonaWikiについて]]
-- [[KonaWikiについて/整形ルール]]
-- [[KonaWikiについて/標準プラグイン一覧]]
-
 ■KonWiki とは？
 
-KonaWiki は、誰でも気軽に Web ページの書き換えができる Wiki というツールの一種です。(クジラ飛行机が  http://konawiki.aoikujira.com/ で開発しています。)
+KonaWiki は、誰でも気軽に Web ページの書き換えができる Wiki というツールの一種です。
 
 ●情報共有のための最適のツール
 

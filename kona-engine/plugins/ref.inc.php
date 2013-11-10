@@ -10,10 +10,9 @@
  * -- left || right .. 画像の回り込みを行う
  * - [使用例]
 {{{
-#ref(xxx.png,300x200,*猫の画像,@http://nadesi.com)
-#ref(http://konawiki.aoikujira.com/resource/logo.png,60x60,*KonaWikiのロゴ,@http://konawiki.aoikujira.com/)
+#ref(xxx.png,300x300,*猫の画像,@http://nadesi.com)
 }}}
-#ref(http://konawiki.aoikujira.com/resource/logo.png,60x60,*KonaWikiのロゴ,@http://konawiki.aoikujira.com/)
+#ref(http://kujirahand.com/konawiki/attach/1.jpg,300x300,*猫の写真,@http://kujirahand.com/konawiki)
  * - [備考] なし
  */
 

@@ -6,7 +6,7 @@
 
 | Author   | kujirahand (http://kujirahand.com)
 | License  | BSD2 (http://opensource.org/licenses/bsd-license.php)
-| Web Site | http://konawiki.aoikujira.com/
+| Web Site | http://kujirahand.com/konawiki
 | System   | PHP5 with SQLite3(PDO)
 
 * About Konawiki

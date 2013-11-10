@@ -7,12 +7,12 @@
  * -- (width)x(height) .. 画像の大きさを指定する
  * -- *(caption) || ＊(caption) .. 画像にキャプションを表示する
  * -- @link .. リンク先を指定する
+ * -- left || right .. 回り込み指定
  * - [使用例]
 {{{
-#ref(xxx.png,300x200,*猫の画像,@http://nadesi.com)
-#ref(http://konawiki.aoikujira.com/resource/logo.png,60x60,*KonaWikiのロゴ,@http://konawiki.aoikujira.com/)
+#ref(xxx.png,300x300,*猫の画像,@http://nadesi.com)
 }}}
-#ref(http://konawiki.aoikujira.com/resource/logo.png,60x60,*KonaWikiのロゴ,@http://konawiki.aoikujira.com/)
+#ref(http://kujirahand.com/konawiki/attach/1.jpg,300x300,*猫の写真,@http://kujirahand.com/konawiki)
  * - [備考] なし
  */
  
