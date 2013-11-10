@@ -6,7 +6,7 @@
         <img src="<?php echo $logo ?>" alt="<?php echo $title?>" />
         <?php echo $title?>
       </a>
-      <?php if (!konawiki_getPage() != konawiki_public("FrontPage")): ?>
+      <?php if (konawiki_getPage() != konawiki_public("FrontPage")): ?>
       <span class="memo">/</span>
       <span class="pagename"><?php echo $pagelink?></span>
       <?php endif; ?>
