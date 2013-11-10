@@ -30,14 +30,12 @@ $konawiki = array(
     'noanchor'    => true,
     'skin'        => 'default',
     'ogimage'     => 'logo-large.png',
-    'wikibody_header' => '',
-    'wikibody_footer' => '',
   ),
   'private'    => array(
     'auth.users'      => array(),
     'auth.users.perm' => array(),
     // init default dir & uri 
-    // (more) http://konawiki.aoikujira.com/index.php?41&go
+    // (more) http://kujirahand.com/konawiki/index.php?12&go
     // |+ common wiki
     'dir.engine' => dirname(__FILE__).'/kona-engine',
     'dir.skin'   => dirname(__FILE__).'/skin',
