@@ -115,9 +115,6 @@ include_once $engineDir.'/lib/lib_kona.inc.php';
 konawiki_init();
 //--------------------------------------------------------------------
 // function
-
-echo $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-
 function konawiki_getUserLang() {
   $lang = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
   $lang = preg_replace('#^(\w+)\-.*$#', '\1', $lang);

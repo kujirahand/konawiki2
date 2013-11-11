@@ -12,6 +12,7 @@ $public['keywords']     = 'konawiki,wiki';
 
 // language --- (ex) ja:Japanese, en:English
 // $public['lang'] = konawiki_getUserLang();
+
 // timezone --- (ex) 'Asia/Kuala_Lumpur' 'Asia/Seou' 'Asia/Taipei'
 $public['timezone'] = 'Asia/Tokyo'; // (see PHP timezone manual)
 
