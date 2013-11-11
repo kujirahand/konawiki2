@@ -30,6 +30,7 @@ $ko_lang['Failed to execute plugin [%s].'] = 'プラグイン[%s]の実行に失
 // error
 $ko_lang['Please check dir permission.'] = 'ディレクトリの書き込み権限を確認してください。';
 $ko_lang['Could not open DB.'] = 'データベースを開くことができませんでした。';
+$ko_lang['Please input anti-spam question.'] = 'いたずら防止用項目を正しくご記入ください。';
 
 // init
 $ko_lang['Success to init DB.'] = 'データベースを正常に初期化しました。';
@@ -86,7 +87,8 @@ $ko_lang['Execute'] = '実行';
 $ko_lang['Completed to Unfreeze.'] = '凍結を解除しました。';
 $ko_lang['Completed to Freeze.'] = '凍結しました。';
 
-
+// others
+$ko_lang['Thank you for your message!'] = 'メッセージありがとうございます。';
 
 //-----------
 // easy help (external)

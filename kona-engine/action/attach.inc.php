@@ -313,7 +313,7 @@ function action_attach_delete()
     $page_enc = konawiki_getPageURL($page);
     $page_htm = htmlspecialchars($page);
     $name = htmlspecialchars($name);
-    $backlink = htmlspecialchars(konawiki_getPageURL($page, "attach"));
+    $backlink = konawiki_getPageURL($page, "attach");
     //
     $file = KONAWIKI_DIR_ATTACH.$id;
     $baseurl = konawiki_public("baseurl");

@@ -11,8 +11,7 @@ $public['description']  = 'KonaWiki - Wiki Clone Application';
 $public['keywords']     = 'konawiki,wiki';
 
 // language --- (ex) ja:Japanese, en:English
-$lang = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']); 
-$public['lang'] = $lang[0];
+// $public['lang'] = konawiki_getUserLang();
 // timezone --- (ex) 'Asia/Kuala_Lumpur' 'Asia/Seou' 'Asia/Taipei'
 $public['timezone'] = 'Asia/Tokyo'; // (see PHP timezone manual)
 
@@ -37,7 +36,7 @@ $users_perm['username'] = array('read'=>true, 'write'=>true);
 // SKIN setting 
 //----------------------------------------------------------------------
 // skin name -- Please check <skin> folder, write folder name
-$public['skin'] = 'col2'; // 'default' or 'col2'
+$public['skin'] = 'default'; // 'default' or 'col2'
 // logo and favicon
 $public['logo']    = 'logo.png';
 $public['favicon'] = 'favicon.ico';
