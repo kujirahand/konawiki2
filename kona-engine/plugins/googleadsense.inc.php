@@ -4,7 +4,7 @@
  * - [引数]
  * -- name  .. あらかじめ設定しておいたAdSenseの識別名
  * - [使用例] #googleadsense(konawiki)
- * - [備考] 設定ファイルなどに、$private["googleadsense"]["name"] に表示したいコードをしこんでおく。
+ * - [備考] 設定ファイル(konawiki.ini.php)などに、$private["googleadsense"]["name"] に表示したいコードをしこんでおく。
  */
 
 function plugin_googleadsense_convert($params)
@@ -56,49 +56,6 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </script>
 EOS__;
 #-----------------------------------------------------------------------
-$ad["nadesiko-wiki"] = <<<EOS__
-<script type="text/javascript"><!--
-google_ad_client = "pub-3816223231062294";
-/* 728x90, 作成済み 08/07/07 */
-google_ad_slot = "8785083858";
-google_ad_width = 728;
-google_ad_height = 90;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
-EOS__;
-#-----------------------------------------------------------------------
-$ad["blog"] = <<<EOS__
-<script type="text/javascript"><!--
-google_ad_client = "pub-3816223231062294";
-/* for blog */
-google_ad_slot = "0063094118";
-google_ad_width = 468;
-google_ad_height = 60;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
-EOS__;
-#-----------------------------------------------------------------------
-$ad["flex-component"] = <<<EOS__
-<script type="text/javascript"><!--
-google_ad_client = "pub-3816223231062294";
-/* 468x60, 作成済み 08/07/10 */
-google_ad_slot = "3061855681";
-google_ad_width = 468;
-google_ad_height = 60;
-//-->
-
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
-EOS__;
-#-----------------------------------------------------------------------
     return $ad;
 }
-?>
+
