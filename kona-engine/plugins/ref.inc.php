@@ -83,6 +83,9 @@ function plugin_ref_convert($params)
     } else {
       $html = "<span{$style}>$img</span>";
     }
+    // for <meta property="og:image">
+    $ogimage = konawiki_public("og:image", null);
+    if ($ogimage == null) konawiki_addPublic("og:image", $file_url);
     return $html."\n";
   }
   else {

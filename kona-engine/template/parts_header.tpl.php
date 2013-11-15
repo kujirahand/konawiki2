@@ -20,6 +20,11 @@ if (isset($navibar_log["body"])) {
 } else {
 	$navibar = false;
 }
+
+// og:image
+$ogimage = getResourceURL(konawiki_public('ogimage','logo-large.png'));
+$ogimage = konawiki_public("og:image", $ogimage);
+
 //----------------------------------------------------------------------
 // addtional JS/CSS
 $include_js_css = "";
