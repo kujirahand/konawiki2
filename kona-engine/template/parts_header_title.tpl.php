@@ -23,9 +23,11 @@
       <?php echo $title?>
     </a>
   </div>
+  <?php if (konawiki_getPage() != konawiki_public("FrontPage")): ?>
   <div class="pagename"><?php echo $pagelink?>
     <span class="memo">(<a href="<?php echo $backlink?>">*</a>)</span>
   </div>
+  <?php endif; ?>
 <?php endif; ?>
   <div class="clear"></div>
 <?php if($navibar):?>

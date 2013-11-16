@@ -17,7 +17,10 @@ function useragent_is_galapagos()
 
 function useragent_is_smartphone()
 {
-	return useragent_is_iPhone() || useragent_is_android();
+	return 
+    konawiki_public('mobile', false) ||
+    useragent_is_iPhone() || 
+    useragent_is_android();
 }
 
 function useragent_is_iPad()
