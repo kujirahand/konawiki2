@@ -14,7 +14,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="<?php echo dirname($baseurl) ?>" />
   <meta property="og:image" content="<?php echo $ogimage; ?>" />
-  <meta property="og:description" content="<?php echo $description ?>" />
+  <meta property="og:description" content="<?php echo $ogdesc;?>" />
   <meta property="og:site_name" content="<?php echo $title ?>" />
 <?php endif ?>
 

@@ -20,23 +20,23 @@ if (isset($navibar_log["body"])) {
 } else {
 	$navibar = false;
 }
+//----------------------------------------------------------------------
+// check title
+$pagetitle = "$page - $title";
+if ($page == konawiki_public("FrontPage", "FrontPage")) {
+  $pagetitle = "$title";
+}
+$ogdesc = "{$pagetitle}";
 
 // og:image
 $ogimage = getResourceURL(konawiki_public('ogimage','logo-large.png'));
 $ogimage = konawiki_public("og:image", $ogimage);
-
 //----------------------------------------------------------------------
 // addtional JS/CSS
 $include_js_css = "";
 $_list = konawiki_private("html.head.include", array());
 foreach ($_list as $line) {
     $include_js_css .= "    " . $line . "\n";
-}
-//----------------------------------------------------------------------
-// check title
-$pagetitle = "$page - $title";
-if ($page == konawiki_public("FrontPage", "FrontPage")) {
-  $pagetitle = "$title";
 }
 //----------------------------------------------------------------------
 // put  header
