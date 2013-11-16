@@ -61,7 +61,7 @@ function plugin_blogtop_convert($params)
             $pat .= '%';
         }
         $order = 'id';
-        $where = " AND (name like '$pat_')";
+        $where .= " AND (name like '$pat_')";
     }
     if ($day > 0) {
         $sql = "SELECT * FROM logs $where ORDER BY $order DESC ".
@@ -73,7 +73,6 @@ function plugin_blogtop_convert($params)
     if ($rows == null || count($rows) == 0) {
         return "";
     }
-    
     // pager next
     if (count($rows) == $limit) {
         array_pop($rows);
