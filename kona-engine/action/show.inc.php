@@ -34,8 +34,8 @@ function action_show_()
     $log['body_header'] = konawiki_getArray($log, 'body_header', '');
     $log['body_footer'] = konawiki_getArray($log, 'body_footer', '');
     $log['edit_menu'] = konawiki_getEditMenu($log);
-    $log['ctime_html'] = konawiki_datetime_html(intval($log['ctime']));
-    $log['mtime_html'] = konawiki_datetime_html(intval($log['mtime']));
+    $log['ctime_html'] = konawiki_date_html(intval($log['ctime']), 'normal');
+    $log['mtime_html'] = konawiki_date_html(intval($log['mtime']), 'normal');
     $log['rawtag'] = htmlspecialchars($log['tag']);
     $log['tag'] = _konawiki_show_tag($log['tag'], $log['id']);
     $log['flag_dynamic'] = FALSE;

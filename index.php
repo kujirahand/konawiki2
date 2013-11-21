@@ -47,9 +47,10 @@ $konawiki = array(
     'uri.base'   => $scrUri,
     'uri.attach' => $scrUri.'/attach',
     //
-    'data_format' => 'Y-m-d',
-    'time_format' => 'H:i:s',
-    'cache.mode'  => 'cache', // cache or nocache
+    'data_format'         => 'Y-m-d',
+    'date_format_easy'    => 'm/d',
+    'time_format'         => 'H:i:s',
+    'cache.mode'          => 'cache', // cache or nocache
     'auth.read.enabled'   => false,
     'auth.write.enabled'  => true,
     'auth.realm'          => 'KonaWiki Authentication',

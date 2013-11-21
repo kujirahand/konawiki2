@@ -4,7 +4,7 @@
 <?php if (isset($ctime_html)): ?>
   <div class="pageinfo">
   <?php if ($ctime_html != $mtime_html):?>
-    <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?> /
+    <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?><br> 
     <?php echo konawiki_lang('Updated time','Updated').': '.$mtime_html?>
   <?php else: ?>
     <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?>

@@ -691,41 +691,59 @@ function konawiki_dcDate($value)
 /*
  * $mode = 'normal' or 'easy'
  */
-function konawiki_time($value,$mode = 'normal')
+function konawiki_time($value, $mode = 'normal')
 {
 	$fmt = konawiki_private('time_format');
 	return date($fmt, $value);
 }
 
 // mode = normal, easy
-function konawiki_date_html($value,$mode='easy')
+function konawiki_date_html($value, $mode='easy')
 {
-	if ($value === 0) {
-		return "@";
-	}
+  // for time=0
+	if ($value === 0) return "@";
+  // to_int
 	if (is_int($value)) {
 		$target = konawiki_date($value);
 	} else {
 		$target = $value;
 	}
+  $now = time();
+  // ちょっとだけの目安表示
 	if ($mode == 'easy') {
-		return konawiki_datetime_html($value, 'easy');
+    $sa = $now - $value;
+    if ($sa < 3600) { // 1h
+      return "<span class='date new'>1h</span>";
+    } else if ($sa < 3600 * 6) {
+      return "<span class='date new'>6h</span>";
+    } else if ($sa < 3600 * 12) {
+      $today = konawiki_lang('Today');
+      return "<span class='date new'>$today</span>";
+    }
+    $s = "";
+    $y_now = date("Y", $now);
+    $y     = date("Y", $value);
+    if ($y_now == $y) {
+      $dfe = konawiki_private('date_format_easy', 'm-d');
+      $s = date($dfe, $value); 
+    } else {
+      $df = konawiki_private('date_format', 'Y-m-d');
+      $s = date($df, $value); 
+    }
+    return "<span class='date'>$s</span>";
 	}
-	$opt    = "";
 	//
-	$old = time() - 60 * 60 * 24 /* hour */;
-	$fmt = konawiki_date($old);
-	if ($fmt <= $target) {
-		{
-			$today = konawiki_date(time());
-			if ($target == $today) {
-				$target = konawiki_lang('Today');
-			}
-		}
-		$opt = " <span class='new'>New!</span>";
-	}
+  // しっかりと日付を表示
+  //
+	$opt = "";
+	$new_limit = time() - (3600 * 24) /* hour */;
+  if ($value > $new_limit) {
+    $opt = " <span class='new'>New!</span>"; 
+  }
+  $fmt = konawiki_private("data_format", 'Y-m-d');
+  $s = date($fmt, $value);
 	//
-	return "<span class='date'>{$target}</span>{$opt}";
+	return "<span class='date'>{$s}</span>{$opt}";
 }
 
 function konawiki_datetime($value)
@@ -769,7 +787,8 @@ function konawiki_decode_datetime($str)
  */
 function konawiki_datetime_html($value, $mode='normal')
 {
-	if (is_int($value)) {
+  // to_int
+  if (is_int($value)) {
 		$target = konawiki_datetime($value);
 	} else {
 		$target = $value;
@@ -778,16 +797,16 @@ function konawiki_datetime_html($value, $mode='normal')
 	$opt    = "";
 	//
 	$old = time() - 60 * 60 * 24 /* hour */;
-	$fmt = konawiki_datetime($old);
-	if ($fmt <= $target) {
-		$today = konawiki_date(time());
-		$s     = konawiki_date($value);
-		if ($today == $s) {
-			$target = konawiki_lang('Today')." ".konawiki_time($value);
-		}
-		$opt = " <span class='new'>New!</span>";
-	}
 	if ($mode == 'easy') {
+    $fmt = konawiki_datetime($old);
+    if ($fmt <= $target) {
+      $today = konawiki_date(time());
+      $s     = konawiki_date($value);
+      if ($today == $s) {
+        $target = konawiki_lang('Today')." ".konawiki_time($value);
+      }
+      $opt = " <span class='new'>New!</span>";
+    }
 		$ty = date('Y', time());
 		$vy = date('Y', $value);
 		$tm = date('m', time());
