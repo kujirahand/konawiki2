@@ -103,8 +103,12 @@ function plugin_mailqform_convert($params)
   $header  = "From: $to_email\n";
   $header .= "Reply-To: $to_email";
   mb_send_mail($to_email, $subject, $text, $header);
-  $msg = konawiki_lang("Thank you for your message!");
-  return "<div>$msg</div>";
+  $msg = 
+    konawiki_lang("Success to send!")." ".
+    konawiki_lang("Thank you for your message!");
+  $back = konawiki_getPageURL();
+  $msg_back = konawiki_lang("Back");
+  return "<div class='column'>$msg<br><a href='$back'>[$msg_back]</a></div>";
 }
 
 #vim:set expandtab tabstop=2 softtabstop=2 shiftwidth=2:

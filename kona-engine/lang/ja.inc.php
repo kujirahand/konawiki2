@@ -88,6 +88,7 @@ $ko_lang['Completed to Unfreeze.'] = '凍結を解除しました。';
 $ko_lang['Completed to Freeze.'] = '凍結しました。';
 
 // others
+$ko_lang['Success to send!'] = '送信が完了しました。';
 $ko_lang['Thank you for your message!'] = 'メッセージありがとうございます。';
 
 //-----------
