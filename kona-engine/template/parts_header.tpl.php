@@ -3,8 +3,8 @@
 // HTML COMMON HEADER FILE
 //----------------------------------------------------------------------
 $log_id     = konawiki_getPageId();
-$baseuri    = "//".$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-$shorturi   = "//".$_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME']
+$baseuri    = "http://".$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+$shorturi   = "http://".$_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME']
               . "?{$log_id}&amp;go"; 
 // check skin & theme
 $skin     = konawiki_public("skin", "default");
