@@ -12,7 +12,7 @@
 
   <meta property="og:title" content="<?php echo $pagetitle ?>" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="<?php echo dirname($baseurl) ?>" />
+  <meta property="og:url" content="<?php echo $baseuri ?>" />
   <meta property="og:image" content="<?php echo $ogimage; ?>" />
   <meta property="og:description" content="<?php echo $ogdesc;?>" />
   <meta property="og:site_name" content="<?php echo $title ?>" />
