@@ -20,19 +20,39 @@ function plugin_ref_convert($params)
 {
   konawiki_setPluginDynamic(false);	
 	if (count($params) == 0) { return "[usage - #ref(attachname)]"; }
-  $page = konawiki_getPage();
+  $page    = konawiki_getPage();
+  $page_id = konawiki_getPageId();
   $fname = $params[0];
   if (preg_match("#^(.+)\\\\(.+)$#", $fname, $m)) { //has page
     $page  = $m[1];
     $fname = $m[2];
+    $page_id = konawiki_getPageId($page);
   }
   array_shift($params);
-  $baseurl = konawiki_public("baseurl");
-  $file_url = konawiki_getPageURL($page, "attach", FALSE, "file=".rawurlencode($fname));
-
   // is URL
   if (preg_match('#^http.?\:\/\/#',$fname)) {
     $file_url = $fname;
+  }
+  // is Attach file
+  else {
+    // attachファイルのパスを得る
+    $db = konawiki_getDB();
+    $fname_ = $db->escape($fname);
+    $sql = "SELECT * FROM attach WHERE log_id=$page_id AND name='$fname_' LIMIT 1";
+    $res = $db->array_query($sql);
+    if (!isset($res[0]['id'])) {
+      $fname_ = htmlspecialchars($fname);
+      return "<div class='error'>[#ref:file not found:$fname_]</div>"; 
+    }
+    $id   = $res[0]['id'];
+    $mime = $res[0]['ext'];
+    $name = $res[0]['name'];
+    // get real ext
+    $ext = "";
+    if (preg_match('/(\.\w+)$/',$name, $m)) {
+      $ext = $m[1];
+    }
+    $file_url = konawiki_private('uri.attach')."/{$id}{$ext}";
   }
   $link_url = $file_url;
   // image file ?
@@ -53,7 +73,7 @@ function plugin_ref_convert($params)
         $caption = htmlspecialchars(mb_substr($p, 1), ENT_QUOTES);
         $attr['alt'] = $caption;
       }
-      else if ($c == "@") {
+      else if ($c == "@" || $c == "＠") {
         $link_url = mb_substr($p, 1);
         $link_url = htmlspecialchars($link_url, ENT_QUOTES);
         if (!preg_match("#^(http|https)#", $link_url)) {
