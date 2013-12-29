@@ -35,6 +35,8 @@ $ogdesc = "{$pagetitle}";
 // og:image
 $ogimage = getResourceURL(konawiki_public('ogimage','logo-large.png'));
 $ogimage = konawiki_public("og:image", $ogimage);
+$ogtype = konawiki_public("og:type", "website");
+
 //----------------------------------------------------------------------
 // addtional JS/CSS
 $include_js_css = "";

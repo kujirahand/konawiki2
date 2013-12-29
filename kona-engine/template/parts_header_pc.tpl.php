@@ -9,9 +9,10 @@
 <?php else: ?>
   <meta name="keywords" content="<?php echo konawiki_getKeywords($page,$rawtag)?>" />
   <meta name="description" content="<?php echo htmlspecialchars(konawiki_public('description'),ENT_QUOTES) ?>" />
+  <link rel="canonical" href="<?php echo $baseuri ?>"/>
 
   <meta property="og:title" content="<?php echo $pagetitle ?>" />
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="<?php echo $ogtype ?> "/>
   <meta property="og:url" content="<?php echo $baseuri ?>" />
   <meta property="og:image" content="<?php echo $ogimage; ?>" />
   <meta property="og:description" content="<?php echo $ogdesc;?>" />

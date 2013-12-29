@@ -29,7 +29,8 @@ $konawiki = array(
     'login.link.visible' => true,
     'noanchor'    => true,
     'skin'        => 'default',
-    'ogimage'     => 'logo-large.png',
+    'ogimage'     => 'logo-large.png', //default value for 'og:image'
+    'og:type'     => 'website',
   ),
   'private'    => array(
     'auth.users'      => array(),
@@ -117,7 +118,9 @@ konawiki_init();
 //--------------------------------------------------------------------
 // function
 function konawiki_getUserLang() {
-  $lang = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+  $accept = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) 
+    ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
+  $lang = explode(',', $accept);
   $lang = preg_replace('#^(\w+)\-.*$#', '\1', $lang);
   return $lang[0];
 }
