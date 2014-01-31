@@ -149,9 +149,10 @@ function _konawiki_show_tag($tag, $id)
 {
     $taglimit = 10;
     
-    $ret = "";
+    $tag_visible = konawiki_public('tag.link.pages.visible', true);
+    $ret = "<!-- tags -->";
     // related page
-    if (konawiki_public('tag.link.pages.visible') && ($tag != "")) {
+    if ($tag_visible && ($tag != "")) {
         $db = konawiki_getDB();
         $tags = explode(",", $tag);
         $or = array();
@@ -174,7 +175,7 @@ function _konawiki_show_tag($tag, $id)
                 $page_str = join("\n", $pages);
                 $ret .= <<< EOS__
 <div class="tagpagelist">
-<div class="title">Relation:</div>
+<div class="title">Tag:</div>
 <ul>
 {$page_str}
 </ul>
