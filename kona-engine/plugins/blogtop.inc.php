@@ -95,6 +95,7 @@ function plugin_blogtop_convert($params)
         $_GET['page'] = $_POST['page'] = $name;
         $body = trim($log['body']);
         if ($article_len > 0) {
+            $body = preg_replace('/#\w+/', '', $body);
             $body = mb_strimwidth($body, 0, $article_len, '...');
         }
         $pageurl = konawiki_getPageURL($name);
