@@ -114,12 +114,12 @@ EOS__;
         # body
         $entry_begin = konawiki_private("entry_begin");
         $entry_end   = konawiki_private("entry_end");
-        $body .= "\n".$entry_footer;
+        # $body .= "\n".$entry_footer;
         $res .= "{$entry_begin}\n".
             "<h3><a href='{$pageurl}'>■</a> {$name_} <span class='date'>($date)</span> $bookmark</h3>\n".
             konawiki_parser_convert($body)."\n".
             #konawiki_comment_getLog($name)."\n".
-            "<footer class='rightopt'>[<a href='$pageurl'>→Comment</a>]&nbsp;</footer>".
+            "<footer class='rightopt'>[<a href='$pageurl'>→Read</a>]&nbsp;</footer>".
             "{$entry_end}\n";
     }
     $_GET['page'] = $_POST['page'] = $defpage;
