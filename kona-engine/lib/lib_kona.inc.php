@@ -675,7 +675,7 @@ function getThemeURL($fname)
 
 function konawiki_date($value)
 {
-	$fmt = konawiki_private('date_format');
+	$fmt = konawiki_private('date_format', "Y-m-d");
 	return date($fmt, $value);
 }
 
@@ -693,7 +693,7 @@ function konawiki_dcDate($value)
  */
 function konawiki_time($value, $mode = 'normal')
 {
-	$fmt = konawiki_private('time_format');
+	$fmt = konawiki_private('time_format', "H:i:s");
 	return date($fmt, $value);
 }
 

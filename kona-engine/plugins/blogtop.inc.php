@@ -1,7 +1,7 @@
 <?php
 /* vim:set expandtab ts=4:*/
 /** konawiki plugins -- BLOGのトップページっぽい表示をするプラグイン(BLOG用)
- * - [書式] #blogtop([count][,pattern][,header][,entry.footer])
+ * - [書式] #blogtop([count][,pattern][,header][,entry.footer][,article.len])
  * - [引数]
  * - count   .. 何日分表示するか
  * - pattern .. 列挙するパターンの指定
@@ -19,6 +19,7 @@
  *      'pattern'   => '*',// like "2008/01/01"
  *      'header.code'  => '',
  *      'entry.footer' => '#googleadsense(blog)',
+ *      'article.len'  => 200, // article char length (all=0)
  * );
  * }}}
  */
@@ -40,6 +41,7 @@ function plugin_blogtop_convert($params)
     $pat          = array_shift($params);
     $headede_code = array_shift($params);
     $entry_footer = array_shift($params);
+    $article_len  = array_shift($params);
     if ($day == 0) $day = 5;
     // pager
     $pager = "";
@@ -92,10 +94,14 @@ function plugin_blogtop_convert($params)
         $name_ = konawiki_getPageLink($name,'dir');
         $_GET['page'] = $_POST['page'] = $name;
         $body = trim($log['body']);
+        if ($article_len > 0) {
+            $body = mb_strimwidth($body, 0, $article_len, '...');
+        }
         $pageurl = konawiki_getPageURL($name);
         $url = urlencode($pageurl);
         $date = konawiki_date(intval($log['mtime']));
         $bookmark = <<<EOS__
+<!-- hatena -->
 <a class="bookmark-icon" href="http://b.hatena.ne.jp/entry/{$url}">
 <img class="icon" width="16" height="12" style="border-style:none" alt="このエントリーを含むブックマーク" title="このエントリーを含むブックマーク" src="http://d.hatena.ne.jp/images/b_entry_or.gif"/>
 </a>
@@ -104,16 +110,16 @@ function plugin_blogtop_convert($params)
 </a>
 EOS__;
         # get comment
-        include_once(KONAWIKI_DIR_PLUGINS."/comment.inc.php");
+        #include_once(KONAWIKI_DIR_PLUGINS."/comment.inc.php");
         # body
         $entry_begin = konawiki_private("entry_begin");
         $entry_end   = konawiki_private("entry_end");
         $body .= "\n".$entry_footer;
         $res .= "{$entry_begin}\n".
-            "<h3><a href='{$pageurl}'>■</a> - {$name_} <span class='date'>($date)</span> $bookmark</h3>\n".
+            "<h3><a href='{$pageurl}'>■</a> {$name_} <span class='date'>($date)</span> $bookmark</h3>\n".
             konawiki_parser_convert($body)."\n".
-            konawiki_comment_getLog($name)."\n".
-            "<div class='rightopt'>[<a href='$pageurl'>→Comment</a>]&nbsp;</div>".
+            #konawiki_comment_getLog($name)."\n".
+            "<footer class='rightopt'>[<a href='$pageurl'>→Comment</a>]&nbsp;</footer>".
             "{$entry_end}\n";
     }
     $_GET['page'] = $_POST['page'] = $defpage;
@@ -148,8 +154,9 @@ function show_plugin_blogtop__front(&$plugin, &$log)
     $params = array(
         $plugin['count'],
         $plugin['pattern'],
-        isset($plugin['header.code']) ? $plugin['header.code'] : '',
+        isset($plugin['header.code']) ? $plugin['header.code']   : '',
         isset($plugin['entry.footer']) ? $plugin['entry.footer'] : '',
+        isset($plugin['article.len']) ? $plugin['article.len']   : 0,
         );
     $head = plugin_blogtop_convert($params);
     $log['body_header'] .= $head;
@@ -165,8 +172,7 @@ function show_plugin_blogtop__navi(&$plugin, &$log)
     $head = plugin_blognavi_convert($params);
     if ($log['id'] > 0) {
         $ft = isset($plugin['entry.footer']) ? $plugin['entry.footer'] : "";
-        $foot_w = "*** Comment\n#comment\n~\n".$ft."\n";
-        $foot = konawiki_parser_convert($foot_w);
+        $foot = konawiki_parser_convert($ft);
     } else {
         $foot = "";
     }

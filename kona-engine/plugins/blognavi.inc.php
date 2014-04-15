@@ -93,9 +93,12 @@ function plugin_blognavi_convert($params)
     $name = konawiki_getPage();
     $log = konawiki_getLog($name);
     $name_ = konawiki_getPageLink($name, "dir");
-    //$date = konawiki_date($log['ctime']);
+    $date = konawiki_date($log['ctime']);
     // bookmark
+    $name_u = urlencode($name);
+    $url_   = urlencode($url);
     $bookmark = <<<EOS__
+<!-- hatena -->
 <a class="bookmark-icon" href="http://b.hatena.ne.jp/entry/{$url}">
 <img class="icon" width="16" height="12" style="border-style:none" alt="このエントリーを含むブックマーク" title="このエントリーを含むブックマーク" src="http://d.hatena.ne.jp/images/b_entry_or.gif"/>
 </a>
@@ -106,10 +109,12 @@ EOS__;
     // header navi
     $frontpage = konawiki_public('FrontPage');
     $link = konawiki_getPageURL2($frontpage, FALSE, FALSE);
-    $toplink = "<a href='$link'>□</a>";
+    $toplink = "<a href='$link'>[↑]</a> ";
     $head = <<< __EOS__
-<div>$navi_</div>
-<div class="topnavipagename">{$toplink} {$name_} $bookmark</div>
+<nav>$navi_</nav>
+<header>
+<div class="topnavipagename">{$toplink} &nbsp; {$name_} &nbsp; {$bookmark}</div>
+</header>
 __EOS__;
     if (isset($params[1])) {
         $head .= konawiki_parser_convert($params[1])."\n";

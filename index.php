@@ -86,8 +86,8 @@ $private['header_level_from']   = 1;
 $private['source_tag_begin']    = '<pre class="code">';
 $private['source_tag_end']      = '</pre>';
 $private['source_tag_hr']       = "<p class='clear'/><div class='underline'>&nbsp;</div>\n";
-$private['entry_begin']         = '<div class="entry">';
-$private['entry_end']           = '</div><!-- end of entry -->';
+$private['entry_begin']         = '<article class="entry">';
+$private['entry_end']           = '</article><!-- end of entry -->';
 $private['session.name']        = 'kona2';
 $private['footer.analytics']    = '';
 //
