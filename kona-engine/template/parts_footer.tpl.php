@@ -1,4 +1,5 @@
 <!-- footer.begin -->
+<footer>
 <div id="wikifooter">
 <div class="menu"><?php echo  konawiki_getEditMenu() ?></div>
 <?php if (isset($ctime_html)): ?>
@@ -47,5 +48,6 @@ if (konawiki_is_debug()) {
   echo "</div>";
 } 
 ?>
+</footer>
 </body>
 </html>

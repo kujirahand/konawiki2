@@ -20,7 +20,7 @@ include_once(getSkinPath('parts_header.tpl.php'));
 
   <div id="wikinavi"><div class="navipad">
     <div class="menubar">
-        <?php echo konawiki_getContents("MenuBar"); ?>
+        <nav><?php echo konawiki_getContents("MenuBar"); ?><nav>
     </div><!-- end of .menubar -->
   </div></div><!-- end of #wikinavi -->
 

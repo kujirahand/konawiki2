@@ -21,7 +21,7 @@ include_once(getSkinPath('parts_header.tpl.php'));
     
     <div id="wikinavi"><div class="navipad">
       <div class="menubar">
-          <?php echo konawiki_getContents("MenuBar"); ?>
+          <nav><?php echo konawiki_getContents("MenuBar"); ?></nav>
       </div><!-- end of .menubar -->
     </div></div><!-- end of #wikinavi -->
   
@@ -29,7 +29,7 @@ include_once(getSkinPath('parts_header.tpl.php'));
   
   <div id="wikisidebar"><div class="barpad">
     <div class="rightbar">
-        <?php echo konawiki_getContents("SideBar"); ?>
+        <nav><?php echo konawiki_getContents("SideBar"); ?></nav>
     </div>
   </div></div><!-- end of #wikisidebar -->
 

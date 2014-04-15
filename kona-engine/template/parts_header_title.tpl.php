@@ -1,3 +1,4 @@
+<header>
 <div id="wikiheader"><div class="headerpad">
 <?php if(!useragent_is_smartphone()): ?>
   <h1>
@@ -38,4 +39,5 @@
 <?php else: ?>
 <?php endif;?>
 </div></div><!-- end of #wikiheader -->
+</header>
 
