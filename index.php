@@ -16,7 +16,7 @@ $scrUri = "http://{$_SERVER['HTTP_HOST']}{$scrdir}";
 // set default setting
 $konawiki = array(
   'public'     => array(
-    'KONAWIKI_VERSION' => '0.51',
+    'KONAWIKI_VERSION' => '0.52',
     'KONAWIKI_CONFIG_VER' => 1005,
     'title'       => 'KonaWiki2',
     'author'      => 'KonaWiki User',

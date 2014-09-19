@@ -11,6 +11,7 @@ function action_go_()
     if ($r) {
       $name = $r[0]["name"];
       $url = konawiki_getPageURL($name);
+      $url = str_replace('/go.php', '/index.php', $url);
       header("location: $url");
       exit;
     } else {

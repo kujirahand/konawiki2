@@ -79,7 +79,7 @@ function konawiki_parseURI()
 	// PATH_INFO で処理するかどうか
 	if (!defined("KONAWIKI_USE_PATH_INFO")) {
 	    define("KONAWIKI_USE_PATH_INFO", FALSE);
-	    $scriptname = "index.php";
+	    $scriptname = basename($_SERVER['SCRIPT_NAME']);
 	}
 	$host   = $_SERVER['HTTP_HOST'];
 	$uri    = $_SERVER['REQUEST_URI'];
@@ -454,6 +454,10 @@ function konawiki_getPageURL($page = FALSE, $action = FALSE, $stat = FALSE, $par
 	// for - AllowEncodedSlashes Off
 	$page_enc = str_replace('%2F','%252F',$page_enc);
 	$baseurl = konawiki_public("baseurl");
+  if ($action == 'go') {
+    $action = FALSE;
+    $baseurl = str_replace('/index.php', '/go.php', $baseurl);
+  }
 	if ($shortpath) {
 		$name = basename($baseurl);
 		$name .= (KONAWIKI_USE_PATH_INFO) ? "/" : "";
