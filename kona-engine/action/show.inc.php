@@ -16,7 +16,7 @@ function action_show_()
     $konawiki_show_as_dynamic_page = FALSE; // 基本的にプラグインがあれば dynamic となる
     $log = konawiki_getLog($page);
     if ($log == FALSE) {
-        $body = "*** ページ一覧\n".
+        $body = "*** Page List\n".
             "#ls\n";
         $log = array(
             'id'            => 0,
@@ -156,9 +156,13 @@ function _konawiki_show_tag($tag, $id)
         $db = konawiki_getDB();
         $tags = explode(",", $tag);
         $or = array();
+        $tag_html = "";
         foreach ($tags as $word) {
             $w = $db->escape($word);
             $or[] = "tag='{$w}'";
+            $word_html = htmlspecialchars($word);
+            $uw = urlencode($word);
+            $tag_html .= " <a href='index.php?{$uw}&amp;taglist'> {$word_html} </a>";
         }
         $or_str = join(" OR ", $or);
         $sql = "SELECT log_id FROM tags WHERE {$or_str} ORDER BY log_id DESC LIMIT $taglimit";
@@ -175,7 +179,7 @@ function _konawiki_show_tag($tag, $id)
                 $page_str = join("\n", $pages);
                 $ret .= <<< EOS__
 <div class="tagpagelist">
-<div class="title">Tag:</div>
+<div class="title"> Tag : {$tag_html}</div>
 <ul>
 {$page_str}
 </ul>
