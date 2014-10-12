@@ -1,5 +1,4 @@
 <?php
-
 /** konawiki plugins -- 指定日時が最新であれば new マークを表示する
  * - [書式]
 {{{
@@ -16,13 +15,11 @@
 
 function plugin_new_convert($params)
 {
-	konawiki_setPluginDynamic(true);
-	
+    konawiki_setPluginDynamic(true);
     if (count($params) < 1) {
         return "*";
     }
     $target = $params[0];
-    return konawiki_datetime_html($target);
+    return konawiki_datetime_html($target,"easy");
 }
 
-?>

@@ -12,6 +12,9 @@ $ko_lang['Add'] = '追加';
 $ko_lang['Back'] = '戻る';
 $ko_lang['Next'] = '次へ';
 $ko_lang['Prev'] = '前へ';
+$ko_lang['Comments'] = 'コメント';
+$ko_lang['Name'] = '名前';
+$ko_lang['Nanasi'] = '名無し';
 
 // menu
 $ko_lang['Freeze'] = '凍結';

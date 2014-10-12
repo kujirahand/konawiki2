@@ -112,7 +112,7 @@ function konawiki_start_session()
     static $started = false;
     if ($started) return;
     session_name(konawiki_private('session.name'));
-    session_start();
+    @session_start();
     $started = true;
 }
 

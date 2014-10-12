@@ -752,8 +752,8 @@ function konawiki_date_html($value, $mode='easy')
 
 function konawiki_datetime($value)
 {
-	$fmt1 = konawiki_private('date_format');
-	$fmt2 = konawiki_private('time_format');
+	$fmt1 = konawiki_private('date_format', 'Y-m-d');
+	$fmt2 = konawiki_private('time_format', 'H:i:s');
 	return date("{$fmt1} {$fmt2}", $value);
 }
 

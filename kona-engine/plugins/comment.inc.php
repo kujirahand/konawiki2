@@ -86,9 +86,10 @@ function plugin_comment_convert_sub($pluginname, $params)
             $footer = "<div class='rightopt'>&nbsp;</div>";
         }
     }
+    $Comments = konawiki_lang('Comments');
     $s = <<<__EOS
 <div class="comment">
-    <div class="caption">Comments:</div><div class="commentlogs">
+    <div class="caption">$Comments:</div><div class="commentlogs">
     <div class="commentshort">
     {$logs}
     </div>
@@ -106,6 +107,7 @@ __EOS;
 
 function plugin_comment_getInsertForm($pluginname, $pageurl, $pid)
 {
+    $Name = konawiki_lang("Name");
     return <<<EOS__
 <form method="post" action="{$pageurl}">
 <div style="display:none">
@@ -113,7 +115,7 @@ function plugin_comment_getInsertForm($pluginname, $pageurl, $pid)
 <input type="text" name="comment" />
 </div>
 <div>
-<span class="note">Name:</span>
+<span class="note">$Name:</span>
 <input type="text" name="r_name" size="12"/><br/>
 <textarea name="r_comment" cols="64" rows="3" style="padding:4px;"></textarea><br/>
 <input type="submit" value="Insert Comment"/>
@@ -168,7 +170,7 @@ function plugin_comment_action_sub($pluginname, $params)
         return FALSE;
     }
     if ($commentmode != "edit") {
-        if ($name === "") $name = "Noname";
+        if ($name === "") $name = konawiki_lang("Nanasi");
         if ($comment == "") {
             // maybe spam
             $params["error"] = "Need to write body.";
