@@ -119,5 +119,5 @@ INSERT INTO logs(id, name, body)
 /* --- */
 
 /* database version */
-INSERT INTO key_values (name, value) VALUES ('version', 105);
+INSERT INTO key_values (name, value) VALUES ('version', 106);
 

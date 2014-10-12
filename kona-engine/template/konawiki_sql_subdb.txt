@@ -14,7 +14,21 @@ CREATE TABLE sublogs
 );
 
 /* --- */
-
+CREATE TABLE  IF NOT EXISTS mcounter_total
+(
+    log_id    INTEGER PRIMARY KEY,
+    total     INTEGER,
+    mtime     INTEGER
+);
+/* --- */
+CREATE TABLE  IF NOT EXISTS mcounter_day
+(
+    log_id    INTEGER,
+    stime     INTEGER, /* serial time of day */
+    value     INTEGER DEFAULT 0,
+    mtime     INTEGER
+);
+/* --- */
 /**
  * Insert Default Value
  */

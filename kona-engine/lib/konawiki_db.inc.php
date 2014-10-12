@@ -91,54 +91,54 @@ function konawiki_getBackupDB()
  */
 function konawiki_db_getConfig($key, $default = false)
 {
-	// get db
-	$db = konawiki_getDB();
-	if (!$db) { return $default; }
-	// select key
-	$_key = $db->escape($key);
-	$sql = "SELECT * FROM key_values WHERE name = '{$_key}' LIMIT 1";
-	$rows = @$db->array_query($sql);
-	if (!$rows) return $default;
-	$v = isset($rows[0]['value']) ? $rows[0]['value'] : $default;
-	return $v;
+    // get db
+    $db = konawiki_getDB();
+    if (!$db) { return $default; }
+    // select key
+    $_key = $db->escape($key);
+    $sql = "SELECT * FROM key_values WHERE name = '{$_key}' LIMIT 1";
+    $rows = @$db->array_query($sql);
+    if (!$rows) return $default;
+    $v = isset($rows[0]['value']) ? $rows[0]['value'] : $default;
+    return $v;
 }
 
 function konawiki_setAuthHash($log_id, $hash)
 {
-  $log_id = intval($log_id);
-  $db = konawiki_getDB();
-  if (!$db) { return false; }
-  $sql = "SELECT * FROM log_auth_hash WHERE log_id=$log_id";
-  $rows = $db->array_query($sql);
-  if (!$rows) {
-      $sql =
-      "INSERT INTO log_auth_hash".
-      " (log_id,  hash) VALUES".
-      " ($log_id, '$hash')";
-  } else {
-      $sql = 
-      "UPDATE log_auth_hash".
-      " SET hash='$hash'".
-      " WHERE log_id=$log_id";
-  }
-  @$db->begin();
-  @$db->exec($sql);
-  @$db->commit();
+    $log_id = intval($log_id);
+    $db = konawiki_getDB();
+    if (!$db) { return false; }
+    $sql = "SELECT * FROM log_auth_hash WHERE log_id=$log_id";
+    $rows = $db->array_query($sql);
+    if (!$rows) {
+        $sql =
+        "INSERT INTO log_auth_hash".
+        " (log_id,  hash) VALUES".
+        " ($log_id, '$hash')";
+    } else {
+        $sql = 
+        "UPDATE log_auth_hash".
+        " SET hash='$hash'".
+        " WHERE log_id=$log_id";
+    }
+    @$db->begin();
+    @$db->exec($sql);
+    @$db->commit();
 }
 function konawiki_getAuthHash($log_id) {
-  $log_id = intval($log_id);
-  $db = konawiki_getDB();
-  if (!$db) { return ''; }
-  $sql = "SELECT * FROM log_auth_hash WHERE log_id=$log_id";
-  $rows = $db->array_query($sql);
-  if (!$rows) { return ''; }
-  return $rows[0]['hash'];
+    $log_id = intval($log_id);
+    $db = konawiki_getDB();
+    if (!$db) { return ''; }
+    $sql = "SELECT * FROM log_auth_hash WHERE log_id=$log_id";
+    $rows = $db->array_query($sql);
+    if (!$rows) { return ''; }
+    return $rows[0]['hash'];
 }
 
 function konawiki_initDB()
 {
     global $konawiki;
-    $DATABASE_VERSION = 105;
+    $DATABASE_VERSION = 106;
     
     $konawiki['private']['db.handle']       = FALSE;
     $konawiki['private']['subdb.handle']    = FALSE;
@@ -149,10 +149,10 @@ function konawiki_initDB()
     if ($db) {
         // update ?
         $db_version = konawiki_db_getConfig('version', 0);
-    	  if ($db_version < $DATABASE_VERSION) {
-    		    if ($db_version == 0) {
-    			    _konawiki_db_init();
-    		    }
+        if ($db_version < $DATABASE_VERSION) {
+            if ($db_version == 0) {
+              _konawiki_db_init();
+            }
             konawiki_initDB_versionup($db_version);
             konawiki_showMessage(konawiki_lang('Success to update DB.'));
             exit;
@@ -168,32 +168,36 @@ function konawiki_initDB()
 
 function _konawiki_db_init()
 {
-	konawiki_initDB_createDB();
-	konawiki_initDB_addHelp();
-	$msg = konawiki_lang('Success to init DB.');
-	konawiki_showMessage($msg);
-	exit;
+    konawiki_initDB_createDB();
+    konawiki_initDB_addHelp();
+    $msg = konawiki_lang('Success to init DB.');
+    konawiki_showMessage($msg);
+    exit;
 }
 
 function konawiki_initDB_versionup($current_version)
 {
-	// ---
-	// バージョンに応じて、順次バージョンアップする
-	// ---
-	if ($current_version < 102) {
-		// key_value/tag テーブルの導入
-		konawiki_initDB_version102();
-	}
-	if ($current_version == 102) {
-		konawiki_initDB_version103();
-	}
-	if ($current_version == 103) {
-		konawiki_initDB_version104();
-  }
-	if ($current_version == 104) {
-    konawiki_initDB_version105();
-  }
-	// if ($current_version == 105) { ... }
+    // ---
+    // バージョンに応じて、順次バージョンアップする
+    // ---
+    if ($current_version < 102) {
+        // key_value/tag テーブルの導入
+        konawiki_initDB_version102();
+    }
+    if ($current_version == 102) {
+        konawiki_initDB_version103();
+    }
+    if ($current_version == 103) {
+        konawiki_initDB_version104();
+    }
+    if ($current_version == 104) {
+        // add private / freeze columns in MainDB
+        konawiki_initDB_version105();
+    }
+    if ($current_version == 105) {
+        // add mcounter in SubDB
+        konawiki_initDB_version106();
+    }
 }
 
 function konawiki_initDB_createDB()
@@ -421,4 +425,50 @@ EOS;
     $db->commit();
     $db2->commit();
 }
+
+function konawiki_initDB_version106()
+{
+    $sql1 = <<< EOS
+CREATE TABLE  IF NOT EXISTS mcounter_total
+(
+    log_id    INTEGER PRIMARY KEY,
+    total     INTEGER,
+    mtime     INTEGER
+);
+/* --- */
+CREATE TABLE  IF NOT EXISTS mcounter_day
+(
+    log_id    INTEGER,
+    stime     INTEGER, /* serial time of day */
+    value     INTEGER DEFAULT 0,
+    mtime     INTEGER
+);
+EOS;
+    $sql2 = <<< EOS
+UPDATE key_values SET value=106 WHERE name="version";
+EOS;
+    // get DB instance
+    $db = konawiki_getDB();
+    $db->begin();
+    $db_sub = konawiki_getSubDB();
+    $db_sub->begin();
+    // execute sql
+    $r = @$db_sub->exec($sql1);
+    if (!$r) {
+        $db_sub->rollback();
+        konawiki_error('Failed to update(sql1).'.
+        $db_sub->error);
+        exit;
+    }
+    $r = @$db->exec($sql2);
+    if (!$r) {
+        $db->rollback();
+        konawiki_error('Failed to update(sql1).'.
+        $db->error);
+        exit;
+    }
+    $db_sub->commit();
+    $db->commit();
+}
+
 

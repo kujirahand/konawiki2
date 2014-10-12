@@ -11,29 +11,28 @@
  
 function plugin_counter_convert($params)
 {
-    // 実装メモ:
-    // - サブデータベースに保存する
-    // - カウンタは、DBのカラム ctime を利用する
-    // - 挿入日時は、mtime を利用する
+    // This access counter use Ajax
     konawiki_setPluginDynamic(false);
     if (isset($params[0]) && $params[0] == "js") {
+      // for Ajax
       plugin_counter_getCount();
       exit;
     }
+    // show HTML/JavaScript Code
     $page = konawiki_getPage();
     $url = konawiki_getPageURL($page, "plugin", FALSE, 
       "name=counter&amp;p=js"); 
     $url = str_replace("&amp;", "&", $url);
     $s = <<< EOS
-<div id="counter_div" class="counter"></div>
+<div id="counter_div" class="counter">*</div>
 <script type="text/javascript">
-xhr_get(
+kona_counter_xhr_get(
   "$url",
   function(t) {
     var e = document.getElementById("counter_div");
     e.innerHTML = t;
   });
-function xhr_get(url, callback) {
+function kona_counter_xhr_get(url, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
   xhr.onreadystatechange = function () {
@@ -46,20 +45,71 @@ function xhr_get(url, callback) {
 </script>
 EOS;
     return $s;
-	
 }
 
 // count up & return count
 function plugin_counter_getCount()
 {
-    header("Content-Type: text/plain");
+    header('Content-Type: text/html');
     $log_id = konawiki_getPageId();
     if (!$log_id) {
-        echo "(0)";
-        exit;
+        echo "(*)"; exit;
     }
-    $pname = 'counter';
     $db = konawiki_getSubDB();
+    // Total : count up
+    $now = time();
+    $total = 0;
+    $db->exec("begin");
+    $sql = "SELECT * FROM mcounter_total WHERE ".
+        " log_id=$log_id LIMIT 1";
+    $r = @$db->array_query($sql);
+    if (!isset($r[0]["total"])) {
+        // first time
+        $total = getOldTypeCounter($db, $log_id);
+        $ins_sql = 
+            "INSERT INTO mcounter_total ".
+            "  ( log_id, total, mtime) VALUES ".
+            "  ($log_id,$total, $now)";
+        $db->exec($ins_sql);
+    } else {
+        // count up
+        $up_sql =
+            "UPDATE mcounter_total SET ".
+            "  total=total+1, mtime=$now ".
+            "  WHERE log_id=$log_id";
+        $db->exec($up_sql);
+        $total = $r[0]["total"] + 1;
+    }
+    // daily : count up
+    $value = 0;
+    $stime = strtotime(date("Y-m-d", $now));
+    $where = "stime=$stime";
+    $sql = "SELECT * FROM mcounter_day WHERE ".
+        " log_id=$log_id AND $where LIMIT 1";
+    $r = @$db->array_query($sql);
+    if (!isset($r[0]["value"])) {
+        $ins_sql =
+            "INSERT INTO mcounter_day ".
+            "  ( log_id, stime, value, mtime) VALUES".
+            "  ($log_id,$stime, 1,    $stime)";
+        $db->exec($ins_sql);
+        $value = 1;
+    } else {
+        $up_sql =
+            "UPDATE mcounter_day SET ".
+            " value=value+1, mtime=$stime ".
+            " WHERE log_id=$log_id AND $where";
+        $db->exec($up_sql);
+        $value = $r[0]["value"] + 1;
+    }
+    $db->exec("commit");
+    // show result
+    echo "$total <span class='memo'>(today:$value)</span>";
+}
+
+// old type counter
+function getOldTypeCounter($db, $log_id) {
+    $pname = 'counter';
     $sql = "SELECT * FROM sublogs WHERE ".
         " log_id=$log_id AND plug_name='$pname'".
         " ";
@@ -67,22 +117,10 @@ function plugin_counter_getCount()
     $r = @$db->array_query($sql);
     $mtime = time();
     if (isset($r[0]["id"])) {
-        $id = $r[0]["id"];
-        $count = intval($r[0]["ctime"]) + 1;
-        $sql = "UPDATE sublogs SET ctime=$count,mtime=$mtime WHERE".
-            " id=$id";
-        if (!@$db->exec($sql)) {
-            echo "[counter.failed]";
-        }
+        return intval($r[0]["ctime"]);
     }
-    else {
-        $sql = "INSERT INTO sublogs ".
-            "(log_id, plug_name, ctime, mtime)VALUES".
-            "($log_id,'$pname','$count', $mtime)";
-        if (!@$db->exec($sql)) {
-            echo "[counter.failed]";
-        }
-    }
-    echo $count;
+    return 1;
 }
+
+
 
