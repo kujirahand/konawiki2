@@ -62,6 +62,13 @@ function popular_makeRanking($timelimit, $count, $cache_key) {
             " GROUP BY log_id ".
             " ORDER BY total DESC LIMIT {$count}";
         $result = $db->array_query($sql);
+        // no result
+        if (!$result) {
+            $sql = "SELECT * FROM mcounter_total ".
+                " WHERE log_id > 2 ".
+                " ORDER BY total DESC LIMIT {$count}";
+            $result = $db->array_query($sql);
+        }
     } else {
         // total ranking
         $sql = "SELECT * FROM mcounter_total ".
@@ -70,18 +77,20 @@ function popular_makeRanking($timelimit, $count, $cache_key) {
         $result = $db->array_query($sql);
     }
     // make cache
-    $body = json_encode($result);
-    $pname = "popular";
-    $sql_rm = 
-        "DELETE FROM sublogs WHERE ".
-        " plug_name='$pname' AND plug_key='$cache_key' LIMIT 1";
-    $db->exec($sql_rm);
-    $now = time();
-    $sql_ins = 
-        "INSERT INTO sublogs ".
-        "(log_id,plug_name,plug_key,body,ctime,mtime) VALUES".
-        "(     0,'$pname' ,'$cache_key' ,'$body',$now,$now)";
-    $r = $db->exec($sql_ins);
+    if ($result) {
+        $body = json_encode($result);
+        $pname = "popular";
+        $sql_rm = 
+            "DELETE FROM sublogs WHERE ".
+            " plug_name='$pname' AND plug_key='$cache_key' LIMIT 1";
+        $db->exec($sql_rm);
+        $now = time();
+        $sql_ins = 
+            "INSERT INTO sublogs ".
+            "(log_id,plug_name,plug_key,body,ctime,mtime) VALUES".
+            "(     0,'$pname' ,'$cache_key' ,'$body',$now,$now)";
+        $r = $db->exec($sql_ins);
+    }
     return $result;
 }
 
