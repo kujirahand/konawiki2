@@ -29,8 +29,8 @@ function plugin_popular_convert($params)
     
     $res = "<h5>$cap</h5>";
     $res .= "<ul>";
-    if ($r == FALSE) {
-        return "{$res}<ul><li>none</li></ul>\n";
+    if (!$r) {
+        return "{$res}<li>none</li></ul>\n";
     }
     $baseurl = konawiki_public("baseurl");
     foreach ($r as $e) {
