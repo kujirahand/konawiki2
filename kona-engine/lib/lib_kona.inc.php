@@ -5,6 +5,10 @@
  * konawiki の基本ライブラリ
  * ---------------------------------------------------------------------
  */
+
+// konawiki lib version
+define('KONAWIKI_VERSION', '0.54');
+
 // check GPC --- $_GET and $_POST and $_COOKIE
 if(get_magic_quotes_gpc()){
 	$_GET       = array_map("strip_text_slashes",$_GET);
@@ -242,7 +246,9 @@ function konawiki_init_config()
   else {
     $lang = "en";
     $path = konawiki_private('dir.engine','..')."lang/{$lang}.inc.php";
-  } 
+  }
+  // KonaWikiのバージョンを再設定
+  $konawiki['public']['KONAWIKI_VERSION'] = KONAWIKI_VERSION;
 }
 
 function check_is_writable($dir)
