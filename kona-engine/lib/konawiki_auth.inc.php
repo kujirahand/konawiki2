@@ -83,10 +83,10 @@ function _konawiki_auth_check_password($user, $pass)
             switch ($fmt) {
             case "md5":
             case "x-php-md5":
-                $result = (md5($pass) == $hash);
+                $result = (strtolower(md5($pass)) == strtolower($hash));
                 break;
             case "sha1":
-                $result = (sha1($pass) == $hash);
+                $result = (strtolower(sha1($pass)) == strtolower($hash));
                 break;
             }
         }
@@ -142,8 +142,8 @@ function _konawiki_auth_form()
     }
     konawiki_logout();
     // ログインチェック
-    $user = konawiki_param("user", false);
-    $pw   = konawiki_param("pw",   false);
+    $user = trim(konawiki_param("user", false));
+    $pw   = trim(konawiki_param("pw",   false));
     if ($user !== false && $pw !== false) {
         if (_konawiki_auth_check_password($user, $pw)) {
             // Check Permission
