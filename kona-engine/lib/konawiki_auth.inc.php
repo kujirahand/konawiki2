@@ -200,14 +200,13 @@ function konawiki_logout()
 {
     global $konawiki_auth_user;
     $konawiki_auth_user = '';
-    
-    $authtype = konawiki_private("auth.type");
-    if ($authtype == "form") {
-        // Delete Session
-        konawiki_start_session();
-        $_SESSION["login.time"] = 0;
-        $_SESSION["login.user.perm"] = false;
-    }
+
+    // $authtype = konawiki_private("auth.type", "form");
+    // Delete Session
+    konawiki_start_session();
+    unset($_SESSION["login.time"]);
+    unset($_SESSION["login.user"]);
+    unset($_SESSION["login.user.perm"]);
 }
 
 /**

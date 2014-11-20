@@ -6,4 +6,6 @@ function action_logout_()
     $log['body'] = konawiki_lang('Success to logout.');
     include_template("form.tpl.php", $log);
 }
-?>
+
+
+
