@@ -6,7 +6,7 @@
 // --- form tag ---
 function form_tag($action, $method="post")
 {
-  return "<form actoin='{$action}' method='{$method}'>";
+  return "<form action='$action' method='$method'>\n";
 }
 function form_input_hidden($name, $value)
 {
@@ -21,6 +21,20 @@ function form_input_text($name, $value, $opt_array = null)
     }
   }
   return "<input type='text' id='$name' name='$name' value='$value' $opt/>";
+}
+function form_input_password($name, $value, $opt_array = null)
+{
+  $opt = "";
+  if ($opt_array != null) {
+    foreach ($opt_array as $key => $val) {
+      $opt .= "$key='$val' ";
+    }
+  }
+  return "<input type='password' id='$name' name='$name' value='$value' $opt/>";
+}
+function form_label($name, $caption)
+{
+  return "<label for='$name'>$caption</label>";
 }
 function form_input_submit($caption, $opt_array = null)
 {
