@@ -340,9 +340,11 @@ function konawiki_page_debug()
 
 function konawiki_param($name, $def_value = FALSE)
 {
+  // Check post parameters
 	if (isset($_POST[$name])) {
 		return $_POST[$name];
-	}
+  }
+  // Check get parameters
 	if (isset($_GET[$name])) {
 		return $_GET[$name];
 	}
@@ -490,7 +492,11 @@ function konawiki_getPageURL($page = FALSE, $action = FALSE, $stat = FALSE, $par
 			$url .= "&amp;$stat";
 		}
 	}
-	if ($param_str) {
+  if ($param_str) {
+    // escape
+    if (strpos($param_str, '&amp;') === FALSE) {
+      $param_str = str_replace('&', '&amp;', $param_str);
+    }
 		if (KONAWIKI_USE_PATH_INFO == TRUE) {
 			$url .= "?$param_str";
 		} else {
@@ -1263,13 +1269,22 @@ function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private 
  */
 function konawiki_getContents($page)
 {
-	include_once(KONAWIKI_DIR_LIB."/konawiki_parser.inc.php");
+  include_once(KONAWIKI_DIR_LIB."/konawiki_parser.inc.php");
+  // memory parent page
+  $parent_page = konawiki_getPage();
+  $parent_pageId = konawiki_getPageId();
+  // set page
+  $_GET["page"] = $page; 
+  // render
 	$log = konawiki_getLog($page);
 	if (isset($log["id"])) {
 		$body = $log["body"];
-		$body = konawiki_parser_convert($body);
+    $body = konawiki_parser_convert($body);
+    //
+    $_GET["page"] = $parent_page;
 		return $body;
-	}
+  }
+  // edit link
 	$page_ = htmlspecialchars($page);
 	$page_url = rawurlencode($page);
 	$baseurl = konawiki_public("baseurl");

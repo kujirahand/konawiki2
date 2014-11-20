@@ -18,7 +18,7 @@
 
 function plugin_ref_convert($params)
 {
-  konawiki_setPluginDynamic(false);	
+  konawiki_setPluginDynamic(false);
 	if (count($params) == 0) { return "[usage - #ref(attachname)]"; }
   $page    = konawiki_getPage();
   $page_id = konawiki_getPageId();
@@ -42,7 +42,7 @@ function plugin_ref_convert($params)
     $res = $db->array_query($sql);
     if (!isset($res[0]['id'])) {
       $fname_ = htmlspecialchars($fname);
-      return "<div class='error'>[#ref:file not found:$fname_]</div>"; 
+      return "<div class='error'>[#ref:file not found:$fname_]</div>";
     }
     $id   = $res[0]['id'];
     $mime = $res[0]['ext'];

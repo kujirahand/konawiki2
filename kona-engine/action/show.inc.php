@@ -89,7 +89,7 @@ function action_show_()
 		$is_dynamic_str	= $konawiki_show_as_dynamic_page ? "DYNAMIC" : "STATIC"; 
 		$link_clear_cache = konawiki_getPageURL(false, "show", "", "cache=clear");
 		$link_clear_all_cache = konawiki_getPageURL(false, "show", "", "cache=clearall");
-		$cache_checker =  
+		$cache_checker =
 			"<div style='padding:6px; background-color:#ffffe0; font-size:0.8em; margin-top: 12px;'>".
 			"Cache status : $has_cache_str/$is_dynamic_str - ".
 			"[<a href='$link_clear_cache'>clear</a>]".

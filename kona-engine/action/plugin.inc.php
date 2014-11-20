@@ -7,17 +7,17 @@ function action_plugin_()
     $pname  = konawiki_param("name","");
     $p      = konawiki_param("p","");
     if ($pname == "") { echo "error"; exit; }
-    // check disable 
+    // check disable
     $disable = konawiki_private("plugins.disable");
     if (isset($disable[$pname]) && $disable[$pname]) {
         echo "error"; exit;
     }
-    // get pluin info 
+    // get pluin info
     $pi = konawiki_parser_getPlugin($pname);
     $file    = $pi['file'];
     $init    = $pi['init'];
     $action  = $pi['action'];
-    $convert = $pi['convert'];  
+    $convert = $pi['convert'];
     if (!file_exists($file)) {
         echo 'error'; exit;
     }
