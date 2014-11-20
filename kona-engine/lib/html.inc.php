@@ -12,6 +12,16 @@ function form_input_hidden($name, $value)
 {
   return "<input type='hidden' name='$name' value='$value'/>";
 }
+function form_input_text($name, $value, $opt_array = null)
+{
+  $opt = "";
+  if ($opt_array != null) {
+    foreach ($opt_array as $key => $val) {
+      $opt .= "$key='$val' ";
+    }
+  }
+  return "<input type='text' id='$name' name='$name' value='$value' $opt/>";
+}
 function form_input_submit($caption, $opt_array = null)
 {
   $opt = "";
@@ -63,6 +73,20 @@ function html_css_out($uid) {
     "</style>\n".
     "<!-- CSS($uid).end -->\n";
 }
+
+global $html_js_cache;
+function html_js_out($uid, $code) {
+  global $html_js_cache;
+  if (isset($html_js_cache[$uid])) return "";
+  $html_js_cache[$uid] = true;
+  return 
+    "<!-- js($uid).begin -->\n".
+    "<script type='text/javascript'>\n".
+    $code.
+    "\n</script>\n".
+    "<!-- js($uid).end -->\n";
+}
+
 
 
 

@@ -6,11 +6,11 @@ function action_plugin_()
     $page   = konawiki_getPage();
     $pname  = konawiki_param("name","");
     $p      = konawiki_param("p","");
-    if ($pname == "") { echo "error"; exit; }
+    if ($pname == "") { echo "error (no parameters)"; exit; }
     // check disable
     $disable = konawiki_private("plugins.disable");
     if (isset($disable[$pname]) && $disable[$pname]) {
-        echo "error"; exit;
+        echo "error (disabled)"; exit;
     }
     // get pluin info
     $pi = konawiki_parser_getPlugin($pname);
@@ -19,7 +19,8 @@ function action_plugin_()
     $action  = $pi['action'];
     $convert = $pi['convert'];
     if (!file_exists($file)) {
-        echo 'error'; exit;
+        header("HTTP/1.1 404 Not Found");
+        echo "404 not found"; exit;
     }
     include_once $file;
     // analize params
