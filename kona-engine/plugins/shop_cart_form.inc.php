@@ -441,7 +441,6 @@ function shop_cart_confirm() {
   if ($customer_email == "") {
     return "<h3>お客様情報を入力してください</h3>";
   }
-  $mailto = "$customer_email, $master_email";
   $site_title = konawiki_public("title");
   $sub = konawiki_public("shop_cart.email.subject","[$site_title]");
   $subject = $sub.SHOP_CART_EMAIL_SUBJECT;
@@ -485,8 +484,12 @@ function shop_cart_confirm() {
 {$site_title}
 mailto:{$master_email}
 EOS;
+  // to customer
   $head = "From:$master_email\r\n";
-  mb_send_mail($mailto, $subject, $body, $head);
+  mb_send_mail($customer_email, $subject, $body, $head);
+  // to web master
+  $head = "From:$master_email\r\nReply-To:$customer_email\r\n";
+  mb_send_mail($master_email, $subject, $body, $head);
   //
   $items = json_encode($_SESSION[CART_ITEMS_KEY]);
   $db = new PDO("sqlite:".SHOP_CART_CUSTOMER_DB);
