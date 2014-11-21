@@ -20,13 +20,13 @@ function plugin_center_convert($params)
   $text = array_shift($params);
   $color = array_shift($params);
 
-  $text = htmlentities($text, ENT_QUOTES);
+  $text = konawiki_parser_convert($text, false);
   if ($color !== null) {
     $color = "color:$color;";
   } else {
     $color = "";
   }
-  $text = "<p style='text-align:center;$color'>$text</p>";
+  $text = "<div style='text-align:center;$color'>$text</div>";
   return $text;
 }
 
