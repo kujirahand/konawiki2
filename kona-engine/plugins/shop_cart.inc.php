@@ -39,6 +39,9 @@ function plugin_shop_cart_convert($params)
   $inp_btn = "<input type='submit' value='買い物かごに入れる'>";
   $page = konawiki_getPage();
   $url = konawiki_getPageURL($page, "plugin", "", "name=shop_cart_batch&p=add");
+  html_css_add("#wikibody .sch", array(
+    "width"=>"2em", "text-align"=>"right"
+  ));
   $html .= html_css_out("shop_cart_box");
   $html .= "<div>";
   $html .= "<form action='$url' method='post'>";
@@ -47,9 +50,9 @@ function plugin_shop_cart_convert($params)
   $html .= form_input_hidden("sci_hash", plugin_shop_cart_hash($name, $price));
   $html .= form_input_hidden("back", $page);
   $html .= "<table>";
-  $html .= "<tr><td>商品</td><td>$name_</td></tr>";
-  $html .= "<tr><td>値段</td><td>{$price_}円</td></tr>";
-  $html .= "<tr><td>個数</td><td>{$inp_count}&nbsp;{$inp_btn}</td></tr>";
+  $html .= "<tr><th class='sch'>商品</th><td>$name_</td></tr>";
+  $html .= "<tr><th class='sch'>値段</th><td>{$price_}円</td></tr>";
+  $html .= "<tr><th class='sch'>個数</th><td>{$inp_count}&nbsp;{$inp_btn}</td></tr>";
   $html .= "</table></form></div>";
   return $html;
 }

@@ -63,9 +63,12 @@ function plugin_shop_cart_form_convert($params)
   $html .= form_tag($url);
   $html .= form_input_submit("注文する (お客様の情報を入力)");
   $html .= "</form>\n";
-  // 注文を確定する
-  if ($err) {
-  }
+  $back = konawiki_param("back", konawiki_public('FrontPage'));
+  $back_url = konawiki_getPageURL($back);
+  $html .= form_tag($back_url);
+  $html .= form_input_submit("お買い物に戻る");
+  $html .= "</form>\n";
+  //
   return $html.$foot;
 }
 
