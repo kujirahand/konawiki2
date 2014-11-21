@@ -143,7 +143,7 @@ function shop_cart_getTable() {
 
 function shop_cart_table_text() {
   $page = konawiki_getPage();
-  // カゴの中のアイテム  
+  // カゴの中のアイテム
   $total = 0;
   $items = array();
   if (isset($_SESSION['cart_items'])) {
@@ -343,12 +343,13 @@ function shop_cart_save_customer($info) {
   // insert or update
   if ($is_insert) {
     // insert
-    $q = $db->prepare("INSERT INTO customers (email, data) VALUES (?,?)");
-    $q->execute(array($email, json_encode($info)));
+    $q = $db->prepare("INSERT INTO customers (email, data, ctime, mtime) ".
+                      "VALUES (?,?,?,?)");
+    $q->execute(array($email, json_encode($info), time(), time()));
   } else {
     // update
-    $q = $db->prepare("UPDATE customers SET data=? WHERE email=?");
-    $q->execute(array(json_encode($info), $email));
+    $q = $db->prepare("UPDATE customers SET data=?,mtime=? WHERE email=?");
+    $q->execute(array(json_encode($info), time(), $email));
   }
 }
 
@@ -360,7 +361,9 @@ function shop_cart_get_customer($email) {
   if ($res) {
     $r = $q->fetch();
     if (isset($r["data"])) {
-      return json_decode($r["data"], TRUE);
+      $data = json_decode($r["data"], TRUE);
+      $data["cid"] = $r["cid"];
+      return $data;
     }
   }
   return null;
@@ -443,6 +446,7 @@ function shop_cart_confirm() {
   $sub = konawiki_public("shop_cart.email.subject","[$site_title]");
   $subject = $sub.SHOP_CART_EMAIL_SUBJECT;
   $orders = shop_cart_table_text();
+  $date = date("Y-m-d H:i:s");
   $body = <<< EOS
 {$w["sc_name"]}様
 
@@ -471,6 +475,10 @@ function shop_cart_confirm() {
 郵送先の郵便番号: {$w["sc_zip2"]}
 郵送先の住所: {$w["sc_addr2"]}
 
+■情報確定日時
+
+{$date}
+
 以上、ご確認のほど、よろしくお願いします。
 
 ---
@@ -479,7 +487,12 @@ mailto:{$master_email}
 EOS;
   $head = "From:$master_email\r\n";
   mb_send_mail($mailto, $subject, $body, $head);
-  
+  //
+  $items = json_encode($_SESSION[CART_ITEMS_KEY]);
+  $db = new PDO("sqlite:".SHOP_CART_CUSTOMER_DB);
+  $stmt = $db->prepare("INSERT INTO history (cid,data,ctime)values(?,?,?);");
+  $stmt->execute(array(intval($w["cid"]), $items, time()));
+  $_SESSION[CART_ITEMS_KEY] = array(); // 注文を空にする
   // --- output ---
   $html = "";
   $html .= "<h3>注文ありがとうございました。</h3>";

@@ -72,12 +72,15 @@ function makeShopCartDB() {
     CREATE TABLE IF NOT EXISTS customers (
       cid   INTEGER PRIMARY KEY,
       email TEXT UNIQUE,
-      data  TEXT
+      data  TEXT,
+      ctime INTEGER,
+      mtime INTEGER
     );
     CREATE TABLE IF NOT EXISTS history (
       history_id INTEGER PRIMARY KEY,
       cid INTEGER,
-      data TEXT
+      data TEXT,
+      ctime INTEGER
     );
   ");
 }

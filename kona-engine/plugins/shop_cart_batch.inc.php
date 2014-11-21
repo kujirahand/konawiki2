@@ -58,7 +58,8 @@ function plugin_shop_cart_batch_add() {
   //
   $order_id = isset($_SESSION[CART_ITEMS_ID_KEY])
     ? intval($_SESSION[CART_ITEMS_ID_KEY]) : 1000;
-  $items = $_SESSION[CART_ITEMS_KEY];
+  $items = isset($_SESSION[CART_ITEMS_KEY])
+    ? $_SESSION[CART_ITEMS_KEY] : array();
   $items[] = array(
     "name" => $name,
     "price" => $price,
