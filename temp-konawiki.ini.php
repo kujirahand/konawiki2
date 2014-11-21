@@ -33,6 +33,10 @@ if (isset($authusers['username'])) unset($authusers['username']);
 $authusers['username'] = 'password';
 $users_perm['username'] = array('read'=>true, 'write'=>true);
 
+// option
+// email setting (some plugin use)
+// $private['webmaster.email'] = 'web@kujirahand.com';
+
 //----------------------------------------------------------------------
 // SKIN setting 
 //----------------------------------------------------------------------
