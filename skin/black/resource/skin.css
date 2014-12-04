@@ -40,3 +40,7 @@ a {
   color: black;
   background-color: #c0c0c0;
 }
+#wikimessage .bodypad {
+  background-color: black;
+  color: white;
+}
