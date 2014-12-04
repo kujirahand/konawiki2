@@ -94,6 +94,10 @@ $ko_lang['Completed to Freeze.'] = '凍結しました。';
 $ko_lang['Success to send!'] = '送信が完了しました。';
 $ko_lang['Thank you for your message!'] = 'メッセージありがとうございます。';
 
+$ko_lang['Edit MenuBar'] = '[MenuBar]の編集';
+$ko_lang['Edit SideBar'] = '[SideBar]の編集';
+$ko_lang['Edit NaviBar'] = '[NaviBar]の編集';
+
 //-----------
 // easy help (external)
 include_once 'ja_minihelp.inc.php';

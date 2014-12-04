@@ -21,22 +21,4 @@ FTPソフトで次のファイルのパーミッションを変更します。
 konawikiで可能なすべての設定は、config/default.ini.php に記述されています。
 konawiki.ini.php は、default.ini.php との更新差分だけを記述すればよくなっています。
 
-■レンタルサーバーで利用するとき
-
-●ロリポップで利用するとき
-
-+ FTP でファイルを全部アップロードします。
-+ フォルダ "attach" と "data" のファイル属性を 777 に設定します。
-+ <設置したURL> にアクセスします。動作することを確認します。
-+ temp-konawiki.ini.php を konawiki.ini.php にファイル名を変更します。
-+ konawiki.ini.php の内容を書き換えます。(タイトルやパスワードなど)
-
-●さくらインターネットで利用するとき
-
-+ FTP でファイルを全部アップロードします。
-+ フォルダ "attach" と "data" のファイル属性を 755 に設定します。
-+ <設置したURL> にアクセスします。動作することを確認します。
-+ temp-konawiki.ini.php を konawiki.ini.php にファイル名を変更します。
-+ konawiki.ini.php の内容を書き換えます。(タイトルやパスワードなど)
-
 
