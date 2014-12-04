@@ -25,13 +25,15 @@ $public['norobot'] = false;
 $private['admin.key']   = 'konawiki';
 
 // * login setting user & password
-$private['auth.read.enabled']   = FALSE; 
-$private['auth.write.enabled']  = TRUE; 
-// (ex) $authusers['username1'] = '{md5}1a1dc91c907325c69271ddf0c944bc72';
-// (ex) $authusers['username1'] = '{sha1}9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684';
+// (ex) $authusers['username1'] = 'password';
+// (ex) $authusers['username2'] = '{md5}1a1dc91c907325c69271ddf0c944bc72';
+// (ex) $authusers['username3'] = '{sha1}9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684';
 if (isset($authusers['username'])) unset($authusers['username']);
 $authusers['username'] = 'password';
 $users_perm['username'] = array('read'=>true, 'write'=>true);
+
+$private['auth.read.enabled']   = FALSE; 
+$private['auth.write.enabled']  = TRUE; 
 
 // option
 // email setting (some plugin use)
@@ -41,11 +43,11 @@ $users_perm['username'] = array('read'=>true, 'write'=>true);
 // SKIN setting 
 //----------------------------------------------------------------------
 // skin name -- Please check <skin> folder, write folder name
-$public['skin'] = 'default'; // 'default' or 'col2'
+$public['skin'] = 'default'; // 'default' or 'col2' or 'black' or 'pink'
 // logo and favicon
 $public['logo']    = 'logo.png';
 $public['favicon'] = 'favicon.ico';
-$public['ogimage'] = 'logo-large.png';
+$public['ogimage'] = 'logo-large.png'; // for facebook image
 
 //----------------------------------------------------------------------
 // Attachment file
