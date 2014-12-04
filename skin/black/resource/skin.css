@@ -1,0 +1,42 @@
+/* black skin */
+
+body {
+  background-color: black;
+  color:white;
+}
+a {
+  color: #9999FF;
+}
+
+#wikiheader .headerpad {
+  background-color: #c0c0c0;
+}
+
+#wikibody h2 {
+  color: white;
+}
+#wikibody a:visited {
+  color: #a0a0ff;
+}
+#wikibody a:link {
+  color: #c0c0ff;
+}
+#wikibody .contents {
+  padding: 12px;
+}
+
+#wikinavi .navipad {
+  background-color: #404040;
+}
+
+#.navipad {
+  background-color: #404040;
+}
+#wikinavi h2,h3,h4,h5,h6 {
+  color: black;
+  background-color: #c0c0c0;
+}
+#wikisidebar h2,h3,h4,h5,h6 {
+  color: black;
+  background-color: #c0c0c0;
+}

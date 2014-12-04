@@ -44,9 +44,11 @@ function plugin_recentcomment_convert($params)
         $mtime = intval($e['mtime']);
         $mtime_ = konawiki_date_html($mtime);
         $nameurl = konawiki_getPageURL2($name);
-        $name_ = preg_replace(
-            '/([0-9a-zA-Z\/\-\_]{15,})/e',
-            'substr(\'$1\',0,15).".."', $name);
+        $name_ = preg_replace_callback(
+          '/([0-9a-zA-Z\/\-\_]{15,})/',
+          function ($m) {
+            return substr($m[0],0,15)."..";
+          }, $name);
         $name_ = htmlspecialchars($name_);
         $link = "<a href='{$nameurl}'>{$name_}</a> ($mtime_)";
         if ($showComment) {
