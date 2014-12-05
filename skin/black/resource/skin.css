@@ -12,8 +12,17 @@ a {
   background-color: #c0c0c0;
 }
 
+#navibar a {
+  color: black;
+}
+#wikibody h1 {
+  color: white;
+  background-color: #404040;
+  border-top: 6px solid #c0c0c0;
+}
 #wikibody h2 {
   color: white;
+  background-color: #606060;
 }
 #wikibody a:visited {
   color: #a0a0ff;
@@ -29,14 +38,20 @@ a {
   background-color: #404040;
 }
 
-#.navipad {
-  background-color: #404040;
-}
-#wikinavi h2,h3,h4,h5,h6 {
+#wikinavi h2,
+#wikinavi h3,
+#wikinavi h4,
+#wikinavi h5,
+#wikinavi h6 {
   color: black;
   background-color: #c0c0c0;
+  border-left: 8px solid #909090;
 }
-#wikisidebar h2,h3,h4,h5,h6 {
+#wikisidebar h2,
+#wikisidebar h3,
+#wikisidebar h4,
+#wikisidebar h5,
+#wikisidebar h6 {
   color: black;
   background-color: #c0c0c0;
 }
@@ -44,3 +59,6 @@ a {
   background-color: black;
   color: white;
 }
+
+
+
