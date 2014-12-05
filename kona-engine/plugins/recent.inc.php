@@ -35,7 +35,7 @@ function plugin_recent_convert($params)
         $name_ = preg_replace_callback(
           '#([0-9a-zA-Z\/\-\_]{15,})#',
           function ($m) {
-            return substr($m, 0, 15) . "..";
+            return substr($m[1], 0, 15) . "..";
           }, $name);
         $name_ = htmlspecialchars($name_);
         $link = "<a href='{$nameurl}'>{$name_}</a><span class='memo'>…</span>$mtime_";
