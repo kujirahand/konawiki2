@@ -1,0 +1,87 @@
+/* black skin */
+
+body {
+  background-color: white;
+  color:black;
+}
+a {
+  color: #FF9999;
+}
+
+#wikiheader .headerpad {
+  background-color: orange;
+  color: black;
+}
+#wikiheader .logo a {
+  color: white;
+  font-size: 40px;
+}
+#wikiheader .menu {
+  color: white;
+}
+#wikiheader .menu a {
+  color: yellow;
+}
+#wikiheader .pagename a {
+  font-size: 20px;
+}
+
+#wikibody h1 {
+  background-color: #ffffc0;
+  border-top: 6px solid orange;
+}
+#wikibody a:link {
+  color: orange;
+}
+#wikibody a:visited {
+  color: #ff9090;
+}
+#wikibody .contents {
+  padding: 12px;
+}
+
+#wikinavi .navipad {
+  background-color: #ffffcc;
+  color: black;
+}
+
+#wikinavi h2,
+#wikinavi h3,
+#wikinavi h4,
+#wikinavi h5,
+#wikinavi h6 {
+  color: white;
+  background-color: orange;
+}
+#wikisidebar h2,
+#wikisidebar h3,
+#wikisidebar h4,
+#wikisidebar h5,
+#wikisidebar h6 {
+  color: white;
+  background-color: orange;
+}
+#wikimessage .bodypad {
+  background-color: white;
+  color: black;
+}
+#wikimessage h4 {
+  background-color: #ffc0c0;
+  color: black;
+}
+#wikieditorbody .maintext {
+  background-color: #fff4f4;
+}
+
+#navibar {
+  color: white;
+}
+#navibar a {
+  color: yellow;
+}
+#navibar .navibar {
+  border-top: 1px solid #fff0c0;
+}
+
+
+
