@@ -11,7 +11,7 @@
 #simpleapi(http://nadesi.com, *なでしこのページ)
 }}}
 #simpleapi(http://nadesi.com, *なでしこのページ)
- * - [備考] 
+ * - [備考] 本家simpleapiがうまく動かないのでMozShotに変更
  * - [公開設定] 公開
  */
 
@@ -43,7 +43,7 @@ function plugin_simpleapi_convert($params)
     $attr_str = join(" ", $attr);
     $img = <<<EOS
 <a href="{$url}">
-<img src="http://img.simpleapi.net/small/{$url}" $attr_str />
+<img src="http://mozshot.nemui.org/shot?{$url}" $attr_str />
 </a>
 EOS;
     if ($caption != "") {
