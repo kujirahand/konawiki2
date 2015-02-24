@@ -5,9 +5,10 @@
  * -- lang 言語(php/c/java/html/js/ml/lua/lisp/sql/css/yaml)
  * -- str コード
  * -- テキスト 色を付ける内容
- * - [使用例] &color(#ff0000,赤色の文字!!);
-{{{
-&color(#ff0000,赤色の文字!!);
+ * - [使用例] {{{#code(js)\n ソースコード \n}}};
+{{{#code(js)
+var n = 30;
+function hoge(a, b, c) { return a + b + c; }
 }}}
  */
 
