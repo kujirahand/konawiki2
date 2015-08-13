@@ -10,17 +10,16 @@ var kona_ = {
     flag_autosave: true,
     flag_savelock: false,
     auto_save_time: 1000 * 60 /*sec*/,
-    baseurl:null,
-    this_page:null,
-    this_id:null,
+    baseurl: null,
+    this_page: null,
+    this_id: null,
     timeout: 1000 * 30 /*sec*/,
     dummy: 0
 };
 
 /** debug
  ******************************************************************************/
-function r(e)
-{
+function r(e) {
     var s = "<pre>debug:";
     for (var i in e) {
         if (typeof(i) != "function") {

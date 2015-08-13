@@ -1221,12 +1221,6 @@ function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private 
 		// 普通にキャッシュをクリア
 		if ($backup_db) {
 			// 現状、被リンク問題(@49)(#87)により、全てのキャッシュをクリアする必要がある
-			/*
-			$r = $backup_db->array_query("SELECT log_id FROM cache_logs WHERE log_id=$log_id");
-		    if (isset($r[0]['log_id'])) {
-			    @$backup_db->exec("DELETE FROM cache_logs WHERE log_id=$log_id");
-		    }
-		    */
 			$r = $backup_db->array_query("SELECT log_id FROM cache_logs LIMIT 1");
 		    if ($r) {
 			    $backup_db->exec("DELETE FROM cache_logs");
@@ -1258,7 +1252,16 @@ function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private 
 			}
 		}
 	}
-	//
+  // Update FrontPage mtime
+  $FrontPage = konawiki_public("FrontPage");
+  $sql = "UPDATE logs SET mtime=$mtime WHERE name='$FrontPage'"; 
+  $r = $db->exec($sql);
+  if (!$r) {
+    $err = "FrontPageの更新に失敗:" . $sql;
+    $db->rollback();
+    return FALSE;
+  }
+	// Commit page
 	$db->commit();
 	return TRUE;
 }
