@@ -11,6 +11,7 @@
  
 function plugin_counter_convert($params)
 {
+    global $konawiki;
     // This access counter use Ajax
     konawiki_setPluginDynamic(false);
     if (isset($params[0]) && $params[0] == "js") {
@@ -19,7 +20,7 @@ function plugin_counter_convert($params)
       exit;
     }
     // show HTML/JavaScript Code
-    $page = konawiki_getPage();
+    $page = $konawiki['public']['page_raw'];
     $url = konawiki_getPageURL($page, "plugin", FALSE, 
       "name=counter&amp;p=js"); 
     $url = str_replace("&amp;", "&", $url);

@@ -37,6 +37,7 @@ function plugin_popular_convert($params)
         $log_id = $e['log_id'];
         $name  = konawiki_getPageNameFromId($log_id);
         if ($name == "") continue;
+        if ($name == "FrontPage" || $name == "MenuBar") continue;
         $nameurl = konawiki_getPageURL2($name);
         $name_ = htmlspecialchars($name);
         $c = isset($e["total"]) ? $e["total"] : 0;
