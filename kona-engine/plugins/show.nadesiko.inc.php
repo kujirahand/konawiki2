@@ -53,14 +53,14 @@ function show_nadesiko($plugin, $log)
             $page_ = rawurlencode($page);
             $page2  = "なでしこ $page";
             $page2_ = rawurldecode($page2);
-            $url     = "http://nadesiko.g.hatena.ne.jp/searchword?word=$page_";
+            $url     = "http://nadesiko.g.hatena.ne.jp/keywordlist?word={$page_}";
             $google  = "http://www.google.co.jp/search?hl=ja&lr=lang_ja&q={$page2_}+site%3Apc.nikkeibp.co.jp";
             $google2 = "http://www.google.co.jp/search?hl=ja&lr=lang_ja&q={$page2_}";
             $foot = <<< EOS__
 ----
 -[[なでしこ学習帖($page)を調べてみる:$url]]
 -[[ググってみる:$google2]]＞[[仕事に役立つプログラミング（コラム）検索:$google]]
-~
+
 #googleadsense(nako-yoko)
 
 EOS__;
@@ -96,11 +96,11 @@ function show_nadesiko_showH0()
         foreach ($row as $key => $val) { // to utf8
             $row[$key] = toUTF8($val);
         }
-        $h1   = $row["h1"];
-        $h2   = $row["h2"];
+        $h1   = isset($row["h1"]) ? $row["h1"] : "";
+        $h2   = isset($row["h2"]) ? $row["h2"] : "";
         $h1 = str_replace('/','／',$h1);
         $h2 = str_replace('/','／',$h2);
-        $name = $row["name"];
+        $name = isset($row["name"]) ? $row["name"]: "";
         $head_h1 = "- &link(分類/{$h1});\n";
         if ($head_h1 != $old_head_h1) {
             $res .= $head_h1;
@@ -205,7 +205,9 @@ function show_nadesiko_showCommand($name)
             $h1 = str_replace('/','／',$h1);
             $h2 = str_replace('/','／',$h2);
             $res .= <<< EOS__
+{{{#rem
 #googleadsense(nako-yoko)
+}}}
 
 * $name $kana
 |分類|&link(分類/$h1/$h2);|
@@ -223,7 +225,8 @@ EOS__;
 function show_nadesiko_getDB()
 {
     global $plug_nadesiko;
-    $db = $plug_nadesiko['db.handle'];
+    $db = isset($plug_nadesiko['db.handle']) 
+	? $plug_nadesiko['db.handle'] : "" ;
     if (!$db) {
         $dns = $plug_nadesiko['db.dns'];
         $db = konadb_create_dsn($dns);
@@ -240,6 +243,3 @@ function show_nadesiko_getDB()
     }
     return $db;
 }
-
-
-?>
