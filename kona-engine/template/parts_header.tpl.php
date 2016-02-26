@@ -26,6 +26,14 @@ if (isset($navibar_log["body"])) {
 }
 //----------------------------------------------------------------------
 // check title
+
+// for search page
+$action = $konawiki['public']['action'];
+if ($action == "search") { // no page link
+  $page = 'search';
+  $pagelink = 'search';
+}
+//
 $pagetitle = "$page - $title";
 if ($page == konawiki_public("FrontPage", "FrontPage")) {
   $pagetitle = "$title";
