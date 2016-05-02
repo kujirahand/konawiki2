@@ -45,7 +45,8 @@ function plugin_csv_convert($params)
         $cols = explode(",", $line);
         $html .= "<tr>";
         foreach ($cols as $col) {
-            $col = htmlspecialchars($col, ENT_QUOTES);
+            $col = trim($col);
+            $col = konawiki_parser_convert($col, FALSE);
             $html .= "<th>{$col}</th>";
         }
         $html .= "</tr>\n";
@@ -55,7 +56,8 @@ function plugin_csv_convert($params)
         $cols = explode(",", $line);
         $html .= "<tr>";
         foreach ($cols as $col) {
-            $col = htmlspecialchars(trim($col), ENT_QUOTES);
+            $col = trim($col);
+            $col = konawiki_parser_convert($col, FALSE);
             $html .= "<td>$col</td>";
         }
         $html .= "</tr>\n";
