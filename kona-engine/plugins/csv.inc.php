@@ -1,12 +1,13 @@
 <?php
 /** konawiki plugins -- CSV整形プラグイン
- * - [書式] {{{#csv([noheader]) データ }}}
+ * - [書式] {{{#csv([noheader][flag=xxx]) データ }}}
  * - [引数]
- * -- noheader .. 一行目をヘッダとしない
- * -- データ .. カンマ区切りのCSVデータを指定する
+ * -- noheader ... 一行目をヘッダとしない
+ * -- flag=xxx ... 区切り文字
+ * -- データ ... カンマ区切りのCSVデータを指定する
  * - [使用例]
 {{{
-_{{{#csv
+_{{{#csv(flag=,)
 商品名,金額
 石鹸,400
 シャンプー,600
@@ -28,10 +29,15 @@ function plugin_csv_convert($params)
     
     $noheader = FALSE;
     $csv = "";
+    $delimiter = ",";
     foreach ($params as $s) {
         if ($s == "noheader") {
             $noheader = TRUE;
             continue;
+        }
+        if (preg_match('#flag\=(.+)#', $s, $m)) {
+          $delimiter = $m[1];
+          continue;
         }
         $csv = $s;
         break;
@@ -42,7 +48,7 @@ function plugin_csv_convert($params)
     // header
     if ($noheader == FALSE) {
         $line = array_shift($lines);
-        $cols = explode(",", $line);
+        $cols = explode($delimiter, $line);
         $html .= "<tr>";
         foreach ($cols as $col) {
             $col = trim($col);
@@ -53,7 +59,9 @@ function plugin_csv_convert($params)
     }
     // csv body
     foreach ($lines as $line) {
-        $cols = explode(",", $line);
+        $line = trim($line);
+        if (!$line) continue;
+        $cols = explode($delimiter, $line);
         $html .= "<tr>";
         foreach ($cols as $col) {
             $col = trim($col);
