@@ -177,6 +177,8 @@ function show_plugin_blogtop__navi(&$plugin, &$log)
     } else {
         $foot = "";
     }
+    if (empty($log['body_header'])) $log['body_header'] = '';
+    if (empty($log['body_footer'])) $log['body_footer'] = '';
     $log['body_header'] .= "<div class='contents'>{$head}</div>";
     $log['body_footer'] = $foot."\n".$log['body_footer'];
 }
