@@ -18,7 +18,7 @@
 function plugin_edit_convert($params)
 {
     list($page, $message) = $params;
-    $link = konawiki_getEditLink($p, $message);
+    $link = konawiki_getEditLink($page, $message);
     return $link;
 }
 

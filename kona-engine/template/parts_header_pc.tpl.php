@@ -2,7 +2,6 @@
 <html><head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="content-style-type" content="text/css" />
-
 <?php if ($norobot): ?>
   <meta name="Keywords" content="norobot" />
   <meta name="Robots" content="noindex,nofollow" />
