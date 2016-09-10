@@ -41,5 +41,3 @@
 </head>
 <body>
 <?php include(getSkinPath('parts_header_title.tpl.php')) ?>
-
-

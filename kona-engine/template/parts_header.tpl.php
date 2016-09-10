@@ -55,7 +55,9 @@ foreach ($_list as $line) {
 //----------------------------------------------------------------------
 // put  header
 if (empty($rawtag)) $rawtag = "";
-if (useragent_is_smartphone()) {
+if ($action == "simple") {
+}
+else if (useragent_is_smartphone()) {
 	include(getSkinPath('parts_header_iphone.tpl.php'));
 } else {
 	include(getSkinPath('parts_header_pc.tpl.php'));
