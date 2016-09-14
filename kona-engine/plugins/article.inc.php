@@ -37,7 +37,7 @@ function plugin_article_convert($params)
     $footer = "";
     if ($mode == 'edit') {
         $logs = htmlspecialchars($logs);
-        $logs = "<form action='{$pageurl}'>".
+        $logs = "<form action='{$pageurl}' method='post'>".
             "<textarea rows=8 cols=80 name='body'>".
             $logs.
             "</textarea><br/>".
@@ -64,8 +64,9 @@ function plugin_article_convert($params)
     }
     $s = <<<__EOS
 <div class="comment">
-<div class="article">{$logs}
-</div>
+<div class="article">
+<div class="title">BBS:</div>
+{$logs}</div>
 <form method="post" action="{$pageurl}">
 <p style="display:none">
 <input type="text" name="name" />
@@ -101,8 +102,9 @@ __EOS;
     return $s;
 }
 
-function plugin_article_action(&$params)
+function plugin_article_action($params)
 {
+print_r($params);
     $plugin_name = 'article';
     $pagemode = "{$plugin_name}-mode";
     // check pid
@@ -161,8 +163,7 @@ function plugin_article_action(&$params)
         $resid   = md5('resid-'.$name.$mtime);
         $instext = "*** {$comment} -- ($name) &new($mtime);\n".
             "{$body}\n".
-            "----\n".
-            "#comment($resid)\n".
+            "~\n".
             "\n";
         $logs = $instext.$logs;
     }
@@ -199,4 +200,3 @@ function plugin_article_action(&$params)
     }
 }
 
-?>

@@ -640,6 +640,21 @@ body {
 #wikibody div.comment {
 }
 
+#wikibody div.comment div.article {
+    background-color: white;
+    border: 1px solid #c0c0ff;
+}
+#wikibody div.comment div.article .title {
+    background-color: #eeeeff;
+    padding-left: 6px;
+}
+#wikibody div.comment div.article h3 {
+    border-left: 12px solid #eeeeff;
+    border-top: 1px solid #eeeeff;
+    border-bottom: 1px solid #eeeeff;
+    padding-left: 8px;
+}
+
 #wikibody div.body {
     text-align: left;
     width:100%;
