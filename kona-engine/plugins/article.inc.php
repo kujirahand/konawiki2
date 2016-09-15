@@ -104,7 +104,6 @@ __EOS;
 
 function plugin_article_action($params)
 {
-print_r($params);
     $plugin_name = 'article';
     $pagemode = "{$plugin_name}-mode";
     // check pid
