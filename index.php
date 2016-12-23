@@ -96,9 +96,19 @@ $private['show.plugins']    = array();
 //--------------------------------------------------------------------
 // include user config file
 $rootDir = dirname(__FILE__);
-$ini = $rootDir.'/konawiki.ini.php';
-if (file_exists($ini)) { // user konawiki.ini.php
+$ini = $rootDir.'/data/konawiki.ini.php';
+if (file_exists($ini)) {
   include_once $ini;
+} else {
+  // check old path
+  $ini2 = $rootDir.'/konawiki.ini.php';
+  if (file_exists($ini2)) { // user konawiki.ini.php
+    include_once $ini2;
+  } else {
+    $conf = file_get_contents($rootDir.'/temp-konawiki.ini.php');
+    file_put_contents($ini, $conf);
+    require_once $ini;
+  }
 }
 //--------------------------------------------------------------------
 // include library
