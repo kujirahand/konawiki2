@@ -100,9 +100,6 @@ $ini = $rootDir.'/konawiki.ini.php';
 if (file_exists($ini)) { // user konawiki.ini.php
   include_once $ini;
 }
-else { // debug mode
-  $private['debug'] = true;
-}
 //--------------------------------------------------------------------
 // include library
 $engineDir = $private['dir.engine'];
