@@ -71,6 +71,16 @@ function konawiki_edit_set_event()
             calcTextLength();
         }
     });
+    $('#body_txt').keydown(function(e) {
+      // shortcut Ctrl+S
+      if ((e.metaKey || e.ctrlKey) && e.keyCode == 83) {
+        kona_.flag_change = true;
+        calcTextLength();
+        konawiki_edit_save_btn_click();
+        e.preventDefault();
+        return false;
+      }
+    });
     //--------------------------------------------------------------------------
     // #save_btn
     $('#save_btn').click(konawiki_edit_save_btn_click);

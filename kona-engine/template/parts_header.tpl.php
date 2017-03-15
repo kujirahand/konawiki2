@@ -47,10 +47,12 @@ $ogtype = konawiki_public("og:type", "website");
 
 //----------------------------------------------------------------------
 // addtional JS/CSS
-$include_js_css = "";
-$_list = konawiki_private("html.head.include", array());
-foreach ($_list as $line) {
-    $include_js_css .= "    " . $line . "\n";
+$include_list = konawiki_private("html.head.include", false);
+if ($include_list) {
+  $include_js_css = "";
+  foreach ($include_list as $line) {
+      $include_js_css .= "    " . $line . "\n";
+  }
 }
 //----------------------------------------------------------------------
 // put  header

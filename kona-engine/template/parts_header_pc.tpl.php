@@ -26,7 +26,7 @@
   <link rel="stylesheet" type="text/css" href="<?php echo $theme_css ?>" />
 <?php endif ?>
 
-<?php if ($include_js_css): ?>
+<?php if (isset($include_js_css)): ?>
   <!-- include js css -->
   <?php echo $include_js_css ?>
 <?php endif ?>

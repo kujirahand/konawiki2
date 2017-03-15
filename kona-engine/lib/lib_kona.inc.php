@@ -373,7 +373,7 @@ function konawiki_private($name, $def = null)
 function konawiki_addPrivate($key, $value)
 {
 	global $private;
-	$private[$key] = $value;
+  $private[$key] = $value;
 }
 
 function konawiki_public($name, $def = null)
