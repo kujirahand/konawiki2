@@ -124,7 +124,13 @@ var nako3_print = function (s) {
   if (!info) {
     console.log(s); return;
   }
-  info.innerHTML += to_html(s) + "<br>";
+  if (s.substr(0, 5) == "[err]") {
+    s = s.substr(5);
+    s = "<span style='color:red'>" + to_html(s) + "</span>";
+    info.innerHTML = s;
+  } else {
+    info.innerHTML += to_html(s) + "<br>";
+  }
 };
 var nako3_clear = function (s) {
   var info = nako3_get_info(nako3_info_id);
@@ -137,7 +143,7 @@ function to_html(s) {
   s = "" + s;
   return s.replace(/\&/g, '&amp;')
           .replace(/\</g, '&lt;')
-          .replace(/\>/g, 'gt;')
+          .replace(/\>/g, '&gt;')
           .replace(/\\n/g, '<br>');
 }
 function nako3_run(id) {
@@ -153,6 +159,7 @@ function nako3_run(id) {
     nako3_clear();
     navigator.nako3.run(code);
   } catch (e) {
+    nako3_print("[err]" + e.message + "");
     console.log(e);
   }
 }
