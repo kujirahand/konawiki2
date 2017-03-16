@@ -21,7 +21,7 @@
   <!-- css -->
   <link rel="stylesheet" type="text/css" href="<?php echo $skin_css ?>" />
   <link rel="stylesheet" type="text/css" href="<?php echo getResourceURL('konawiki_iphone.css', TRUE)?>" />
-  <?php echo $include_js_css ?>
+  <?php if(isset($include_js_css)) echo $include_js_css ?>
 
   <title><?php echo $page?> - <?php echo $title?></title>
   
