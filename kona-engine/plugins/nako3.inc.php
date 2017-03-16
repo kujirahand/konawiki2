@@ -9,6 +9,7 @@
  * -- ver=xxx なでしこ3のバージョン
  * -- canvas canvasを用意する場合に指定
  * -- baseurl=url なでしこ3の基本URL
+ * -- edit/editable 編集可能な状態にする
  * -- size=(width)x(height) canvasの幅と高さ
  * - [使用例] #nako3(なでしこのプログラム);
 {{{
@@ -32,7 +33,12 @@ function plugin_nako3_convert($params)
   $size_h = 300;
   $use_canvas = false;
   $baseurl = "";
+  $editable = false;
   foreach ($params as $s) {
+    if ($s == "edit" || $s == "editable") {
+      $editable = true;
+      continue;
+    }
     if (preg_match('#rows\=([0-9]+)#', $s, $m)) {
       $rows = $m[1];
       continue;
@@ -82,6 +88,7 @@ function plugin_nako3_convert($params)
   if ($use_canvas) {
     $canvas_code = "<canvas id='nako3_canvas_$pid'></canvas>";
   }
+  $readonly = ($editable) ? "" : "readonly='1' style='background-color:#f0f0f0;'";
 	$html = trim(htmlspecialchars($code));
   return <<< EOS
 <!-- nako3 plugin -->
@@ -99,7 +106,7 @@ function plugin_nako3_convert($params)
 </style>
 <div class="nako3">
 <div class="nako3row">
-<textarea rows="$rows" id="nako3_code_$pid" class="nako3txt">
+<textarea rows="$rows" id="nako3_code_$pid" class="nako3txt" {$readonly}>
 {$html}
 </textarea></div>
 <div class="nako3row"><button onclick="nako3_run($pid)">実　行</button>
