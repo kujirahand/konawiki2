@@ -124,6 +124,7 @@ var nako3_print = function (s) {
   if (!info) {
     console.log(s); return;
   }
+  s = "" + s; // 文字列に変換
   if (s.substr(0, 5) == "[err]") {
     s = s.substr(5);
     s = "<span style='color:red'>" + to_html(s) + "</span>";
