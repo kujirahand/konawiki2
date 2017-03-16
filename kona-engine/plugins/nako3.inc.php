@@ -53,13 +53,22 @@ function plugin_nako3_convert($params)
     break;
   }
   // URL
-  $baseurl = "http://files.nadesi.com/nako3/$ver";
-  konawiki_header_addJS($baseurl."/release/wnako3.js");
-  konawiki_header_addJS($baseurl."/release/plugin_turtle.js");
+  $include_js = "";
+  if ($pid == 1) {
+    $baseurl = "http://files.nadesi.com/nako3/$ver";
+    // $baseurl = "http://localhost/repos/nadesiko3/src/lang";
+    $jslist = array(
+      $baseurl."/release/wnako3.js",
+      $baseurl."/release/plugin_turtle.js"
+    );
+    foreach ($jslist as $js) {
+      $include_js .= "<script src='$js'></script>";
+    }
+  }
   // JS_CODE
   $js_code = "";
   if ($pid == 1) {
-    $js_code = plugin_nako3_gen_js_code();
+    $js_code = plugin_nako3_gen_js_code($baseurl);
   }
   // CODE
   $canvas_code = "";
@@ -68,6 +77,8 @@ function plugin_nako3_convert($params)
   }
 	$html = trim(htmlspecialchars($code));
   return <<< EOS
+<!-- nako3 plugin -->
+{$include_js}    
 <style>
 .nako3 { border: 1px solid #ffa0ff; padding:4px; margin:0px; }
 .nako3row { margin:0; padding: 0; }
@@ -93,10 +104,11 @@ function plugin_nako3_convert($params)
 EOS;
 }
 
-function plugin_nako3_gen_js_code() {
+function plugin_nako3_gen_js_code($baseurl) {
   return <<< EOS
 <script>
 var nako3_info_id = 0;
+var baseurl = "{$baseurl}";
 var nako3_get_info = function (id) {
   return document.getElementById("nako3_info_" + nako3_info_id);
 };
@@ -125,7 +137,11 @@ function nako3_run(id) {
   var code_e = document.getElementById("nako3_code_"+id);
   if (!code_e) return;
   var code = code_e.value;
-  code = "カメ描画先=「nako3_canvas_" + id + "」\\n" + code;
+  code = 
+    "カメ描画先=「nako3_canvas_" + id + "」;" + 
+    "カメ描画先を表示。"+
+    "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+
+    code;
   try {
     nako3_info_id = id;
     nako3_clear();
