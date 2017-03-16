@@ -119,10 +119,12 @@ EOS;
 }
 
 function plugin_nako3_gen_js_code($baseurl) {
+  $s_use_canvas = ($use_canvas) ? "true" : "false";
   return <<< EOS
 <script>
 var nako3_info_id = 0;
 var baseurl = "{$baseurl}";
+var use_canvas = $s_use_canvas; 
 var nako3_get_info = function (id) {
   return document.getElementById("nako3_info_" + nako3_info_id);
 };
@@ -160,8 +162,8 @@ function nako3_run(id) {
   var code = code_e.value;
   code = 
     "カメ描画先=「nako3_canvas_" + id + "」;" + 
-    "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+
-    code;
+    "カメ全消去;" + 
+    "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+code;
   try {
     nako3_info_id = id;
     nako3_clear();
