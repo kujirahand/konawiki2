@@ -8,6 +8,7 @@
  * -- rows=num エディタの行数
  * -- ver=xxx なでしこ3のバージョン
  * -- canvas canvasを用意する場合に指定
+ * -- baseurl=url なでしこ3の基本URL
  * -- size=(width)x(height) canvasの幅と高さ
  * - [使用例] #nako3(なでしこのプログラム);
 {{{
@@ -30,6 +31,7 @@ function plugin_nako3_convert($params)
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
+  $baseurl = "";
   foreach ($params as $s) {
     if (preg_match('#rows\=([0-9]+)#', $s, $m)) {
       $rows = $m[1];
@@ -37,6 +39,10 @@ function plugin_nako3_convert($params)
     }
     if (preg_match('#ver\=([0-9a-zA-Z\.\_]+)#', $s, $m)) {
       $ver = $m[1];
+      continue;
+    }
+    if (preg_match('#baseurl\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
+      $baseurl = $m[1];
       continue;
     }
     if ($s == "canvas") {
@@ -55,8 +61,9 @@ function plugin_nako3_convert($params)
   // URL
   $include_js = "";
   if ($pid == 1) {
-    $baseurl = "http://files.nadesi.com/nako3/$ver";
-    // $baseurl = "http://localhost/repos/nadesiko3/src/lang";
+    if ($baseurl == "") {
+      $baseurl = "http://files.nadesi.com/nako3/$ver";
+    }
     $jslist = array(
       $baseurl."/release/wnako3.js",
       $baseurl."/release/plugin_turtle.js"
@@ -139,7 +146,6 @@ function nako3_run(id) {
   var code = code_e.value;
   code = 
     "カメ描画先=「nako3_canvas_" + id + "」;" + 
-    "カメ描画先を表示。"+
     "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+
     code;
   try {
