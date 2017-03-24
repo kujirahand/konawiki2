@@ -12,7 +12,8 @@ header("Content-Type: text/html; charset=UTF-8");
 global $konawiki, $public, $private, $authusers, $usrs_perm;
 $scrdir = dirname($_SERVER['SCRIPT_NAME']);
 if ($scrdir == "/") $scrdir = "";
-$scrUri = "http://{$_SERVER['HTTP_HOST']}{$scrdir}";
+$protocol   = empty($_SERVER["HTTPS"]) ? "http://" : "https://";
+$scrUri = "{$protocol}{$_SERVER['HTTP_HOST']}{$scrdir}";
 // set default setting
 $konawiki = array(
   'public'     => array(

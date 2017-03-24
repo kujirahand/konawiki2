@@ -168,8 +168,9 @@ function konawiki_parseURI()
 	    $_GET['stat'] = str_replace('%2F', '/', konawiki_param('stat'));
 	}
 	
-	// baseuri
-	$baseurl  = "http://{$host}{$dir}{$scriptname}{$flag}"; // BASE URI
+  // baseuri
+  $protocol = (empty($_SERVER["HTTPS"]) ? "http://" : "https://");
+	$baseurl  = "{$protocol}{$host}{$dir}{$scriptname}{$flag}"; // BASE URI
 	konawiki_addPublic('baseurl', $baseurl);
 	konawiki_addPublic('scriptname', $scriptname);
 	
