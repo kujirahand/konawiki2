@@ -1199,8 +1199,7 @@ function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private 
             " AND mtime > $recent_time";
 		$res = $backup_db->array_query($sql);
 		$body_ = $backup_db->escape($log['body']);
-		$mtime = $log['mtime'];
-		$ctime = $log['ctime'];
+		$ctime2 = $log['ctime'];
 		if (isset($res[0]['id'])) {
 			$id = $res[0]['id'];
 			$sql = "UPDATE oldlogs SET body='$body_', mtime=$mtime ".
@@ -1208,7 +1207,7 @@ function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private 
 		}
 		else {
 			$sql = "INSERT INTO oldlogs (log_id, name,body,ctime,mtime)".
-                "VALUES($log_id,'$page_','$body_',$ctime,$mtime)";
+                "VALUES($log_id,'$page_','$body_',$ctime2,$mtime)";
 		}
 		$res = $backup_db->exec($sql);
 		if (!$res) {
@@ -1263,7 +1262,8 @@ function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private 
     return FALSE;
   }
 	// Commit page
-	$db->commit();
+  $db->commit();
+  header('X-Konawiki-Result: ok,' . date('Y-m-d H:i:s', $mtime));
 	return TRUE;
 }
 
