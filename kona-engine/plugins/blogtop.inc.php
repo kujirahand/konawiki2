@@ -101,15 +101,7 @@ function plugin_blogtop_convert($params)
         $pageurl = konawiki_getPageURL($name);
         $url = urlencode($pageurl);
         $date = konawiki_date(intval($log['mtime']));
-        $bookmark = <<<EOS__
-<!-- hatena -->
-<a class="bookmark-icon" href="http://b.hatena.ne.jp/entry/{$url}">
-<img class="icon" width="16" height="12" style="border-style:none" alt="このエントリーを含むブックマーク" title="このエントリーを含むブックマーク" src="http://d.hatena.ne.jp/images/b_entry_or.gif"/>
-</a>
-<a class="bookmark-count" href="http://b.hatena.ne.jp/entry/{$url}">
-<img alt="" src="http://b.hatena.ne.jp/entry/image/{$url}"/>
-</a>
-EOS__;
+        $bookmark = '';
         # get comment
         #include_once(KONAWIKI_DIR_PLUGINS."/comment.inc.php");
         # body
