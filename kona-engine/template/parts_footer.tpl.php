@@ -33,7 +33,7 @@
 <?php endif ?>
 
 <div><?php echo $title?> by <?php echo $author?> <?php echo $rsslink?></div>
-<div><a href="http://kujirahand.com/konawiki">konawiki <?php echo $KONAWIKI_VERSION?></a></div>
+<div><a href="https://kujirahand.com/konawiki">konawiki <?php echo $KONAWIKI_VERSION?></a></div>
 </div>
 <?php
     $s = konawiki_private("footer.analytics");

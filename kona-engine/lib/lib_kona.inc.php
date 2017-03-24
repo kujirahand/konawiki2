@@ -7,7 +7,7 @@
  */
 
 // konawiki lib version
-define('KONAWIKI_VERSION', '0.54');
+define('KONAWIKI_VERSION', '0.55');
 
 // check GPC --- $_GET and $_POST and $_COOKIE
 if(get_magic_quotes_gpc()){
