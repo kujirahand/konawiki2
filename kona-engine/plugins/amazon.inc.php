@@ -21,7 +21,7 @@ function plugin_amazon_convert($params)
 function plugin_amazon_convert_getCode($asin,$tcode)
 {
     return <<<EOS
-<iframe src="http://rcm-jp.amazon.co.jp/e/cm?t={$tcode}&o=9&p=8&l=as1&asins={$asin}&fc1=000000&IS2=1&lt1=_blank&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr&npa=1" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe>
+<iframe src="https://rcm-jp.amazon.co.jp/e/cm?t={$tcode}&o=9&p=8&l=as1&asins={$asin}&fc1=000000&IS2=1&lt1=_blank&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr&npa=1" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe>
 EOS;
 }
 
