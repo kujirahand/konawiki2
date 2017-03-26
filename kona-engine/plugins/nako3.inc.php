@@ -28,7 +28,7 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "0.0.3";
+  $ver = "0.0.4";
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
@@ -68,7 +68,8 @@ function plugin_nako3_convert($params)
   $include_js = "";
   if ($pid == 1) {
     if ($baseurl == "") {
-      $baseurl = "http://files.nadesi.com/nako3/$ver";
+      $pc = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
+      $baseurl = "{$pc}nadesi.com/v3/$ver";
     }
     $jslist = array(
       $baseurl."/release/wnako3.js",
