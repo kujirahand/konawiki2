@@ -16,15 +16,15 @@ function plugin_help_convert($params)
     if (!$file) {
     	$file = "FirstGuide.txt";
     }
+    $file = str_replace("..", "", $file);
     $path = KONAWIKI_DIR_HELP."/".$file;
     if (file_exists($path)) {
         $txt = file_get_contents($path);
     } else {
-        $txt = "FILE NOT FOUND:$file";
+        $file = htmlentities($file);
+        return "[#help:file not found:$file]";
     }
     $html = konawiki_parser_convert($txt);
     return $html;
 }
 
-
-?>
