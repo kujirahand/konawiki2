@@ -28,7 +28,7 @@ function action_show_()
             'mtime'         => time(),
         );
         $log_exists = FALSE;
-        header('HTTP/1.0 404 Not Found');
+        // header('HTTP/1.0 404 Not Found');
     }
     // set header & footer & edit_link
     $log['body_header'] = konawiki_getArray($log, 'body_header', '');
