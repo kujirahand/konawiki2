@@ -5,7 +5,13 @@
 function action_go_()
 {
     // get body
-    $no = intval(konawiki_getPage());
+    $page = konawiki_getPage();
+    $no = intval($page);
+    if ($page != $no) { // need number
+      $url = './index.php';
+      header("location: $url");
+      exit;
+    }
     $db = konawiki_getDB();
     $r = $db->array_query("SELECT name FROM logs WHERE id=$no");
     if ($r) {
@@ -13,10 +19,14 @@ function action_go_()
       $url = konawiki_getPageURL($name);
       $url = str_replace('/go.php', '/index.php', $url);
       header("location: $url");
-      exit;
     } else {
-      header("HTTP/1.0 404 Not Found");
+      // header("HTTP/1.0 404 Not Found");
+      $url = './index.php';
+      header("location: $url");
     }
+    echo "<html><body>";
+    echo "<a href='$url'>$url</a>";
+    echo "</body></html>";
 }
 
 
