@@ -43,7 +43,7 @@ function plugin_nako3_convert($params)
       $rows = $m[1];
       continue;
     }
-    if (preg_match('#ver\=([0-9a-zA-Z\.\_]+)#', $s, $m)) {
+    if (preg_match('#ver\=([0-9\.\_]+)#', $s, $m)) {
       $ver = $m[1];
       continue;
     }
@@ -72,7 +72,7 @@ function plugin_nako3_convert($params)
       $baseurl = "{$pc}nadesi.com/v3/$ver";
     }
     $jslist = array(
-      $baseurl."/release/wnako3.js",
+      $baseurl."/release/wnako3.js?v=$ver",
       $baseurl."/release/plugin_turtle.js"
     );
     foreach ($jslist as $js) {
