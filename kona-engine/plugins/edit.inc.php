@@ -17,9 +17,10 @@
 
 function plugin_edit_convert($params)
 {
-    list($page, $message) = $params;
+    # list($page, $message) = $params;
+    $page = array_shift($params);
+    $message = array_shift($params);
     $link = konawiki_getEditLink($page, $message);
     return $link;
 }
 
-?>
