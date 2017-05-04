@@ -87,7 +87,9 @@ function plugin_nako3_convert($params)
   // CODE
   $canvas_code = "";
   if ($use_canvas) {
-    $canvas_code = "<canvas id='nako3_canvas_$pid'></canvas>";
+    $canvas_code = 
+      "<canvas id='nako3_canvas_$pid' ".
+      "width='$size_w' height='$size_h'></canvas>";
   }
   $readonly = ($editable) ? "" : "readonly='1' style='background-color:#f0f0f0;'";
 	$html = trim(htmlspecialchars($code));
