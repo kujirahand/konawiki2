@@ -28,7 +28,7 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "0.0.4";
+  $ver = "0.0.5";
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
