@@ -1,5 +1,5 @@
 <?php
-/** konawiki plugins -- なでしこ3のWEBエディタを表示する 
+/** konawiki plugins -- なでしこ3のWEBエディタを表示する
  * - [書式]
 {{{
 #nako3(なでしこのプログラム);
@@ -24,7 +24,7 @@ function plugin_nako3_convert($params)
   konawiki_setPluginDynamic(true);
   $pid = konawiki_getPluginInfo("nako3", "pid", 1);
   konawiki_setPluginInfo("nako3", "pid", $pid+1);
-  
+
   // default value
   $code = "";
   $rows = 5;
@@ -87,7 +87,7 @@ function plugin_nako3_convert($params)
   // CODE
   $canvas_code = "";
   if ($use_canvas) {
-    $canvas_code = 
+    $canvas_code =
       "<canvas id='nako3_canvas_$pid' ".
       "width='$size_w' height='$size_h'></canvas>";
   }
@@ -95,16 +95,16 @@ function plugin_nako3_convert($params)
 	$html = trim(htmlspecialchars($code));
   return <<< EOS
 <!-- nako3 plugin -->
-{$include_js}    
+{$include_js}
 <style>
 .nako3 { border: 1px solid #ffa0ff; padding:4px; margin:0px; }
 .nako3row { margin:0; padding: 0; }
 .nako3txt {
-  margin:0; padding: 4px; font-size:1em; line-height:1.2em; 
+  margin:0; padding: 4px; font-size:1em; line-height:1.2em;
   width: 98%;
 }
 .nako3row > button { font-size:1em; padding:8px; }
-.nako3info { background-color: #f0f0ff; padding:8px; 
+.nako3info { background-color: #f0f0ff; padding:8px;
   font-size:1em; border:1px solid #a0a0ff; margin:4px; }
 </style>
 <div class="nako3">
@@ -125,47 +125,55 @@ function plugin_nako3_gen_js_code($baseurl) {
   $s_use_canvas = ($use_canvas) ? "true" : "false";
   return <<< EOS
 <script>
-var nako3_info_id = 0;
-var baseurl = "{$baseurl}";
-var use_canvas = $s_use_canvas; 
-var nako3_get_info = function (id) {
-  return document.getElementById("nako3_info_" + nako3_info_id);
-};
+var nako3_info_id = 0
+var baseurl = "{$baseurl}"
+var use_canvas = $s_use_canvas
+var nako3_get_info = function () {
+  return document.getElementById("nako3_info_" + nako3_info_id)
+}
+var nako3_get_canvas = function () {
+  return document.getElementById("nako3_canvas_" + nako3_info_id)
+}
 var nako3_print = function (s) {
   var info = nako3_get_info(nako3_info_id);
   if (!info) {
-    console.log(s); return;
+    console.log(s)
+    return
   }
   s = "" + s; // 文字列に変換
   if (s.substr(0, 5) == "[err]") {
-    s = s.substr(5);
-    s = "<span style='color:red'>" + to_html(s) + "</span>";
-    info.innerHTML = s;
+    s = s.substr(5)
+    s = "<span style='color:red'>" + to_html(s) + "</span>"
+    info.innerHTML = s
   } else {
-    info.innerHTML += to_html(s) + "<br>";
+    info.innerHTML += to_html(s) + "<br>"
   }
-};
+}
 var nako3_clear = function (s) {
-  var info = nako3_get_info(nako3_info_id);
-  if (!info) return; 
-  info.innerHTML = "";
-};
-navigator.nako3.setFunc("表示", nako3_print);
-navigator.nako3.setFunc("表示ログクリア", nako3_clear);
+  var info = nako3_get_info()
+  if (!info) return
+  info.innerHTML = ''
+  var canvas = nako3_get_canvas()
+  if (!canvas) return
+  var ctx = canvas.getContext('2d')
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+}
+navigator.nako3.setFunc("表示", nako3_print)
+navigator.nako3.setFunc("表示ログクリア", nako3_clear)
 function to_html(s) {
-  s = "" + s;
+  s = '' + s
   return s.replace(/\&/g, '&amp;')
           .replace(/\</g, '&lt;')
           .replace(/\>/g, '&gt;')
-          .replace(/\\n/g, '<br>');
+          .replace(/\\n/g, '<br>')
 }
 function nako3_run(id) {
   var code_e = document.getElementById("nako3_code_"+id);
   if (!code_e) return;
   var code = code_e.value;
-  code = 
-    "カメ描画先=「nako3_canvas_" + id + "」;" + 
-    "カメ全消去;" + 
+  code =
+    "カメ描画先=「nako3_canvas_" + id + "」;" +
+    "カメ全消去;" +
     "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+code;
   try {
     nako3_info_id = id;
@@ -179,5 +187,3 @@ function nako3_run(id) {
 </script>
 EOS;
 }
-
-
