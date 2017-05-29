@@ -116,7 +116,7 @@ function plugin_nako3_convert($params)
 </style>
 <div class="nako3">
 <div class="nako3row">
-<form id="nako3codeform" action="{$post_url}" method="POST">
+<form id="nako3codeform_{$pid}" action="{$post_url}" method="POST">
 <textarea rows="$rows" id="nako3_code_$pid" class="nako3txt" name="body" {$readonly}>
 {$html}
 </textarea>
@@ -126,17 +126,17 @@ function plugin_nako3_convert($params)
 <div class="nako3row">
   <button onclick="nako3_run($pid)">実　行</button>
   <button onclick="nako3_clear($pid)">クリア</button>
-  <button id="post_button" onclick="nako3_post()">保存</button>
+  <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">保存</button>
 </div>
 <div class="nako3row nako3info" id="nako3_info_$pid"></div>
 {$canvas_code}
 {$js_code}
 <script>
 // for post
-post_button.style.visibility = {$can_save} ? "visible" : "hidden"
-function nako3_post() {
-  const post_button = document.getElementById('post_button')
-  document.getElementById('nako3codeform').submit();
+post_button_{$pid}.style.visibility = {$can_save} ? "visible" : "hidden"
+function nako3_post_{$pid}() {
+  const post_button = document.getElementById('post_button_{$pid}')
+  document.getElementById('nako3codeform_{$pid}').submit();
 }
 </script>
 </div>
