@@ -18,12 +18,12 @@ $scrUri = "{$protocol}{$_SERVER['HTTP_HOST']}{$scrdir}";
 $konawiki = array(
   'public'     => array(
     'KONAWIKI_VERSION' => '*', //kona-engine/lib/lib_kona.inc.php
-    'KONAWIKI_CONFIG_VER' => 1005,
+    'KONAWIKI_CONFIG_VER' => 1006,
     'title'       => 'KonaWiki2',
     'author'      => 'KonaWiki User',
     'description' => 'KonaWiki - Wiki Clone Application',
     'keywords'    => 'KonaWiki, Wiki',
-    'lang'        => konawiki_getUserLang(), // ja/en 
+    'lang'        => konawiki_getUserLang(), // ja/en
     'timezone'    => 'Asia/Tokyo',
     'norobot'     => false,
     'FrontPage'   => 'FrontPage',
@@ -36,7 +36,7 @@ $konawiki = array(
   'private'    => array(
     'auth.users'      => array(),
     'auth.users.perm' => array(),
-    // init default dir & uri 
+    // init default dir & uri
     // (more) http://kujirahand.com/konawiki/index.php?12&go
     // |+ common wiki
     'dir.engine' => dirname(__FILE__).'/kona-engine',
@@ -121,19 +121,14 @@ if (!file_exists($engineDir)) {
 }
 // include main library
 include_once $engineDir.'/lib/lib_kona.inc.php';
-// initialize 
+// initialize
 konawiki_init();
 //--------------------------------------------------------------------
 // function
 function konawiki_getUserLang() {
-  $accept = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) 
+  $accept = isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
     ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
   $lang = explode(',', $accept);
   $lang = preg_replace('#^(\w+)\-.*$#', '\1', $lang);
   return $lang[0];
 }
-
-
-
-
-

@@ -9,6 +9,7 @@
  * -- ver=xxx なでしこ3のバージョン
  * -- canvas canvasを用意する場合に指定
  * -- baseurl=url なでしこ3の基本URL
+ * --- post=url 保存先CGI(デフォルトは、nako3storage)
  * -- edit/editable 編集可能な状態にする
  * -- size=(width)x(height) canvasの幅と高さ
  * - [使用例] #nako3(なでしこのプログラム);
@@ -28,12 +29,13 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "0.0.5";
+  $ver = "0.0.6";
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
   $baseurl = "";
   $editable = false;
+  $post_url = "https://nadesi.com/v3/storage/index.php?0&presave";
   foreach ($params as $s) {
     if ($s == "edit" || $s == "editable") {
       $editable = true;
@@ -49,6 +51,10 @@ function plugin_nako3_convert($params)
     }
     if (preg_match('#baseurl\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
       $baseurl = $m[1];
+      continue;
+    }
+    if (preg_match('#post\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
+      $post_url = $m[1];
       continue;
     }
     if ($s == "canvas") {
@@ -109,14 +115,26 @@ function plugin_nako3_convert($params)
 </style>
 <div class="nako3">
 <div class="nako3row">
-<textarea rows="$rows" id="nako3_code_$pid" class="nako3txt" {$readonly}>
+<form id="nako3codeform" action="{$post_url}" method="POST">
+<textarea rows="$rows" id="nako3_code_$pid" class="nako3txt" name="body" {$readonly}>
 {$html}
-</textarea></div>
-<div class="nako3row"><button onclick="nako3_run($pid)">実　行</button>
-<button onclick="nako3_clear($pid)">クリア</button></div>
+</textarea>
+<input type="hidden" name="version" value="{$ver}" />
+</form>
+</div>
+<div class="nako3row">
+  <button onclick="nako3_run($pid)">実　行</button>
+  <button onclick="nako3_clear($pid)">クリア</button>
+  <button onclick="nako3_post()">保存</button>
+</div>
 <div class="nako3row nako3info" id="nako3_info_$pid"></div>
 {$canvas_code}
 {$js_code}
+<script>
+function nako3_post() {
+  document.getElementById('nako3codeform').submit();
+}
+</script>
 </div>
 EOS;
 }
