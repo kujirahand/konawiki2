@@ -98,6 +98,7 @@ function plugin_nako3_convert($params)
       "width='$size_w' height='$size_h'></canvas>";
   }
   $readonly = ($editable) ? "" : "readonly='1' style='background-color:#f0f0f0;'";
+  $can_save = ($editable) ? 'true' : 'false';
 	$html = trim(htmlspecialchars($code));
   return <<< EOS
 <!-- nako3 plugin -->
@@ -125,18 +126,17 @@ function plugin_nako3_convert($params)
 <div class="nako3row">
   <button onclick="nako3_run($pid)">実　行</button>
   <button onclick="nako3_clear($pid)">クリア</button>
-  <button onclick="nako3_post()">保存</button>
+  <button id="post_button" onclick="nako3_post()">保存</button>
 </div>
 <div class="nako3row nako3info" id="nako3_info_$pid"></div>
 {$canvas_code}
 {$js_code}
 <script>
+// for post
+post_button.style.visibility = {$can_save} ? "visible" : "hidden"
 function nako3_post() {
-  if ({$editable}) {
-    document.getElementById('nako3codeform').submit();
-  } else {
-    alert('保存できません');
-  }
+  const post_button = document.getElementById('post_button')
+  document.getElementById('nako3codeform').submit();
 }
 </script>
 </div>
