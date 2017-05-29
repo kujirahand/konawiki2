@@ -132,7 +132,11 @@ function plugin_nako3_convert($params)
 {$js_code}
 <script>
 function nako3_post() {
-  document.getElementById('nako3codeform').submit();
+  if ({$editable}) {
+    document.getElementById('nako3codeform').submit();
+  } else {
+    alert('保存できません');
+  }
 }
 </script>
 </div>
