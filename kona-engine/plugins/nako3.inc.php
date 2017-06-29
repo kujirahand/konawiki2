@@ -29,7 +29,8 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "0.0.6";
+  $ver = "0.1.0"; // default version
+  $major_vers = ['0.0.6', '0.1.0']; // メジャーバージョンのみ許容する
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
@@ -46,7 +47,10 @@ function plugin_nako3_convert($params)
       continue;
     }
     if (preg_match('#ver\=([0-9\.\_]+)#', $s, $m)) {
-      $ver = $m[1];
+      $tmp = $m[1];
+      if (in_array($tmp)) {
+        $ver = $tmp;
+      }
       continue;
     }
     if (preg_match('#baseurl\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
@@ -104,7 +108,7 @@ function plugin_nako3_convert($params)
 <!-- nako3 plugin -->
 {$include_js}
 <style>
-.nako3 { border: 1px solid #ffa0ff; padding:4px; margin:0px; }
+.nako3 { border: 1px solid #a0a0ff; padding:4px; margin:2px; }
 .nako3row { margin:0; padding: 0; }
 .nako3txt {
   margin:0; padding: 4px; font-size:1em; line-height:1.2em;
@@ -126,9 +130,9 @@ function plugin_nako3_convert($params)
 <div class="nako3row">
   <button onclick="nako3_run($pid)">実　行</button>
   <button onclick="nako3_clear($pid)">クリア</button>
-  <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">保存</button>
+  <button id="post_button_{$pid}" $onclick="nako3_post_{$pid}()">保存</button>
 </div>
-<div class="nako3row nako3info" id="nako3_info_$pid"></div>
+<div class="nako3row nako3info" id="nako3_info_$pid" style="display:none"></div>
 {$canvas_code}
 {$js_code}
 <script>
@@ -170,11 +174,13 @@ var nako3_print = function (s) {
   } else {
     info.innerHTML += to_html(s) + "<br>"
   }
+  info.style.display = 'block'
 }
 var nako3_clear = function (s) {
   var info = nako3_get_info()
   if (!info) return
   info.innerHTML = ''
+  info.style.display = 'none'
   var canvas = nako3_get_canvas()
   if (!canvas) return
   var ctx = canvas.getContext('2d')
