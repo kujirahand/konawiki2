@@ -115,7 +115,12 @@ function plugin_nako3_convert($params)
   width: 98%;
 }
 .nako3row > button { font-size:1em; padding:8px; }
-.nako3info { background-color: #f0f0ff; padding:8px;
+.nako3info {
+  background-color: #f0f0ff; padding:8px;
+  font-size:1em; border:1px solid #a0a0ff; margin:4px; 
+  width:95%; }
+.nako3error {
+  background-color: #fff0f0; padding:8px; color: #904040;
   font-size:1em; border:1px solid #a0a0ff; margin:4px; }
 </style>
 <div class="nako3">
@@ -132,7 +137,8 @@ function plugin_nako3_convert($params)
   <button onclick="nako3_clear($pid)">クリア</button>
   <button id="post_button_{$pid}" $onclick="nako3_post_{$pid}()">保存</button>
 </div>
-<div class="nako3row nako3info" id="nako3_info_$pid" style="display:none"></div>
+<div class="nako3row nako3error" id="nako3_error_$pid" style="display:none"></div>
+<textarea class="nako3row nako3info" id="nako3_info_$pid" rows="5" style="display:none"></textarea>
 {$canvas_code}
 {$js_code}
 <script>
@@ -157,11 +163,14 @@ var use_canvas = $s_use_canvas
 var nako3_get_info = function () {
   return document.getElementById("nako3_info_" + nako3_info_id)
 }
+var nako3_get_error = function () {
+  return document.getElementById("nako3_error_" + nako3_info_id)
+}
 var nako3_get_canvas = function () {
   return document.getElementById("nako3_canvas_" + nako3_info_id)
 }
 var nako3_print = function (s) {
-  var info = nako3_get_info(nako3_info_id);
+  var info = nako3_get_info();
   if (!info) {
     console.log(s)
     return
@@ -169,18 +178,22 @@ var nako3_print = function (s) {
   s = "" + s; // 文字列に変換
   if (s.substr(0, 5) == "[err]") {
     s = s.substr(5)
-    s = "<span style='color:red'>" + to_html(s) + "</span>"
-    info.innerHTML = s
+    var err = nako3_get_error()
+    err.innerHTML = s
+    err.style.display = 'block'
   } else {
-    info.innerHTML += to_html(s) + "<br>"
+    info.innerHTML += to_html(s) + "\\n"
+    info.style.display = 'block'
   }
-  info.style.display = 'block'
 }
 var nako3_clear = function (s) {
   var info = nako3_get_info()
   if (!info) return
   info.innerHTML = ''
   info.style.display = 'none'
+  var err = nako3_get_error()
+  err.innerHTML = ''
+  err.style.display = 'none'
   var canvas = nako3_get_canvas()
   if (!canvas) return
   var ctx = canvas.getContext('2d')
