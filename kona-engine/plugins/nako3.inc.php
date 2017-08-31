@@ -140,6 +140,7 @@ function plugin_nako3_convert($params)
 <div class="nako3row nako3error" id="nako3_error_$pid" style="display:none"></div>
 <textarea class="nako3row nako3info" id="nako3_info_$pid" rows="5" style="display:none"></textarea>
 {$canvas_code}
+<div id="nako3_div_$pid"></div>
 {$js_code}
 <script>
 // for post
