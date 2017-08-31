@@ -135,12 +135,12 @@ function plugin_nako3_convert($params)
 <div class="nako3row">
   <button onclick="nako3_run($pid)">実　行</button>
   <button onclick="nako3_clear($pid)">クリア</button>
-  <button id="post_button_{$pid}" $onclick="nako3_post_{$pid}()">保存</button>
+  <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">保存</button>
 </div>
 <div class="nako3row nako3error" id="nako3_error_$pid" style="display:none"></div>
 <textarea class="nako3row nako3info" id="nako3_info_$pid" rows="5" style="display:none"></textarea>
 {$canvas_code}
-<div id="nako3_div_$pid"></div>
+<div id="nako3_div_{$pid}"></div>
 {$js_code}
 <script>
 // for post
