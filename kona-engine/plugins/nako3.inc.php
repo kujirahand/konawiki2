@@ -207,7 +207,6 @@ function to_html(s) {
   return s.replace(/\&/g, '&amp;')
           .replace(/\</g, '&lt;')
           .replace(/\>/g, '&gt;')
-          .replace(/\\n/g, '<br>')
 }
 function nako3_run(id) {
   var code_e = document.getElementById("nako3_code_"+id);
