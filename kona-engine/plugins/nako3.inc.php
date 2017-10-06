@@ -29,8 +29,8 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "0.1.5"; // default version
-  $major_vers = ['0.0.6', '0.1.0', '0.1.5']; // メジャーバージョンのみ許容
+  $ver = "0.1.6"; // default version
+  $major_vers = ['0.0.6', '0.1.0', '0.1.5', '0.1.6']; // メジャーバージョンのみ許容
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
