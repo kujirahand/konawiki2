@@ -35,21 +35,24 @@ function plugin_ref_convert($params)
   }
   // is Attach file
   else {
-    // attachにファイルがあれば、それに直リンク
+    // attachファイルのパスを得る
+    // まずはデータベースを確認
     $dir_attach = konawiki_private('dir.attach');
-    $target = $dir_attach.'/'.$fname;
-    if (file_exists($target)) {
-      $file_url = konawiki_private('uri.attach')."/{$fname}";
-    } else {
-      // attachファイルのパスを得る
-      $db = konawiki_getDB();
-      $fname_ = $db->escape($fname);
-      $sql = "SELECT * FROM attach WHERE log_id=$page_id AND name='$fname_' LIMIT 1";
-      $res = $db->array_query($sql);
-      if (!isset($res[0]['id'])) {
+    $db = konawiki_getDB();
+    $fname_ = $db->escape($fname);
+    $sql = "SELECT * FROM attach WHERE log_id=$page_id AND name='$fname_' LIMIT 1";
+    $res = $db->array_query($sql);
+    if (!isset($res[0]['id'])) {
+      // attachにファイルがあれば、それに直リンク
+      $target = $dir_attach.'/'.$fname;
+      if (file_exists($target)) {
+        $file_url = konawiki_private('uri.attach')."/{$fname}";
+      } else {
         $fname_ = htmlspecialchars($fname);
         return "<div class='error'>[#ref:file not found:$fname_]</div>";
       }
+    } else {
+      // データベースのパスに応じてURLを設定
       $id   = $res[0]['id'];
       $mime = $res[0]['ext'];
       $name = $res[0]['name'];
@@ -60,6 +63,7 @@ function plugin_ref_convert($params)
       }
       $file_url = konawiki_private('uri.attach')."/{$id}{$ext}";
     }
+
   }
   $link_url = $file_url;
   // image file ?
