@@ -47,7 +47,7 @@ function konawiki_parser_parse($text)
     // get mark config
     $ul_mark1 = konawiki_private('ul_mark1'); // "・"
     $ul_mark2 = konawiki_private('ul_mark2'); // "≫" (ver102以前 は全角スペースだったが仕様変更)
-    
+
     $h1_mark1 = konawiki_private('h1_mark1'); // "■"
     $h1_mark2 = konawiki_private('h1_mark2'); //
     $h2_mark1 = konawiki_private('h2_mark1'); // "●"
@@ -56,7 +56,7 @@ function konawiki_parser_parse($text)
     $h3_mark2 = konawiki_private('h3_mark2'); //
     $h4_mark1 = konawiki_private('h4_mark1'); // "▼" (TEST)
     $h4_mark2 = konawiki_private('h4_mark2'); //
-    
+
     // main loop
     $tokens = array();
     while ( $text != "") {
@@ -188,7 +188,7 @@ function konawiki_parser_render($tokens, $flag_isContents = TRUE)
     if ($flag_isContents) {
         $html = '<div class="contents">'."\n";
     }
-	
+
     $index = 0;
     while($index < count($tokens)) {
         $value = $tokens[$index++];
@@ -255,7 +255,7 @@ function konawiki_parser_render($tokens, $flag_isContents = TRUE)
                 $img = konawiki_resourceurl()."/img/sub.png";
                 $html .= "<div class='conflictsub'><img src='$img'>$text</div>".$eol;
             }
-            
+
         }
         else if ($cmd == "resmark") {
             $s = konawiki_parser_tohtml($text)."<br/>\n";
@@ -285,7 +285,7 @@ function konawiki_parser_render_hx(&$value)
 {
     global $konawiki_headers, $eol;
     if (empty($konawiki_headers)) $konawiki_headers = array();
-    
+
     $level_from = konawiki_private('header_level_from');
     $level = $value["level"];
     $i = $level + ($level_from - 1);
@@ -514,6 +514,12 @@ function __konawiki_parser_tohtml(&$text, $level)
             $text = substr($text, strlen($m[0]));
             continue;
         }
+        // mailto
+        if (preg_match('/^(mailto)\:[\w\d\.\#\$\%\&\-\=\_\~\^\.\/\?\+\@]+/', $text, $m) > 0) {
+            $result .= konawiki_parser_makeUriLink($m[0]);
+            $text = substr($text, strlen($m[0]));
+            continue;
+        }
         // ~
         if ($c2 == "~\n" || $c2 == "~\r") {
             $result .= "<br/>";
@@ -643,7 +649,7 @@ function konawiki_parser_makeWikiLink($name)
     $link     = ""; // link
     $wikiname = ""; // wikiname
     $wikilink = TRUE;
-    
+
     // [[xxx:xxxx]]
     if (strpos($name, ":") === FALSE) { // simple ?
         // [[wikiname]]
@@ -674,7 +680,7 @@ function konawiki_parser_makeWikiLink($name)
             $wikilink = TRUE;
         }
     }
-    
+
     // wikipage exists ?
     if ($wikilink === TRUE) {
         // exists ?
@@ -745,7 +751,7 @@ function konawiki_parser_plugins(&$text, $flag)
     	$line = mb_substr($line, 1);
     	$res["params"] = explode("～", $line);
     }
-    
+
     // check plugins
     $plugin = konawiki_parser_getPlugin($word);
     $f = $plugin["file"];
@@ -807,7 +813,7 @@ function konawiki_parser_render_plugin($value)
     if ($plugin_params["flag_dynamic"]) {
     	$konawiki_show_as_dynamic_page = true;
     }
-    
+
     return $text;
 }
 
@@ -843,6 +849,3 @@ function konawiki_parser_sourceBlock(&$text)
     }
     return array("cmd"=>"block", "text"=>$src);
 }
-
-
-

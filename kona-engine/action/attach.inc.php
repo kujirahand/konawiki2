@@ -33,7 +33,7 @@ function action_attach_()
     if (preg_match('/(\.\w+)$/',$name, $m)) {
       $ext = $m[1];
     }
-    $uri  = konawiki_private('uri.attach')."/{$id}{$ext}"; 
+    $uri  = konawiki_private('uri.attach')."/{$id}{$ext}";
     $file = KONAWIKI_DIR_ATTACH."/{$id}{$ext}";
     if (file_exists($file)) {
       header("Location: $uri");
@@ -54,9 +54,9 @@ function action_attach_form_parts()
     $page_link  = konawiki_getPageLink($page);
     $baseurl    = konawiki_public("baseurl");
     $enabled    = konawiki_private('attach.enabled');
-    
+
     $res = "<!-- attach form -->\n";
-    
+
     if (!$enabled) {
         $res .= "<div class='error'>添付ファイルの機能は利用できない設定になっています。</div>";
         return $res;
@@ -69,7 +69,7 @@ function action_attach_form_parts()
     action="{$baseurl}"
     method="POST">
 <p>
-  <input type="file" name="userfile" size=40 
+  <input type="file" name="userfile" size=40
     style="border:solid 1px black;padding:8px;margin:4px;"/>
   <input type="submit" value="ファイルを添付">
   <input type="hidden" name="page" value="{$page}"/>
@@ -91,7 +91,8 @@ function action_attach_form()
     $list = konawiki_getAttachList($page);
     if ($list) {
         $dlink = "<table border=1 cellpadding=4>\n".
-            "<tr><td>リンク</td><td>日付</td><td>削除</td><td>Wikiに貼る時</td></tr>\n";
+            "<tr><td>直リンク</td><td>日付</td><td>削除</td>".
+            "<td>Wikiに貼る時(小)</td><td>Wikiに貼る時(中)</td><td>Wikiに貼る時(原寸)</td></tr>\n";
         foreach ($list as $line) {
             $id     = $line['id'];
             $name   = $line['name'];
@@ -105,12 +106,16 @@ function action_attach_form()
                 "<input type='hidden' name='id' value='$id'/>".
                 "<input type='submit' value='削除'/></form>";
             $date   = konawiki_date($line['mtime']);
-            $ref    = "<input type='text' size=20 value='#ref($name_h)'onclick='this.select()'/>";
+            $ref1   = "<input type='text' size=20 value='#ref($name_h,w=300,*{$name_})'onclick='this.select()'/>";
+            $ref2   = "<input type='text' size=20 value='#ref($name_h,w=500,*{$name_})'onclick='this.select()'/>";
+            $ref3   = "<input type='text' size=20 value='#ref($name_h,*{$name_})'onclick='this.select()'/>";
             $dlink .=
                 "<tr><td>$con</td>".
                     "<td>$date</td>".
                     "<td>$button</td>".
-                    "<td>$ref</td>".
+                    "<td>$ref1</td>".
+                    "<td>$ref2</td>".
+                    "<td>$ref3</td>".
                 "</tr>";
         }
         $dlink .= "</table>";
