@@ -35,24 +35,31 @@ function plugin_ref_convert($params)
   }
   // is Attach file
   else {
-    // attachファイルのパスを得る
-    $db = konawiki_getDB();
-    $fname_ = $db->escape($fname);
-    $sql = "SELECT * FROM attach WHERE log_id=$page_id AND name='$fname_' LIMIT 1";
-    $res = $db->array_query($sql);
-    if (!isset($res[0]['id'])) {
-      $fname_ = htmlspecialchars($fname);
-      return "<div class='error'>[#ref:file not found:$fname_]</div>";
+    // attachにファイルがあれば、それに直リンク
+    $dir_attach = konawiki_private('dir.attach');
+    $target = $dir_attach.'/'.$fname;
+    if (file_exists($target)) {
+      $file_url = konawiki_private('uri.attach')."/{$fname}";
+    } else {
+      // attachファイルのパスを得る
+      $db = konawiki_getDB();
+      $fname_ = $db->escape($fname);
+      $sql = "SELECT * FROM attach WHERE log_id=$page_id AND name='$fname_' LIMIT 1";
+      $res = $db->array_query($sql);
+      if (!isset($res[0]['id'])) {
+        $fname_ = htmlspecialchars($fname);
+        return "<div class='error'>[#ref:file not found:$fname_]</div>";
+      }
+      $id   = $res[0]['id'];
+      $mime = $res[0]['ext'];
+      $name = $res[0]['name'];
+      // get real ext
+      $ext = "";
+      if (preg_match('/(\.\w+)$/',$name, $m)) {
+        $ext = $m[1];
+      }
+      $file_url = konawiki_private('uri.attach')."/{$id}{$ext}";
     }
-    $id   = $res[0]['id'];
-    $mime = $res[0]['ext'];
-    $name = $res[0]['name'];
-    // get real ext
-    $ext = "";
-    if (preg_match('/(\.\w+)$/',$name, $m)) {
-      $ext = $m[1];
-    }
-    $file_url = konawiki_private('uri.attach')."/{$id}{$ext}";
   }
   $link_url = $file_url;
   // image file ?
@@ -63,9 +70,20 @@ function plugin_ref_convert($params)
     $style = "";
     foreach ($params as $p) {
       $p = trim($p);
-      if (preg_match("#(\d+)x(\d+)#",$p,$m)) {
+      if (preg_match("#w=(\d+)#",$p,$m)) {
         $attr['width']  = intval($m[1]);
-        $attr['height'] = intval($m[2]);
+        continue;
+      }
+      if (preg_match("#width=(\d+)#",$p,$m)) {
+        $attr['width']  = intval($m[1]);
+        continue;
+      }
+      if (preg_match("#h=(\d+)#",$p,$m)) {
+        $attr['height']  = intval($m[1]);
+        continue;
+      }
+      if (preg_match("#h=(\d+)#",$p,$m)) {
+        $attr['height']  = intval($m[1]);
         continue;
       }
       $c = mb_substr($p, 0, 1);
