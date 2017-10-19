@@ -227,8 +227,10 @@ function action_attach_write()
 <p>[{$page_link}] に [{$attach_link}] を 添付しました。</p>
 <p>Wiki 貼り付けコード:</p>
 <table>
-<tr><td>ノーマル</td><td><input type="text" value="#ref($name_htm)" size=40 onclick="this.select()"/></td></tr>
-<tr><td>インライン</td><td><input type="text" value="&ref($name_htm);" size=40 onclick="this.select()"/></td></tr>
+  <tr><td>ノーマル(小)</td><td><input type="text" value="#ref($name_htm,w=300,*ここに画像タイトル)" size=40 onclick="this.select()"/></td></tr>
+  <tr><td>ノーマル(中)</td><td><input type="text" value="#ref($name_htm,w=500,*ここに画像タイトル)" size=40 onclick="this.select()"/></td></tr>
+  <tr><td>ノーマル(原寸)</td><td><input type="text" value="#ref($name_htm,*ここに画像タイトル)" size=40 onclick="this.select()"/></td></tr>
+  <tr><td>インライン</td><td><input type="text" value="&ref($name_htm);" size=40 onclick="this.select()"/></td></tr>
 </table>
 <p>[<a href="{$back_link}">→一覧を確認する</a>]</p>
 </blockquote>
