@@ -662,11 +662,11 @@ function konawiki_parser_makeWikiLink($name)
         $caption = $e[1];
         $link    = $e[2];
         // protocol ?
-        if ($caption == 'http' || $caption == 'https' || $caption == 'ftp') {
+        if ($caption == 'http' || $caption == 'https' || $caption == 'ftp' || $caption == 'mailto') {
             $link = $caption = $name;
         }
         // check all url
-        if (strpos($link, '://') !== FALSE) {
+        if (strpos($link, '://') !== FALSE || strpos($link, 'mailto:') !== FALSE) {
             // url
             $caption = konawiki_parser_disp_url($caption);
             $link = $link;
