@@ -3,7 +3,7 @@
  * konawiki.css for default skin
  */
 
-/** common setting */ 
+/** common setting */
 * {
     margin:0px;
     padding:0px;
@@ -92,7 +92,7 @@ body {
     width: 980px;
     border-radius: 10px;
     -webkit-border-radius: 10px;
-    background-color: #f0f0fa; 
+    background-color: #f0f0fa;
     border-bottom: solid 1px #d0d0FF;
 }
 #wikiheader .logo
@@ -162,13 +162,13 @@ body {
     margin: 0px auto 4px auto;
     border-top: 1px solid #c0c0cc;
 }
-.navibar ul    { 
-    list-style: none; 
-    padding: 2px 12px; 
+.navibar ul    {
+    list-style: none;
+    padding: 2px 12px;
 }
-.navibar ul li { 
-    float: left; 
-    padding-right: 12px; 
+.navibar ul li {
+    float: left;
+    padding-right: 12px;
 }
 
 /** wikinavi */
@@ -538,6 +538,17 @@ body {
     background: #f9f9f9 no-repeat 8px 4px;
     border: solid 1px lightsteelblue;
     color: #666666;
+}
+
+.strong {
+  font-weight: bold;
+}
+.marker {
+  background-color: yellow;
+}
+.red {
+  font-weight: bold;
+  color: red;
 }
 
 #wikibody div.body {
@@ -1098,4 +1109,3 @@ pre.code span.rem     { color: #909; }
 }
 
 #uptime_div { padding: 4px; }
-
