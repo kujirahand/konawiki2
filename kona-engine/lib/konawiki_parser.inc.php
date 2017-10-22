@@ -166,7 +166,11 @@ function konawiki_parser_parse($text)
                   continue;
                 }
                 // 段落内の改行を有効にする(option)
-                if ($para_br) $plain .= $line.'~'.$eol;
+                if ($para_br) {
+                  $plain .= $line.'~'.$eol;
+                } else {
+                  $plain .= $line.$eol;
+                }
                 // 改行の連続があれば段落を区切る
                 if (substr($text, 0, strlen($eol)) === $eol) break;
                 // 次の行頭にコマンドがあるか? (command?)
