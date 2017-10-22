@@ -7,7 +7,7 @@
  */
 
 // konawiki lib version
-define('KONAWIKI_VERSION', '2.0.55');
+define('KONAWIKI_VERSION', '2.1.0');
 
 // check GPC --- $_GET and $_POST and $_COOKIE
 if(get_magic_quotes_gpc()){
@@ -79,7 +79,7 @@ function konawiki_parseURI()
 	// p3  : /path/index.php?NAME/ACTION/STAT&param=xxx
 	// p4  : /path/index.php?NAME&action=ACTION&stat=STAT&param=xxx
 	// p5  : /path/
-	
+
 	// PATH_INFO で処理するかどうか
 	if (!defined("KONAWIKI_USE_PATH_INFO")) {
 	    define("KONAWIKI_USE_PATH_INFO", FALSE);
@@ -87,7 +87,7 @@ function konawiki_parseURI()
 	}
 	$host   = $_SERVER['HTTP_HOST'];
 	$uri    = $_SERVER['REQUEST_URI'];
-	
+
 	// DIR + SCRIPT + PARAM
 	if (preg_match("#^(.*?){$scriptname}[\/\?]?(.*)$#", $uri, $m)) {
 	    $dir   = $m[1];
@@ -107,7 +107,7 @@ function konawiki_parseURI()
 	}
 	// flag
 	$flag = (KONAWIKI_USE_PATH_INFO) ? "/" : "?";
-	
+
 	//--------------------------------------------------------------
 	// get PATH_INFO
 	$c = substr($param, 0, 1);
@@ -136,7 +136,7 @@ function konawiki_parseURI()
 	}
 	// push dummy
 	array_push($path_args, FALSE, FALSE, FALSE); // set dummy params
-	
+
 	// Set default value
 	// page
 	if (konawiki_param('page', FALSE) === FALSE) {
@@ -167,19 +167,19 @@ function konawiki_parseURI()
 	    $_GET['stat'] = str_replace('%26', '&', konawiki_param('stat'));
 	    $_GET['stat'] = str_replace('%2F', '/', konawiki_param('stat'));
 	}
-	
+
   // baseuri
   $protocol = (empty($_SERVER["HTTPS"]) ? "http://" : "https://");
 	$baseurl  = "{$protocol}{$host}{$dir}{$scriptname}{$flag}"; // BASE URI
 	konawiki_addPublic('baseurl', $baseurl);
 	konawiki_addPublic('scriptname', $scriptname);
-	
+
 	// set action and status params
 	global $konawiki;
 	$page   = konawiki_param('page');
 	$action = konawiki_param('action');
 	$stat   = konawiki_param('stat');
-	
+
 	$konawiki['public']['page']     = htmlspecialchars($page);
 	$konawiki['public']['page_raw'] = $page;
 	$konawiki['public']['action']   = htmlspecialchars($action);
@@ -187,15 +187,15 @@ function konawiki_parseURI()
 	$konawiki['public']['pagelink'] = konawiki_getPageLink($page,"dir");
 	$keyword = "[[".urlencode($page)."]]";
 	$konawiki['public']['backlink'] = konawiki_getPageURL($page, "backlink", "");
-	
+
 	// set resource url
-	$res = $konawiki['public']['resourceurl'] = 
+	$res = $konawiki['public']['resourceurl'] =
 	    dirname($baseurl)."/skin/default/resource";
 	$rss_uri = konawiki_getPageURL("get","rss2");
 	$rss_gif = getResourceURL("img/rss.gif");
-	$konawiki['public']['rsslink'] = 
+	$konawiki['public']['rsslink'] =
 	    "<a href='{$rss_uri}'><img src='{$rss_gif}' alt='RSS'/></a>";
-	
+
 }
 
 
@@ -206,7 +206,7 @@ function konawiki_parseURI()
 function konawiki_execute_action()
 {
   $action = konawiki_param('action');
-  $stat   = konawiki_param('stat'); 
+  $stat   = konawiki_param('stat');
   $module = KONAWIKI_DIR_ACTION."/{$action}.inc.php";
   $func   = "action_{$action}_{$stat}";
   if (file_exists($module)) {
@@ -558,11 +558,11 @@ function konawiki_getPage()
 function konawiki_getPageId($page = FALSE)
 {
 	global $konawiki_page_cache;
-	
+
 	if ($page == FALSE) {
 		$page = konawiki_getPage();
 	}
-	
+
 	// check cache
 	if (empty($konawiki_page_cache)) {
 		$konawiki_page_cache = array();
@@ -570,7 +570,7 @@ function konawiki_getPageId($page = FALSE)
 	if (isset($konawiki_page_cache[$page])) {
 		return $konawiki_page_cache[$page];
 	}
-	
+
 	$db = konawiki_getDB();
 	$page_ = $db->escape($page);
 	$sql = "SELECT id FROM logs WHERE name='$page_' LIMIT 1";
@@ -586,14 +586,14 @@ function konawiki_getPageId($page = FALSE)
 function konawiki_getPageNameFromId($log_id)
 {
 	global $konawiki_pagename_cache;
-	
+
 	if (empty($konawiki_pagename_cache)) {
 		$konawiki_pagename_cache = array();
 	}
 	if (isset($konawiki_pagename_cache[$log_id])) {
 		return $konawiki_pagename_cache[$log_id];
 	}
-	
+
 	$log_id = intval($log_id);
 	$db = konawiki_getDB();
 	$sql = "SELECT name FROM logs WHERE id=$log_id";
@@ -742,10 +742,10 @@ function konawiki_date_html($value, $mode='easy')
     $y     = date("Y", $value);
     if ($y_now == $y) {
       $dfe = konawiki_private('date_format_easy', 'm-d');
-      $s = date($dfe, $value); 
+      $s = date($dfe, $value);
     } else {
       $df = konawiki_private('date_format', 'Y-m-d');
-      $s = date($df, $value); 
+      $s = date($df, $value);
     }
     return "<span class='date'>$s</span>";
 	}
@@ -755,7 +755,7 @@ function konawiki_date_html($value, $mode='easy')
 	$opt = "";
 	$new_limit = time() - (3600 * 24) /* hour */;
   if ($value > $new_limit) {
-    $opt = " <span class='new'>New!</span>"; 
+    $opt = " <span class='new'>New!</span>";
   }
   $fmt = konawiki_private("data_format", 'Y-m-d');
   $s = date($fmt, $value);
@@ -859,7 +859,7 @@ function konawiki_datetime_html($value, $mode='normal')
 		else if ($ty == $vy && $tm == $vm) {
 			$target = ''.$vd.'d'; // Today
 		}
-		// before 6 month? 
+		// before 6 month?
 		else if ($sa <= $DAY * 31 * 6) {
 			$target = "{$vm}/{$vd}";
 		}
@@ -900,7 +900,7 @@ function konawiki_showMessage($msg)
 function konawiki_getLog($page = FALSE, $tablename = "logs")
 {
 	global $konawiki_log_cache;
-	
+
 	if ($page === FALSE) {
 		$page = konawiki_getPage();
 	}
@@ -1051,7 +1051,7 @@ function konawiki_getEditMenuArray($pos)
 	$front  = konawiki_getPageURL2($FrontPage);
   $freeze_url = konawiki_getPageURL2($page, "freeze");
   //
-  $label_freeze = ($freeze == 0) ? konawiki_lang('Freeze') 
+  $label_freeze = ($freeze == 0) ? konawiki_lang('Freeze')
                                  : konawiki_lang('Unfreeze');
 	// login ?
 	$menu = array();
@@ -1254,7 +1254,7 @@ function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private 
 	}
   // Update FrontPage mtime
   $FrontPage = konawiki_public("FrontPage");
-  $sql = "UPDATE logs SET mtime=$mtime WHERE name='$FrontPage'"; 
+  $sql = "UPDATE logs SET mtime=$mtime WHERE name='$FrontPage'";
   $r = $db->exec($sql);
   if (!$r) {
     $err = "FrontPageの更新に失敗:" . $sql;
@@ -1278,7 +1278,7 @@ function konawiki_getContents($page)
   $parent_page = konawiki_getPage();
   $parent_pageId = konawiki_getPageId();
   // set page
-  $_GET["page"] = $page; 
+  $_GET["page"] = $page;
   // render
 	$log = konawiki_getLog($page);
 	if (isset($log["id"])) {
@@ -1350,12 +1350,12 @@ function konawiki_clearCache()
 	global $konawiki_page_cache;
 	global $konawiki_pagename_cache;
 	global $konawiki_log_cache;
-	
+
 	// in memory
 	$konawiki_page_cache = array();
 	$konawiki_pagename_cache = array();
 	$konawiki_log_cache = array();
-	
+
 }
 
 /**
@@ -1451,7 +1451,3 @@ function konawiki_getKeywords($page, $rawtag = "") {
   if ($rawtag) $a[] = $rawtag;
   return implode(",", $a);
 }
-
-
-
-
