@@ -54,8 +54,10 @@ function konawiki_parser_parse($text)
     $h2_mark2 = konawiki_private('h2_mark2'); //
     $h3_mark1 = konawiki_private('h3_mark1'); // "▲"
     $h3_mark2 = konawiki_private('h3_mark2'); //
-    $h4_mark1 = konawiki_private('h4_mark1'); // "▼" (TEST)
+    $h4_mark1 = konawiki_private('h4_mark1'); // "▼"
     $h4_mark2 = konawiki_private('h4_mark2'); //
+
+    $para_br = konawiki_private('para_enabled_br'); // 改行が有効か
 
     // main loop
     $tokens = array();
@@ -155,22 +157,25 @@ function konawiki_parser_parse($text)
         else { // plain block
             $plain = "";
             while ($text != "") {
+                // 一行切り取る
                 $line = konawiki_parser_token($text, $eol);
-                $eos  = substr($line, strlen($line) - 1, 1);
-                $plain .= $line;
-                if ($eos == "~") { $plain .= $eol; }
-                // eol ?
-                if (substr($text, 0, strlen($eol)) === $eol) break;
-                // command ?
-                if ($text == "") break;
-                $c = substr($text, 0, 1);
-                if (strpos("*-+# \t\{",$c) === FALSE) {
-                    continue;
-                } else {
-                    break;
+                // 行末の一文字が「~」か?
+                $last  = substr($line, strlen($line) - 1, 1);
+                if ($last == "~") {
+                  $plain .= $line.$eol;
+                  continue;
                 }
+                // 段落内の改行を有効にする(option)
+                if ($para_br) $plain .= $line.'~'.$eol;
+                // 改行の連続があれば段落を区切る
+                if (substr($text, 0, strlen($eol)) === $eol) break;
+                // 次の行頭にコマンドがあるか? (command?)
+                if ($text == "") break;
+                $c = mb_substr($text, 0, 1);
+                if (strpos("■●▲▼○□△▽*-+# \t\{",$c) === FALSE) continue;
+                break;
             }
-            $tokens[] = array("cmd"=>"plain","text"=>$plain);
+            $tokens[] = array("cmd"=>"plain", "text"=>$plain);
             konawiki_parser_skipEOL($text);
         }
     }
@@ -536,8 +541,8 @@ function __konawiki_parser_tohtml(&$text, $level)
         }
         // ~
         if ($c2 == "~\n" || $c2 == "~\r") {
-            $result .= "<br/>";
-            $text = substr($text, 1);
+            $result .= "<br />";
+            $text = substr($text, 2);
             continue;
         }
         // escape ?

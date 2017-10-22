@@ -91,6 +91,7 @@ $private['entry_begin']         = '<article class="entry">';
 $private['entry_end']           = '</article><!-- end of entry -->';
 $private['session.name']        = 'kona2';
 $private['footer.analytics']    = '';
+$private['para_enabled_br']     = true; // 段落内で改行が有効か
 //
 $private['plugins.disable'] = array();
 $private['show.plugins']    = array();
