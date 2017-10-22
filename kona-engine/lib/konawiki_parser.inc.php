@@ -57,7 +57,7 @@ function konawiki_parser_parse($text)
     $h4_mark1 = konawiki_private('h4_mark1'); // "▼"
     $h4_mark2 = konawiki_private('h4_mark2'); //
 
-    $para_br = konawiki_private('para_enabled_br'); // 改行が有効か
+    $para_br = konawiki_private('para_enabled_br', True); // 改行が有効か
 
     // main loop
     $tokens = array();
