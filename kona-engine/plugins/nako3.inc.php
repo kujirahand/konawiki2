@@ -123,6 +123,7 @@ function plugin_nako3_convert($params)
 .nako3error {
   background-color: #fff0f0; padding:8px; color: #904040;
   font-size:1em; border:1px solid #a0a0ff; margin:4px; }
+.nako3ver { font-size:0.7em; color:gray; }
 </style>
 <div class="nako3">
 <div class="nako3row">
@@ -137,6 +138,7 @@ function plugin_nako3_convert($params)
   <button onclick="nako3_run($pid)">実　行</button>
   <button onclick="nako3_clear($pid)">クリア</button>
   <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">保存</button>
+  <span class='nako3ver'>v3/{$ver}</span>
 </div>
 <div class="nako3row nako3error" id="nako3_error_$pid" style="display:none"></div>
 <textarea class="nako3row nako3info" id="nako3_info_$pid" rows="5" style="display:none"></textarea>
