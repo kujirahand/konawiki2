@@ -34,7 +34,7 @@ function plugin_shop_cart_batch_convert($params)
   if ($pid <= 0) {
     $page = konawiki_getPage();
     $_GET['page'] = '買い物かご';
-    konawiki_writePage('#shop_cart_form()');
+    konawiki_writePage('#shop_cart_form()', $err);
     $_GET['page'] = $page;
   }
   header("location: $url");
