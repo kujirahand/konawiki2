@@ -29,9 +29,11 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "0.1.8"; // default version
-  $major_vers = ['0.0.6', '0.1.0', '0.1.5', '0.1.6', 
-    '0.1.7', '0.1.8']; // メジャーバージョンのみ許容
+  $ver = "3.0.19"; // default version
+  $major_vers = [
+    '0.0.6', '0.1.0', '0.1.5', '0.1.6', '0.1.7', 
+    '0.1.8', '3.0.19'
+  ]; // メジャーバージョンのみ許容
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
@@ -93,7 +95,7 @@ function plugin_nako3_convert($params)
   // JS_CODE
   $js_code = "";
   if ($pid == 1) {
-    $js_code = plugin_nako3_gen_js_code($baseurl);
+    $js_code = plugin_nako3_gen_js_code($baseurl, $use_canvas);
   }
   // CODE
   $canvas_code = "";
@@ -138,7 +140,7 @@ function plugin_nako3_convert($params)
   <button onclick="nako3_run($pid)">実　行</button>
   <button onclick="nako3_clear($pid)">クリア</button>
   <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">保存</button>
-  <span class='nako3ver'>v3/{$ver}</span>
+  <span class='nako3ver'>v{$ver}</span>
 </div>
 <div class="nako3row nako3error" id="nako3_error_$pid" style="display:none"></div>
 <textarea class="nako3row nako3info" id="nako3_info_$pid" rows="5" style="display:none"></textarea>
@@ -157,7 +159,7 @@ function nako3_post_{$pid}() {
 EOS;
 }
 
-function plugin_nako3_gen_js_code($baseurl) {
+function plugin_nako3_gen_js_code($baseurl, $use_canvas) {
   $s_use_canvas = ($use_canvas) ? "true" : "false";
   return <<< EOS
 <script>
