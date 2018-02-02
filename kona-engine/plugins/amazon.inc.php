@@ -20,10 +20,10 @@ function plugin_amazon_convert($params)
 
 function plugin_amazon_convert_getCode($asin,$tcode)
 {
-  $pc = empty($_SERVER['HTTPS']) ? "http://" : "https://";
   return <<<EOS
-<iframe src="{$pc}rcm-jp.amazon.co.jp/e/cm?t={$tcode}&o=9&p=8&l=as1&asins={$asin}&fc1=000000&IS2=1&lt1=_blank&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr&npa=1" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe>
+<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="https://rcm-fe.amazon-adsystem.com/e/cm?ref=tf_til&t={$tcode}&m=amazon&o=9&p=8&l=as1&IS2=1&detail=1&asins={$asin}&linkId=97170724c87fa892e4a05732776c9586&bc1=000000&lt1=_blank&fc1=333333&lc1=0066C0&bg1=FFFFFF&f=ifr">
+    </iframe>
 EOS;
 }
 
-?>
+
