@@ -119,31 +119,52 @@ function plugin_nako3_convert($params)
 }
 .nako3row > button { font-size:1em; padding:8px; }
 .nako3info {
-  background-color: #f0f0ff; padding:8px;
-  font-size:1em; border:1px solid #a0a0ff; margin:4px; 
-  width:95%; }
+  background-color: #f0f0ff;
+  border: 1px solid #a0a0ff;
+  padding: 4px; margin: 0;
+  font-size: 1em;
+  width:98%;
+}
 .nako3error {
   background-color: #fff0f0; padding:8px; color: #904040;
-  font-size:1em; border:1px solid #a0a0ff; margin:4px; }
+  font-size:1em; border:1px solid #a0a0ff; margin:4px;
+}
 .nako3ver { font-size:0.7em; color:gray; }
+.nako3info_html {
+  border: 1px solid #a0a0a0;
+  padding: 4px; margin: 4px;
+}
+.nako3_conv_html_link {
+  color: navy;
+  font-size: 9px; padding: 4px;
+  border: 1px solid silver;
+  background-color: #f0f0f0;
+}
 </style>
 <div class="nako3">
 <div class="nako3row">
 <form id="nako3codeform_{$pid}" action="{$post_url}" method="POST">
-<textarea rows="$rows" id="nako3_code_$pid" class="nako3txt" name="body" {$readonly}>
-{$html}
-</textarea>
+<textarea rows="$rows" id="nako3_code_$pid"
+          class="nako3txt" name="body" {$readonly}>{$html}</textarea>
 <input type="hidden" name="version" value="{$ver}" />
 </form>
 </div>
-<div class="nako3row">
-  <button onclick="nako3_run($pid)">実　行</button>
+<div class="nako3row" style="padding-bottom:4px;">
+  <button onclick="nako3_run($pid)">▶ 実行</button>
   <button onclick="nako3_clear($pid)">クリア</button>
-  <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">保存</button>
-  <span class='nako3ver'>v{$ver}</span>
+  <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">公開</button>
+  <span class='nako3ver'>&nbsp;&nbsp;v{$ver}</span>
 </div>
 <div class="nako3row nako3error" id="nako3_error_$pid" style="display:none"></div>
-<textarea class="nako3row nako3info" id="nako3_info_$pid" rows="5" style="display:none"></textarea>
+<div id="nako3result_div_$pid" class="nako3row" style="display:none;">
+  <textarea class="nako3row nako3info" readonly
+            id="nako3_info_$pid" rows="5" style="display:none"></textarea>
+  <div style="text-align:right;margin:0;padding:0">
+    <span id="nako3_conv_html_$pid" class="nako3_conv_html_link"
+             onclick="nako3_conv_html($pid)">→HTML出力</span>
+  </div>
+  <div id="nako3_info_html_$pid" class="nako3info_html" style="display:none"></div>
+</div>
 {$canvas_code}
 <div id="nako3_div_{$pid}"></div>
 {$js_code}
@@ -166,6 +187,9 @@ function plugin_nako3_gen_js_code($baseurl, $use_canvas) {
 var nako3_info_id = 0
 var baseurl = "{$baseurl}"
 var use_canvas = $s_use_canvas
+var nako3_get_resultbox = function () {
+  return document.getElementById("nako3result_div_" + nako3_info_id)
+}
 var nako3_get_info = function () {
   return document.getElementById("nako3_info_" + nako3_info_id)
 }
@@ -175,23 +199,27 @@ var nako3_get_error = function () {
 var nako3_get_canvas = function () {
   return document.getElementById("nako3_canvas_" + nako3_info_id)
 }
+// 表示
 var nako3_print = function (s) {
-  var info = nako3_get_info();
-  if (!info) {
-    console.log(s)
-    return
-  }
-  s = "" + s; // 文字列に変換
-  if (s.substr(0, 5) == "[err]") {
-    s = s.substr(5)
+  console.log("[表示] " + s)
+  var info = nako3_get_info()
+  if (!info) return
+  var box = nako3_get_resultbox()
+  box.style.display = 'block'  
+  s = "" + s // 文字列に変換
+  // エラーだった場合
+  if (s.substr(0, 9) == "==ERROR==") {
+    s = s.substr(9)
     var err = nako3_get_error()
     err.innerHTML = s
     err.style.display = 'block'
+    return
   } else {
     info.innerHTML += to_html(s) + "\\n"
     info.style.display = 'block'
   }
 }
+//---------------------------------
 var nako3_clear = function (s) {
   var info = nako3_get_info()
   if (!info) return
@@ -205,6 +233,8 @@ var nako3_clear = function (s) {
   var ctx = canvas.getContext('2d')
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
+
+// 独自関数の登録
 navigator.nako3.setFunc("表示", nako3_print)
 navigator.nako3.setFunc("表示ログクリア", nako3_clear)
 function to_html(s) {
@@ -213,22 +243,33 @@ function to_html(s) {
           .replace(/\</g, '&lt;')
           .replace(/\>/g, '&gt;')
 }
+//------------------------------------
+// なでしこのプログラムを実行する関数
+//------------------------------------
 function nako3_run(id) {
-  var code_e = document.getElementById("nako3_code_"+id);
-  if (!code_e) return;
-  var code = code_e.value;
+  var code_e = document.getElementById("nako3_code_" + id)
+  if (!code_e) return
+  var code = code_e.value
   code =
     "カメ描画先=「nako3_canvas_" + id + "」;" +
     "カメ全消去;" +
-    "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+code;
+    "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+code
   try {
-    nako3_info_id = id;
-    nako3_clear();
-    navigator.nako3.run(code);
+    nako3_info_id = id
+    nako3_clear()
+    navigator.nako3.run(code)
+    console.log("DONE")
   } catch (e) {
-    nako3_print("[err]" + e.message + "");
-    console.log(e);
+    nako3_print("==ERROR==" + e.message + "")
+    console.log(e)
   }
+}
+// コンソールに出したテキストをHTMLに変換して表示
+function nako3_conv_html(id) {
+  var textInfo = document.getElementById('nako3_info_' + id)
+  var htmlInfo = document.getElementById('nako3_info_html_' + id)
+  htmlInfo.style.display = 'block'
+  htmlInfo.innerHTML = textInfo.value
 }
 </script>
 EOS;
