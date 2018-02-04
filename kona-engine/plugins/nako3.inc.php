@@ -51,7 +51,7 @@ function plugin_nako3_convert($params)
     }
     if (preg_match('#ver\=([0-9\.\_]+)#', $s, $m)) {
       $tmp = $m[1];
-      if (in_array($tmp)) {
+      if (in_array($tmp, $major_vers)) {
         $ver = $tmp;
       }
       continue;
@@ -82,14 +82,14 @@ function plugin_nako3_convert($params)
   if ($pid == 1) {
     if ($baseurl == "") {
       $pc = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
-      $baseurl = "{$pc}nadesi.com/v3/$ver";
+      $baseurl = "https://nadesi.com/v3/$ver";
     }
     $jslist = array(
       $baseurl."/release/wnako3.js?v=$ver",
       $baseurl."/release/plugin_turtle.js"
     );
     foreach ($jslist as $js) {
-      $include_js .= "<script src='$js'></script>";
+      $include_js .= "<script defer src='$js'></script>";
     }
   }
   // JS_CODE
@@ -235,8 +235,16 @@ var nako3_clear = function (s) {
 }
 
 // 独自関数の登録
-navigator.nako3.setFunc("表示", nako3_print)
-navigator.nako3.setFunc("表示ログクリア", nako3_clear)
+var nako3_add_func = function () {
+  navigator.nako3.setFunc("表示", nako3_print)
+  navigator.nako3.setFunc("表示ログクリア", nako3_clear)
+}
+var nako3_init_timer = setInterval(function(){
+  if (typeof(navigator.nako3) === 'undefined') return
+  clearInterval(nako3_init_timer)
+  nako3_add_func()
+}, 500)
+  
 function to_html(s) {
   s = '' + s
   return s.replace(/\&/g, '&amp;')
@@ -247,6 +255,10 @@ function to_html(s) {
 // なでしこのプログラムを実行する関数
 //------------------------------------
 function nako3_run(id) {
+  if (typeof(navigator.nako3) === 'undefined') {
+    alert('現在ライブラリを読み込み中です。しばらくお待ちください。')
+    return
+  }
   var code_e = document.getElementById("nako3_code_" + id)
   if (!code_e) return
   var code = code_e.value
