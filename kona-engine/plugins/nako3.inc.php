@@ -29,10 +29,10 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.0.19"; // default version
+  $ver = "3.0.20"; // default version
   $major_vers = [
     '0.0.6', '0.1.0', '0.1.5', '0.1.6', '0.1.7', 
-    '0.1.8', '3.0.19'
+    '0.1.8', '3.0.19', '3.0.20'
   ]; // メジャーバージョンのみ許容
   $size_w = 300;
   $size_h = 300;
