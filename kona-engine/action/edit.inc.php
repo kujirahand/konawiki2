@@ -74,7 +74,7 @@ function action_edit_update()
         include_once(KONAWIKI_DIR_LIB."/konawiki_diff.inc.php");
         if (konawiki_diff_checkConflict($body_, $log["body"])) {
             $body = htmlspecialchars($body, ENT_QUOTES);
-            $log["conflict_body"] = 
+            $log["conflict_body"] =
                 "<div class='desc'>".konawiki_lang('Now your writing').":</div>".
                 "<textarea id='conflict_text' class='difftext' cols='84' rows='8'>{$body}</textarea>".
                 "<div><input type='button' value='Change' id='conflict_copy_edit_btn'></div>".
@@ -169,7 +169,7 @@ function action_edit_delete()
     }
     //
     $page_ = htmlspecialchars($page);
-    $r["body"] = 
+    $r["body"] =
         konawiki_lang('Success to remove.').
         " : [$page_]<br/>".
         sprintf(konawiki_lang('Deleted %d attachment files.'), $del_files)."<br/>"
@@ -193,7 +193,7 @@ function action_edit_api__write()
         exit;
     }
     konawiki_clearCache();
-    
+
     $page = konawiki_getPage();
     $body = konawiki_param("body");
     $tag  = konawiki_param("tag");
@@ -217,7 +217,7 @@ function action_edit_log()
         konawiki_error(konawiki_lang('Sorry, You do not have permission.'));
     }
     konawiki_clearCache();
-    
+
     $b_id = konawiki_param('id', FALSE);
     if ($b_id == FALSE) {
         konawiki_error('id not set.');
@@ -241,7 +241,7 @@ function action_edit_removebackup()
         konawiki_error(konawiki_lang('Sorry, You do not have permission.'));
     }
     konawiki_clearCache();
-    
+
     $cmd = konawiki_param('cmd');
     if ($cmd !== "removebackup") {
         konawiki_error('コマンドの妥当性がチェックできません。');
@@ -270,7 +270,7 @@ function action_edit_command()
         konawiki_error(konawiki_lang('Sorry, You do not have permission.'));
     }
     konawiki_clearCache();
-    
+
     // edit command
     $mode = konawiki_param("command_mode", "");
     if ($mode == "replace_allpage") {
@@ -285,6 +285,9 @@ function action_edit_command()
     else if ($mode == "renamepage_ex_preview") {
         __action_edit_command_renamepage_ex_preview();
     }
+    else if ($mode == "batch") {
+        __action_edit_command_batch();
+    }
     else {
         konawiki_error("チェックボックスをチェックしてから実行ボタンを押してください。");
     }
@@ -293,7 +296,7 @@ function action_edit_command()
 function __action_edit_command_renamepage()
 {
 	konawiki_clearCache();
-	
+
     // get parameter
     $newname = trim(konawiki_param("newname"));
     $admin = trim(konawiki_param("admin"));
@@ -310,7 +313,7 @@ function __action_edit_command_renamepage()
     }
     $newname_sql = $db->escape($newname);
     $newname_htm = konawiki_getPageLink($newname);
-    
+
     $db->begin();
     $now = time();
     $sql = "UPDATE logs SET name = '{$newname_sql}', mtime={$now} WHERE id=$log_id";
@@ -339,7 +342,7 @@ function __action_edit_command_replace_allpage()
         konawiki_error("No search key."); exit;
     }
     $db = konawiki_getDB();
-    
+
     $sql = "SELECT id FROM logs";
     $r  = $db->array_query($sql);
     if (!$r) {
@@ -566,6 +569,56 @@ function __action_edit_command_renamepage_ex()
     $db->commit();
 }
 
+function __action_edit_command_batch() {
+  if (!konawiki_auth()) {
+      konawiki_error(konawiki_lang('Sorry, You do not have permission.'));
+  }
+  konawiki_clearCache();
+  // get parameter
+  $db = konawiki_getDB();
+  $admin = trim(konawiki_param("admin"));
+  if ($admin !== konawiki_private("admin.key")) {
+      konawiki_error("管理者キーが違います。");
+      exit;
+  }
+  // --- batch
+  $names = array();
+  $text = empty($_POST['batch_ta']) ? '' : $_POST['batch_ta'];
+  $lines = explode("###PAGE###", $text);
+  $db->begin();
+  foreach ($lines as $p) {
+    $p = trim($p);
+    if (substr($p, 0, 1) != ':') continue;
+    $sls = explode("\n", $p);
+    $cmd = explode(":", $sls[0].":::");
+    $cmd_mode = trim($cmd[1]);
+    $name = trim($cmd[2]);
+    $sls = array_slice($sls, 1);
+    $body = implode("\n", $sls);
+    if ($name == '') continue;
+    $name2 = $db->escape($name);
+    $body2 = $db->escape($body);
+    $tm = time();
+    $sql = "INSERT INTO logs (name, body, ctime, mtime) VALUES (";
+    $sql .= "'{$name2}', '{$body2}', $tm, $tm";
+    $sql .= ");";
+    if ($cmd_mode === 'w') {
+      $db->exec("DELETE FROM logs WHERE name='{$name2}';");
+      $db->exec($sql);
+    }
+    else if ($cmd_mode === 'c') {
+      $a = $db->array_query("SELECT * FROM logs WHERE name='{$name2}'");
+      if (count($a) == 0) {
+        $db->exec($sql);
+      }
+    }
+    $names[] = $name2;
+  }
+  $db->commit();
+  $msg = "バッチ処理を実行しました。(".implode(",",$names).')';
+  konawiki_showMessage($msg);
+}
+
 function action_edit_preview()
 {
     if (!konawiki_auth()) {
@@ -574,11 +627,3 @@ function action_edit_preview()
     $log["body"] = konawiki_param("body");
     include_template("preview.tpl.php", $log);
 }
-
-
-
-
-
-
-
-

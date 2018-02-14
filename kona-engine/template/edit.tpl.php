@@ -161,6 +161,7 @@ include(getSkinPath("parts_backuplist.tpl.php"));
 include(getSkinPath("parts_replace_form.tpl.php"));
 include(getSkinPath("parts_rename_form.tpl.php"));
 include(getSkinPath("parts_rename_ex_form.tpl.php"));
+include(getSkinPath("parts_batch.tpl.php"));
 ?>
 <h6>Export</h6>
 <ul>
