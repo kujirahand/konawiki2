@@ -6,7 +6,11 @@
   <div class="pageinfo">
   <?php if ($ctime_html != $mtime_html):?>
     <?php echo konawiki_lang('Updated time','Updated').': '.$mtime_html?><br>
-    <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?> 
+    <?php
+    if (konawiki_public("FrontPage") != konawiki_getPage()) {
+      echo konawiki_lang('Created time','Created').": ".$ctime_html;
+    }
+    ?> 
   <?php else: ?>
     <?php echo konawiki_lang('Created time','Created').": ".$ctime_html?>
   <?php endif; ?>
