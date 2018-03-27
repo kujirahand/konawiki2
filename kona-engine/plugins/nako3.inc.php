@@ -29,10 +29,11 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.0.36"; // default version
+  $ver = "3.0.37"; // default version
   $major_vers = [
-    '0.0.6', '0.1.0', '0.1.5', '0.1.6', '0.1.7', 
+    '0.0.6', '0.1.0', '0.1.5', '0.1.6', '0.1.7',
     '0.1.8', '3.0.19', '3.0.21', '3.0.31', '3.0.36',
+    '3.0.37'
   ]; // メジャーバージョンのみ許容
   $size_w = 300;
   $size_h = 300;
@@ -205,7 +206,7 @@ var nako3_print = function (s) {
   var info = nako3_get_info()
   if (!info) return
   var box = nako3_get_resultbox()
-  box.style.display = 'block'  
+  box.style.display = 'block'
   s = "" + s // 文字列に変換
   // エラーだった場合
   if (s.substr(0, 9) == "==ERROR==") {
@@ -244,7 +245,7 @@ var nako3_init_timer = setInterval(function(){
   clearInterval(nako3_init_timer)
   nako3_add_func()
 }, 500)
-  
+
 function to_html(s) {
   s = '' + s
   return s.replace(/\&/g, '&amp;')
@@ -262,8 +263,10 @@ function nako3_run(id) {
   var code_e = document.getElementById("nako3_code_" + id)
   if (!code_e) return
   var code = code_e.value
+  var canvas_name = "#nako3_canvas_" + id
   code =
-    "カメ描画先=「nako3_canvas_" + id + "」;" +
+    "「" + canvas_name + "」へ描画開始;" +
+    "カメ描画先=「" + canvas_name + "」;" +
     "カメ全消去;" +
     "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+code
   try {
