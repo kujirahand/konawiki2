@@ -141,6 +141,19 @@ function plugin_nako3_convert($params)
   border: 1px solid silver;
   background-color: #f0f0f0;
 }
+.nako3_div {
+  font-size: 1em;
+  line-height: 1.1em;
+}
+.nako3_div > button {
+  margin: 4px;
+  padding: 4px;
+  font-size: 0.9em;
+}
+.nako3_div input[type=checkbox] {
+  padding: 4px;
+  margin: 4px;
+}
 </style>
 <div class="nako3">
 <div class="nako3row">
@@ -167,7 +180,7 @@ function plugin_nako3_convert($params)
   <div id="nako3_info_html_$pid" class="nako3info_html" style="display:none"></div>
 </div>
 {$canvas_code}
-<div id="nako3_div_{$pid}"></div>
+<div id="nako3_div_{$pid}" class="nako3_div"></div>
 {$js_code}
 <script>
 // for post
@@ -199,6 +212,9 @@ var nako3_get_error = function () {
 }
 var nako3_get_canvas = function () {
   return document.getElementById("nako3_canvas_" + nako3_info_id)
+}
+var nako3_get_div = function () {
+  return document.getElementById("nako3_div_" + nako3_info_id)
 }
 // 表示
 var nako3_print = function (s) {
@@ -233,6 +249,8 @@ var nako3_clear = function (s) {
   if (!canvas) return
   var ctx = canvas.getContext('2d')
   ctx.clearRect(0, 0, canvas.width, canvas.height)
+  var div = nako3_get_div()
+  if (div) div.innerHTML = ''
 }
 
 // 独自関数の登録
@@ -264,7 +282,10 @@ function nako3_run(id) {
   if (!code_e) return
   var code = code_e.value
   var canvas_name = "#nako3_canvas_" + id
+  var div_name = "#nako3_div_" + id
   code =
+    "「" + div_name + "」へDOM親要素設定;" +
+    "「" + div_name + "」に「」をHTML設定;" +
     "「" + canvas_name + "」へ描画開始;" +
     "カメ描画先=「" + canvas_name + "」;" +
     "カメ全消去;" +
