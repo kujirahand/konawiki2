@@ -97,6 +97,7 @@ function plugin_nako3_convert($params)
       "<canvas id='nako3_canvas_$pid' ".
       "width='$size_w' height='$size_h'></canvas>";
   }
+  $j_use_canvas = ($use_canvas) ? 1 : 0;
   $readonly = ($editable) ? "" : "readonly='1' style='background-color:#f0f0f0;'";
   $can_save = ($editable) ? 'true' : 'false';
 	$html = trim(htmlspecialchars($code));
@@ -156,8 +157,8 @@ function plugin_nako3_convert($params)
 </form>
 </div>
 <div class="nako3row" style="padding-bottom:4px;">
-  <button onclick="nako3_run($pid)">▶ 実行</button>
-  <button onclick="nako3_clear($pid)">クリア</button>
+  <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行</button>
+  <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
   <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">公開</button>
   <span class='nako3ver'>&nbsp;&nbsp;v{$ver}</span>
 </div>
@@ -188,6 +189,7 @@ EOS;
 
 function plugin_nako3_gen_js_code($baseurl, $use_canvas) {
   $s_use_canvas = ($use_canvas) ? "true" : "false";
+  $j_use_canvas = ($use_canvas) ? 1 : 0;
   return <<< EOS
 <script>
 var nako3_info_id = 0
@@ -229,7 +231,7 @@ var nako3_print = function (s) {
   }
 }
 //---------------------------------
-var nako3_clear = function (s) {
+var nako3_clear = function (s, use_canvas) {
   var info = nako3_get_info()
   if (!info) return
   info.innerHTML = ''
@@ -237,12 +239,15 @@ var nako3_clear = function (s) {
   var err = nako3_get_error()
   err.innerHTML = ''
   err.style.display = 'none'
-  var canvas = nako3_get_canvas()
-  if (!canvas) return
-  var ctx = canvas.getContext('2d')
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
   var div = nako3_get_div()
   if (div) div.innerHTML = ''
+  if (use_canvas) {
+    var canvas = nako3_get_canvas()
+    if (canvas) {
+      var ctx = canvas.getContext('2d')
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    }
+  }
 }
 
 // 独自関数の登録
@@ -265,7 +270,7 @@ function to_html(s) {
 //------------------------------------
 // なでしこのプログラムを実行する関数
 //------------------------------------
-function nako3_run(id) {
+function nako3_run(id, use_canvas) {
   if (typeof(navigator.nako3) === 'undefined') {
     alert('現在ライブラリを読み込み中です。しばらくお待ちください。')
     return
@@ -275,17 +280,20 @@ function nako3_run(id) {
   var code = code_e.value
   var canvas_name = "#nako3_canvas_" + id
   var div_name = "#nako3_div_" + id
-  code =
+  var addon =
     "「" + div_name + "」へDOM親要素設定;" +
-    "「" + div_name + "」に「」をHTML設定;" +
-    "「" + canvas_name + "」へ描画開始;" +
-    "カメ描画先=「" + canvas_name + "」;" +
-    "カメ全消去;" +
-    "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"+code
+    "「" + div_name + "」に「」をHTML設定;"
+  if (use_canvas) {
+    addon += 
+      "「" + canvas_name + "」へ描画開始;" +
+      "カメ描画先=「" + canvas_name + "」;" +
+      "カメ全消去;" +
+      "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"
+  } 
   try {
     nako3_info_id = id
     nako3_clear()
-    navigator.nako3.run(code)
+    navigator.nako3.run(addon + code)
     console.log("DONE")
   } catch (e) {
     nako3_print("==ERROR==" + e.message + "")
@@ -302,3 +310,6 @@ function nako3_conv_html(id) {
 </script>
 EOS;
 }
+
+
+
