@@ -29,12 +29,7 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.0.38"; // default version
-  $major_vers = [
-    '0.0.6', '0.1.0', '0.1.5', '0.1.6', '0.1.7',
-    '0.1.8', '3.0.19', '3.0.21', '3.0.31', '3.0.36',
-    '3.0.37', '3.0.38'
-  ]; // メジャーバージョンのみ許容
+  $ver = "3.0.39"; // default version
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
@@ -50,11 +45,8 @@ function plugin_nako3_convert($params)
       $rows = $m[1];
       continue;
     }
-    if (preg_match('#ver\=([0-9\.\_]+)#', $s, $m)) {
-      $tmp = $m[1];
-      if (in_array($tmp, $major_vers)) {
-        $ver = $tmp;
-      }
+    if (preg_match('#ver\=([0-9\.]+)#', $s, $m)) {
+      $ver = $m[1];
       continue;
     }
     if (preg_match('#baseurl\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
