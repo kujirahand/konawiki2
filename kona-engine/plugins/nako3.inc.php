@@ -29,7 +29,7 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.0.40"; // default version
+  $ver = "3.0.41"; // default version
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
@@ -111,7 +111,19 @@ function plugin_nako3_convert($params)
   margin:0; padding: 4px; font-size:1em; line-height:1.2em;
   width: 98%;
 }
-.nako3row > button { font-size:1em; padding:8px; }
+.nako3row  > button, 
+.post_span > button { font-size:1em; padding:8px; }
+.post_span { margin-left: 8px; }
+.tmp_btn {
+  border-bottom: 1px solid gray;
+  text-decoration: none;
+  padding: 4px;
+  font-size: 0.8em;
+  background-color: #f0f0ff;
+}
+.tmp_btn > a {
+  color: black;
+}
 .nako3info {
   background-color: #f0f0ff;
   border: 1px solid #a0a0ff;
@@ -159,7 +171,11 @@ function plugin_nako3_convert($params)
 <div class="nako3row" style="padding-bottom:4px;">
   <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行</button>
   <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
-  <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">公開</button>
+  <span id="post_span_{$pid}" class="post_span">
+    <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">公開</button>
+    <a href="#" id="save_button_{$pid}" class="tmp_btn" onclick="nako3_save_{$pid}()">仮保存</a>
+    <a href="#" id="load_button_{$pid}" class="tmp_btn" onclick="nako3_load_{$pid}()">仮読込</a>
+  </span>
   <span class='nako3ver'>&nbsp;&nbsp;v{$ver}</span>
 </div>
 <div class="nako3row nako3error" id="nako3_error_$pid" style="display:none"></div>
@@ -177,10 +193,30 @@ function plugin_nako3_convert($params)
 {$js_code}
 <script>
 // for post
-post_button_{$pid}.style.visibility = {$can_save} ? "visible" : "hidden"
+post_span_{$pid}.style.visibility = {$can_save} ? "visible" : "hidden"
+
 function nako3_post_{$pid}() {
   const post_button = document.getElementById('post_button_{$pid}')
   document.getElementById('nako3codeform_{$pid}').submit();
+}
+var kari_hozon_key = 'nako3edit_kari_src_{$pid}';
+function nako3_save_{$pid}() {
+  var doc = document.getElementById('nako3_code_{$pid}')
+  localStorage[kari_hozon_key] = doc.value
+  alert('仮保存しました')
+}
+function nako3_load_{$pid}() {
+  var src = localStorage[kari_hozon_key];
+  if (!src) {
+    alert('仮保存しているプログラムはありません');
+    return;
+  }
+  var a = confirm(
+    '仮保存しているソースを読み込みますか？\\n' + 
+    '---\\n' + src.substr(0, 10));
+  if (!a) return;
+  var doc = document.getElementById('nako3_code_{$pid}');
+  doc.value = src;
 }
 </script>
 </div>
