@@ -42,24 +42,19 @@ function plugin_nako3_convert($params)
       continue;
     }
     if (preg_match('#rows\=([0-9]+)#', $s, $m)) {
-      $rows = $m[1];
-      continue;
+      $rows = $m[1]; continue;
     }
     if (preg_match('#ver\=([0-9\.]+)#', $s, $m)) {
-      $ver = $m[1];
-      continue;
+      $ver = $m[1]; continue;
     }
     if (preg_match('#baseurl\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
-      $baseurl = $m[1];
-      continue;
+      $baseurl = $m[1]; continue;
     }
     if (preg_match('#post\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
-      $post_url = $m[1];
-      continue;
+      $post_url = $m[1]; continue;
     }
     if ($s == "canvas") {
-      $use_canvas = true;
-      continue;
+      $use_canvas = true; continue;
     }
     if (preg_match('#size\=([0-9]+)x([0-9]+)#', $s, $m)) {
       $use_canvas = true;
@@ -85,10 +80,12 @@ function plugin_nako3_convert($params)
       $include_js .= "<script defer src='$js'></script>";
     }
   }
-  // JS_CODE
+  // JavaScriptとCSSは1回だけあれば良い
   $js_code = "";
+  $style_code = "";
   if ($pid == 1) {
     $js_code = plugin_nako3_gen_js_code($baseurl, $use_canvas);
+    $style_code = plugin_nako3_gen_style_code();
   }
   // CODE
   $canvas_code = "";
@@ -103,7 +100,69 @@ function plugin_nako3_convert($params)
 	$html = trim(htmlspecialchars($code));
   return <<< EOS
 <!-- nako3 plugin -->
-{$include_js}
+{$include_js}{$style_code}
+<div class="nako3">
+
+<div id="nako3_editor_main_{$pid}" class="nako3row">
+<form id="nako3codeform_{$pid}" action="{$post_url}" method="POST">
+<textarea rows="$rows" id="nako3_code_$pid"
+          class="nako3txt" name="body" {$readonly}>{$html}</textarea>
+<input type="hidden" name="version" value="{$ver}" />
+</form>
+</div><!-- end of #nako3_editor_main_{$pid} -->
+
+<div id="nako3_editor_controlls_{$pid}" class="nako3row" style="padding-bottom:4px;">
+  <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行</button>
+  <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
+  <span id="post_span_{$pid}" class="post_span">
+    <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">公開</button>
+    &nbsp;&nbsp;
+    <a href="#" id="save_button_{$pid}" class="tmp_btn" onclick="nako3_save({$pid})">仮保存</a>
+    <a href="#" id="load_button_{$pid}" class="tmp_btn" onclick="nako3_load({$pid})">仮読込</a>
+  </span>
+  <span class='nako3ver'>&nbsp;&nbsp;v{$ver}</span>
+</div><!-- end of #nako3_editor_controlls_{$pid} -->
+
+<!-- ERROR -->
+<div class="nako3row nako3error" id="nako3_error_{$pid}" style="display:none"></div>
+
+<!-- RESULT -->
+<div id="nako3result_div_$pid" class="nako3row" style="display:none;">
+  <textarea class="nako3row nako3info" readonly
+            id="nako3_info_$pid" rows="5" style="display:none"></textarea>
+  <div style="text-align:right;margin:0;padding:0">
+    <span id="nako3_conv_html_$pid" class="nako3_conv_html_link"
+             onclick="nako3_conv_html($pid)">→HTML出力</span>
+  </div>
+  <div id="nako3_info_html_$pid" class="nako3info_html" style="display:none"></div>
+</div><!-- end of #nako3_error_{$pid} -->
+
+<!-- FREE DOM AREA -->
+<div id="nako3_div_{$pid}" class="nako3_div"></div>
+
+{$canvas_code}
+
+{$js_code}
+</div><!-- end of #nako3 -->
+
+<!-- dynamic js code -->
+<script type="text/javascript">
+post_span_{$pid}.style.visibility = {$can_save} ? "visible" : "hidden"; // for post
+function nako3_post_{$pid}() {
+  const post_button = document.getElementById('post_button_{$pid}')
+  document.getElementById('nako3codeform_{$pid}').submit();
+}
+</script>
+<!-- /nako3 plugin -->
+EOS;
+}
+
+// ---------------------------------------------------------
+// CSS
+// ---------------------------------------------------------
+function plugin_nako3_gen_style_code() {
+  // --- CSS --
+  return <<< EOS
 <style>
 .nako3 { border: 1px solid #a0a0ff; padding:4px; margin:2px; }
 .nako3row { margin:0; padding: 0; }
@@ -119,7 +178,7 @@ function plugin_nako3_convert($params)
   text-decoration: none;
   padding: 4px;
   font-size: 0.8em;
-  background-color: #f0f0ff;
+  background-color: #f3f3ff;
 }
 .tmp_btn > a {
   color: black;
@@ -150,84 +209,30 @@ function plugin_nako3_convert($params)
   font-size: 1em;
   line-height: 1.1em;
 }
-.nako3_div > button {
+.nako3_div button {
   margin: 4px;
   padding: 4px;
   font-size: 0.9em;
+}
+.nako3_div input {
+  margin: 6px;
+  padding: 6px;
 }
 .nako3_div input[type=checkbox] {
   padding: 4px;
   margin: 4px;
 }
 </style>
-<div class="nako3">
-<div class="nako3row">
-<form id="nako3codeform_{$pid}" action="{$post_url}" method="POST">
-<textarea rows="$rows" id="nako3_code_$pid"
-          class="nako3txt" name="body" {$readonly}>{$html}</textarea>
-<input type="hidden" name="version" value="{$ver}" />
-</form>
-</div>
-<div class="nako3row" style="padding-bottom:4px;">
-  <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行</button>
-  <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
-  <span id="post_span_{$pid}" class="post_span">
-    <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">公開</button>
-    <a href="#" id="save_button_{$pid}" class="tmp_btn" onclick="nako3_save_{$pid}()">仮保存</a>
-    <a href="#" id="load_button_{$pid}" class="tmp_btn" onclick="nako3_load_{$pid}()">仮読込</a>
-  </span>
-  <span class='nako3ver'>&nbsp;&nbsp;v{$ver}</span>
-</div>
-<div class="nako3row nako3error" id="nako3_error_$pid" style="display:none"></div>
-<div id="nako3result_div_$pid" class="nako3row" style="display:none;">
-  <textarea class="nako3row nako3info" readonly
-            id="nako3_info_$pid" rows="5" style="display:none"></textarea>
-  <div style="text-align:right;margin:0;padding:0">
-    <span id="nako3_conv_html_$pid" class="nako3_conv_html_link"
-             onclick="nako3_conv_html($pid)">→HTML出力</span>
-  </div>
-  <div id="nako3_info_html_$pid" class="nako3info_html" style="display:none"></div>
-</div>
-{$canvas_code}
-<div id="nako3_div_{$pid}" class="nako3_div"></div>
-{$js_code}
-<script>
-// for post
-post_span_{$pid}.style.visibility = {$can_save} ? "visible" : "hidden"
-
-function nako3_post_{$pid}() {
-  const post_button = document.getElementById('post_button_{$pid}')
-  document.getElementById('nako3codeform_{$pid}').submit();
-}
-var kari_hozon_key = 'nako3edit_kari_src_{$pid}';
-function nako3_save_{$pid}() {
-  var doc = document.getElementById('nako3_code_{$pid}')
-  localStorage[kari_hozon_key] = doc.value
-  alert('仮保存しました')
-}
-function nako3_load_{$pid}() {
-  var src = localStorage[kari_hozon_key];
-  if (!src) {
-    alert('仮保存しているプログラムはありません');
-    return;
-  }
-  var a = confirm(
-    '仮保存しているソースを読み込みますか？\\n' + 
-    '---\\n' + src.substr(0, 10));
-  if (!a) return;
-  var doc = document.getElementById('nako3_code_{$pid}');
-  doc.value = src;
-}
-</script>
-</div>
 EOS;
 }
-
+// ---------------------------------------------------------
+// JavaScript
+// ---------------------------------------------------------
 function plugin_nako3_gen_js_code($baseurl, $use_canvas) {
   $s_use_canvas = ($use_canvas) ? "true" : "false";
   $j_use_canvas = ($use_canvas) ? 1 : 0;
   return <<< EOS
-<script>
+<script type="text/javascript">
 var nako3_info_id = 0
 var baseurl = "{$baseurl}"
 var use_canvas = $s_use_canvas
@@ -343,9 +348,33 @@ function nako3_conv_html(id) {
   htmlInfo.style.display = 'block'
   htmlInfo.innerHTML = textInfo.value
 }
+
+// 仮保存のための処理
+function get_kari_hozon_key(pid) {
+  return 'nako3edit_kari_src_' + pid;
+}
+function nako3_save(pid) {
+  var doc = document.getElementById('nako3_code_' + pid)
+  localStorage[get_kari_hozon_key(pid)] = doc.value
+  alert('仮保存しました')
+}
+function nako3_load(pid) {
+  var src = localStorage[get_kari_hozon_key(pid)];
+  if (!src) {
+    alert('仮保存しているプログラムはありません');
+    return;
+  }
+  var a = confirm(
+    '仮保存しているソースを読み込みますか？\\n' + 
+    '---\\n' + src.substr(0, 10));
+  if (!a) return;
+  var doc = document.getElementById('nako3_code_' + pid);
+  doc.value = src;
+}
 </script>
 EOS;
 }
+// ---------------------------------------------------------
 
 
 
