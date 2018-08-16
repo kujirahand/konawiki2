@@ -28,31 +28,23 @@ function plugin_googleadsense_convert_getCode()
 # 以下を書き換えます。必ず、Google より取得したコードを利用します。
 #-----------------------------------------------------------------------
 $ad["konawiki"] = <<<EOS__
-<script type="text/javascript"><!--
-google_ad_client = "pub-3816223231062294";
-/* konawiki */
-google_ad_slot = "0471021893";
-google_ad_width = 468;
-google_ad_height = 60;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({
+          google_ad_client: "ca-pub-3816223231062294",
+          enable_page_level_ads: true
+     });
 </script>
 EOS__;
 $ad["default"] = $ad["konawiki"];
 #-----------------------------------------------------------------------
 $ad["nadesiko"] = <<<EOS__
-<script type="text/javascript"><!--
-google_ad_client = "pub-3816223231062294";
-/* 468x60, 作成済み 08/02/13 */
-google_ad_slot = "0533775334";
-google_ad_width = 468;
-google_ad_height = 60;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({
+          google_ad_client: "ca-pub-3816223231062294",
+          enable_page_level_ads: true
+     });
 </script>
 EOS__;
 #-----------------------------------------------------------------------
