@@ -16,7 +16,8 @@ class konadb_pdosqlite extends konadb
             $this->handle->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $exception){
             echo "<pre>PDO SQLite Error: Could not open : `$path`\n";
-            echo "Please change directory permission.";
+            echo "Please change directory permission.\n";
+	    echo $exception->getMessage();
             exit;
         }
         return $this->handle;
