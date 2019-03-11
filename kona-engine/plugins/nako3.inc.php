@@ -29,13 +29,13 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.0.53"; // default version
+  $ver = "3.0.54"; // default version
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
   $baseurl = "";
   $editable = false;
-  $post_url = "https://nadesi.com/v3/storage/index.php?0&presave";
+  $post_url = "https://nadesi.com/v3/storage/index.php?page=0&action=presave";
   foreach ($params as $s) {
     if ($s == "edit" || $s == "editable") {
       $editable = true;
