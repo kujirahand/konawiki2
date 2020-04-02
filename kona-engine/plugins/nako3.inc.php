@@ -29,7 +29,7 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.0.65"; // default version
+  $ver = "3.0.72"; // default version
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
@@ -70,11 +70,14 @@ function plugin_nako3_convert($params)
   if ($pid == 1) {
     if ($baseurl == "") {
       $pc = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
-      $baseurl = "https://nadesi.com/v3/$ver";
+      $baseurl = "https://nadesi.com/v3/cdn.php?v=$ver&f=";
     }
     $jslist = array(
-      $baseurl."/release/wnako3.js?v=$ver",
-      $baseurl."/release/plugin_turtle.js"
+      // nadesiko
+      $baseurl."release/wnako3.js?v=$ver",
+      $baseurl."release/plugin_turtle.js",
+      // chart.js
+      'https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js'
     );
     foreach ($jslist as $js) {
       $include_js .= "<script defer src='$js'></script>";
