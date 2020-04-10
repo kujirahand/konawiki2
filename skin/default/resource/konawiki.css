@@ -96,7 +96,6 @@ body {
 {
     text-align:left;
     padding: 8px 4px 8px 16px;
-    font-size:20px;
 }
 
 
@@ -122,32 +121,30 @@ body {
     padding-right: 8px;
 }
 
-#wikiheader .pagename
-{
-    font-size:16px;
+#wikiheader h1 {
+    margin:  0px 0px 0px 0px;
+    padding: 8px;
+    font-size: 18px;
+    line-height: 22px;
 }
-
-#wikiheader .logo a {
+#wikiheader h1 a {
     text-decoration:none;
     color: black;
 }
-
-#wikiheader h1 {
-    float: left;
-    margin:  0px 0px 4px 0px;
-    padding: 0px 0px 0px 0px;
-    display: table-cell;
-    vertical-align: middle;
-    font-size: 32px;
+#wikiheader h1 a.title {
+    font-size: 24px;
 }
-
 #wikiheader .memo {
-    font-size: 10px;
     color: #a0a0a0;
 }
-#wikiheader .memo a {
-    font-size: 10px;
-    color: #a0a0ff;
+#wikiheader h1 .pagename {
+    font-weight: normal;
+}
+#wikiheader h1 .pagename-div {
+    background-color: #f0f0f0;
+    padding: 4px;
+    margin: 4px;
+    border-radius: 3px;
 }
 
 #navivar {

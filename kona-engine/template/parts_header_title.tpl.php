@@ -1,30 +1,30 @@
 <header>
 <div id="wikiheader"><div class="headerpad">
     
-  <!-- #wikiheader h1 -->  
-  <h1>
-    <span class="logo">
-      <a href="<?php echo $baseurl?>">
-        <img id="wiki-main-logo"
-         src="<?php echo $logo ?>" alt="<?php echo $title?>" />
-        <?php if (konawiki_public('header.title.visible')) { echo $title; } ?>
-      </a>
-      <?php if (konawiki_getPage() != konawiki_public("FrontPage")): ?>
-      <span class="memo">/</span>
-      <span class="pagename"><?php echo $pagelink?></span>
-      </div>
-      <?php endif; ?>
-    </span>
-  </h1>
+<!-- #wikiheader h1 -->  
+<h1>
+  <a class="title" href="<?php echo $baseurl?>">
+    <img id="wiki-main-logo"
+     src="<?php echo $logo ?>" alt="<?php echo $title?>" />
+    <?php if (konawiki_public('header.title.visible', TRUE)): ?>
+    <?php echo $title; ?><br/>
+    <?php endif; ?>
+  </a>
+  <?php if (konawiki_getPage() != konawiki_public("FrontPage")): ?>
+  <div class="pagename-div">
+    <span class="pagename"><?php echo $pagelink?></span>
+  </div>
+  <?php endif; ?>
+</h1>
 
+<div class="clear"></div>
+
+<?php if($navibar):?>
+<div id="navibar"><div class="navibar">
+  <?php echo $navibar; ?>
   <div class="clear"></div>
-
-  <?php if($navibar):?>
-  <div id="navibar"><div class="navibar">
-    <?php echo $navibar; ?>
-    <div class="clear"></div>
-  </div></div>
-  <?php endif;?>
+</div></div>
+<?php endif;?>
 
 </div></div><!-- end of #wikiheader -->
 </header>
