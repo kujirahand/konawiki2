@@ -56,6 +56,7 @@ if (konawiki_is_debug()) {
 } 
 ?>
 </footer>
+
 </body>
 </html>
 

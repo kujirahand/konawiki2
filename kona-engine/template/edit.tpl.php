@@ -25,11 +25,9 @@ echo '<p class="clear"/>';
 //------------------------------------------------------------------------------
 // javascript
 //------------------------------------------------------------------------------
-$jquery       = konawiki_insert_jquery();
 $page_edit_js = 'index.php?konawiki_page_edit.js&js';
 $__js = <<< __________EOS__________
 <!-- editor script -->
-{$jquery}
 <script type="text/javascript" src="{$page_edit_js}"></script>
 <script type="text/javascript"><!--
 $(function(){
@@ -38,7 +36,6 @@ $(function(){
     // textarea resize
     var txt = document.getElementById("body_txt");
 });
-
 // closeTitleList
 function closeTitleList() {
   $("#wikieditortitle").hide();

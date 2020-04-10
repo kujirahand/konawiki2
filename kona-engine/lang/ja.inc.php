@@ -4,6 +4,7 @@ global $ko_lang;
 $ko_lang['lang'] = 'ja';
 
 // word
+$ko_lang['Top'] = 'トップページ';
 $ko_lang['Error'] = 'エラー';
 $ko_lang['Today'] = '今日';
 $ko_lang['Yesterday'] = '昨日';

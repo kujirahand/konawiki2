@@ -44,7 +44,7 @@ $private['auth.write.enabled']  = TRUE;
 //----------------------------------------------------------------------
 // skin name -- Please check <skin> folder, write folder name
 // (ref) http://kujirahand.com/konawiki/go.php?7
-$public['skin'] = 'default'; // 'default' or 'col2' or 'pink' etc...
+$public['skin'] = 'default'; // 'default' or col2,col3,pink...
 // logo and favicon
 $public['logo']    = 'logo.png';
 $public['favicon'] = 'favicon.ico';

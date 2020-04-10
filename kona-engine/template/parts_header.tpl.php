@@ -8,13 +8,13 @@ $baseuri    = $protocol.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
 $shorturi   = $protocol.$_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME']
               . "?{$log_id}&amp;go"; 
 // check skin & theme
-$skin     = konawiki_public("skin", "default");
-$skin_css = getResourceURL("skin.css",false);
-$theme    = konawiki_public("skin.theme", false);
-if ($theme) $theme_css = getThemeURL("{$theme}.css");
+$skin_css  = 'skin.css';
+$theme     = konawiki_public("skin.theme", false);
+$theme_css = false;
+if ($theme) { $theme_css = getThemeURL("{$theme}.css"); }
 
 // logo & favicon.ico
-$logo    = konawiki_public("logo",    "logo.png");
+$logo    = konawiki_public("logo", "logo.png");
 $logo    = getResourceURL($logo);
 $favicon = konawiki_public("favicon", "favicon.ico");
 $favicon = getResourceURL($favicon);

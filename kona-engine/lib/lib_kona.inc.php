@@ -263,12 +263,6 @@ function check_is_writable($dir)
     }
 }
 
-function konawiki_insert_jquery()
-{
-	$uri = getResourceURL('js/jquery-1.2.6.min.js');
-	return '<script type="text/javascript" src="'.$uri.'"></script>';
-}
-
 function konawiki_header_addStr($code)
 {
     $list = konawiki_private("html.head.include", null);
@@ -661,22 +655,26 @@ function konawiki_getSkinPath($fname)
 /**
  * Skin 対応版
  */
-function getResourceURL($fname)
+function getResourceURL($fname, $use_mtime = TRUE)
 {
-	// check skin dir
-	// SKIN DIR
+	// check skin path
 	$skin  = konawiki_public("skin");
 	$path  = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
-	$uri   = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
-	if (!file_exists($path)) {
-		// DEFAULT SKIN DIR
+  $uri   = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
+  if (!file_exists($path)) {
+    // get default skin dir
 		$skin = "default";
 		$path = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
-	  	$uri  = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
-	} else {
+    $uri  = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
+    if (!file_exists($path)) {
+      $use_mtime = FALSE;
+    }
+  }
+  // add filemtime
+  if ($use_mtime) {
 		$mtime = filemtime($path);
 		$uri .= "?m=$mtime";
-	}
+  }
 	return $uri;
 }
 
@@ -1066,7 +1064,7 @@ function konawiki_getEditMenuArray($pos)
 	// );
 
 	// main menu
-	// $menu[] = array('caption'=>'トップ', 'href'=>$front);
+	$menu[] = array('caption'=>konawiki_lang('Top'), 'href'=>$front);
 	$menu[] = array('caption'=>konawiki_lang('Search'),   'href'=>$search);
 	// login menu
 	if (konawiki_isLogin_write()) {
@@ -1098,19 +1096,39 @@ function konawiki_getEditMenuArray($pos)
 function konawiki_getEditMenu($pos = 'bottom')
 {
 	$menu = array();
-	$menuitems = konawiki_getEditMenuArray($pos);
-	foreach ($menuitems as $row) {
-		$cap    = $row['caption'];
-		$href   = $row['href'];
-		if ($href == "") {
-			$menu[] = " - ";
-			continue;
-		}
-		$menu[] = "<span class='adminmenu'><a class='pure-button' href='$href'>$cap</a></span>";
-	}
-
-	$ret = join(" ", $menu);
-	return $ret;
+  $menuitems = konawiki_getEditMenuArray($pos);
+  if ($pos == 'bottom') {
+    foreach ($menuitems as $row) {
+      $cap  = $row['caption'];
+      $href = $row['href'];
+      if ($href == "") {
+        $menu[] = " - ";
+        continue;
+      }
+      $menu[] = 
+        "<span class='adminmenu'>".
+        "<a class='pure-button' href='$href'>$cap</a></span>";
+    }
+  	$ret = join(" ", $menu);
+	  return $ret;
+  } else {
+    $menu[] = '<ul>';
+    foreach ($menuitems as $row) {
+      $cap  = $row['caption'];
+      $href = $row['href'];
+      if ($href == "") {
+        $menu[] = "<li>&nbsp;</li>";
+        continue;
+      }
+      $menu[] = 
+        "<li>".
+        "<a href='$href'>$cap</a>".
+        "</li>";
+    }
+    $menu[] = '</ul>';
+  	$ret = join(" ", $menu);
+	  return $ret;
+  }
 }
 
 
