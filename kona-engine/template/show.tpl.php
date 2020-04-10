@@ -36,10 +36,8 @@ include_once(getSkinPath('parts_header.tpl.php'));
 <div class="clear"></div>
 
 <!-- for sidemenu -->
-<!--
 <link rel="stylesheet" type="text/css" href="<?php echo getResourceURL('side-menu.css') ?>" />
 <script type="text/javascript" src="<?php echo getResourceURL('side-menu-ui.js');?>"></script>
--->
 
 <?php
 // ---------------------------------------------------------------------
