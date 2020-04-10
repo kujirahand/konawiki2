@@ -1,15 +1,18 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html><head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <meta http-equiv="content-style-type" content="text/css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 <?php if ($norobot): ?>
   <meta name="Keywords" content="norobot" />
   <meta name="Robots" content="noindex,nofollow" />
 <?php else: ?>
-  <meta name="keywords" content="<?php echo konawiki_getKeywords($page,$rawtag)?>" />
-  <meta name="description" content="<?php echo htmlspecialchars(konawiki_public('description'),ENT_QUOTES) ?>" />
+  <meta name="keywords" content="<?php 
+    echo konawiki_getKeywords($page,$rawtag)
+  ?>" />
+  <meta name="description" content="<?php
+    echo htmlspecialchars(konawiki_public('description'),ENT_QUOTES) ?>" />
   <link rel="canonical" href="<?php echo $baseuri ?>"/>
-
+  <!-- meta info -->
   <meta property="og:title" content="<?php echo $pagetitle ?>" />
   <meta property="og:type" content="<?php echo $ogtype ?> "/>
   <meta property="og:url" content="<?php echo $baseuri ?>" />
@@ -19,6 +22,9 @@
 <?php endif ?>
 
   <!-- css -->
+  <link rel="stylesheet" type="text/css" href="<?php echo getResourceURL('pure-min.css') ?>" />
+  <link rel="stylesheet" type="text/css" href="<?php echo getResourceURL('grids-responsive-min.css') ?>" />
+  
   <link rel="stylesheet" type="text/css" href="<?php echo getResourceURL('konawiki.css')?>" />
   <link rel="stylesheet" type="text/css" href="<?php echo $skin_css ?>" />
 
@@ -31,7 +37,7 @@
   <?php echo $include_js_css ?>
 <?php endif ?>
 
-    <title><?php echo $pagetitle?></title>
+    <title><?php echo $pagetitle ?></title>
 
     <!-- rss -->
     <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo  konawiki_getPageURL('get','rss') ?>" />
@@ -41,3 +47,4 @@
 </head>
 <body>
 <?php include(getSkinPath('parts_header_title.tpl.php')) ?>
+

@@ -9,6 +9,9 @@ function action_login_()
     $user = konawiki_param("user", false);
     $pass = konawiki_param("pass", false);
 
+    // ロボットには登録しない
+    $public['norobot'] = TRUE;
+
     if (!$user) {
         konawiki_show_loginForm();
         exit;

@@ -11,32 +11,36 @@ include_once(getSkinPath('parts_header.tpl.php'));
 ?>
 <div class="clear"></div>
 
-<div id="wikicontent"><div class="contentpad">
+<div id="wikicontent" class="pure-g">
 
-  <div class="LayoutCenterLeft">
-
-    <div id="wikibody"><div class="bodypad">
-          <?php echo $body_all ?>
-    </div></div><!-- end of #wikibody -->
+  <div id="wikibody" class="pure-u-1 pure-u-md-19-24">
+    <?php echo $body_all ?>
+  </div><!-- end of #wikibody -->
     
-    <div id="wikinavi"><div class="navipad">
-      <div class="menubar">
-          <nav><?php echo konawiki_getContents("MenuBar"); ?></nav>
-      </div><!-- end of .menubar -->
-    </div></div><!-- end of #wikinavi -->
+  <div id="wikisidebar" class="pure-u-1 pure-u-md-5-24">
+    <nav><?php echo konawiki_getContents("SideBar"); ?></nav>
+  </div><!-- end of #wikisidebar -->
   
-  </div><!-- end of LayoutCenterLeft -->
-  
-  <div id="wikisidebar"><div class="barpad">
-    <div class="rightbar">
-        <nav><?php echo konawiki_getContents("SideBar"); ?></nav>
-    </div>
-  </div></div><!-- end of #wikisidebar -->
+</div><!-- end of #wikicontent -->
 
-</div></div><!-- end of #wikicontent -->
+<div id="wikinavi">
+  <a href="#" id="menuLink" class="menu-link">
+      <!-- Hamburger icon -->
+      <span></span>
+  </a>
+  <div id="menubar" class="menubar">
+    <nav><?php echo konawiki_getContents("MenuBar"); ?></nav>
+  </div><!-- end of .menubar -->
+</div><!-- end of #wikinavi -->
 
 <div class="clear"></div>
-      
+
+<!-- for sidemenu -->
+<!--
+<link rel="stylesheet" type="text/css" href="<?php echo getResourceURL('side-menu.css') ?>" />
+<script type="text/javascript" src="<?php echo getResourceURL('side-menu-ui.js');?>"></script>
+-->
+
 <?php
 // ---------------------------------------------------------------------
 // footer

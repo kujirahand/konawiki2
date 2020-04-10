@@ -183,15 +183,19 @@ function konawiki_show_loginForm($msg = "") {
     $log['body'] = <<< EOS__
 <h4>{$msg_login_title}</h4>
 {$msg}
-<form action="$action" method="post">
-<table>
-    <tr><td>$msg_username</td><td><input type="text"     name="user"/></td></tr>
-    <tr><td>$msg_password</td><td><input type="password" name="pw"  /></td></tr>
-    <tr><td colspan="2" align="right">
-      <input type="submit" value="{$msg_login}" />
-    </td></tr>
-</table>
+<div class="loginform">
+<form action="$action" method="post" class="pure-form pure-form-stacked">
+  <fieldset>
+    <label for="user">$msg_username : </label>
+    <input type="text" id="user" name="user"/>
+
+    <label for="pw">$msg_password : </label>
+    <input type="password" id="pw" name="pw" />
+    
+    <input type="submit" value="{$msg_login}" class="pure-button pure-button-primary" />
+  </fieldset>
 </form>
+</div>
 EOS__;
     include_template("form.tpl.php", $log);
 }

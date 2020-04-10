@@ -1,7 +1,7 @@
 <?php
 /**
- * KonaWiki -- index.php (Main File)
- * @author kujirahand (http://kujirahand.com)
+ * KonaWiki2 -- index.php (Main File)
+ * @author kujirahand (https://kujirahand.com)
  */
 //--------------------------------------------------------------------
 // set encoding
@@ -26,12 +26,13 @@ $konawiki = array(
     'lang'        => konawiki_getUserLang(), // ja/en
     'timezone'    => 'Asia/Tokyo',
     'norobot'     => false,
-    'FrontPage'   => 'FrontPage',
-    'login.link.visible' => true,
-    'noanchor'    => true,
-    'skin'        => 'default',
-    'ogimage'     => 'logo-large.png', //default value for 'og:image'
-    'og:type'     => 'website',
+    'FrontPage'            => 'FrontPage',
+    'login.link.visible'   => true,
+    'noanchor'             => true,
+    'header.title.visible' => true,
+    'skin'                 => 'default',
+    'ogimage'              => 'logo-large.png', //default value for 'og:image'
+    'og:type'              => 'website',
   ),
   'private'    => array(
     'auth.users'      => array(),

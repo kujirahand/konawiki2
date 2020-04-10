@@ -20,11 +20,11 @@ $link = array(
 <div class="message">
 <h4>新規</h4>
 
-<form action="<?php echo $baseurl?>">
+<form action="<?php echo $baseurl?>" class="pure-form">
 <p>
-<input type="text" name="page" value="<?php echo $page?>" size="40" id="title_txt"/>
-<input type="hidden" name="action" value="edit" />
-<input type="submit" value="編集" />
+  <input type="text" name="page" value="<?php echo htmlspecialchars($page); ?>" size="40" id="title_txt"/>
+  <input type="hidden" name="action" value="edit" />
+  <input type="submit" value="編集" class="pure-button pure-button-primary" />
 </p>
 </form>
 
@@ -34,7 +34,7 @@ $link = array(
   foreach ($link as $row) {
     $url = $row['url'];
     $lbl = $row['label'];
-    echo "<li><a href='$url'>$lbl</a></li>";
+    echo "<p><a class='pure-button' href='$url'>$lbl</a></p>";
   }
 ?>
 </ul>

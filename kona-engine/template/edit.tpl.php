@@ -67,19 +67,21 @@ $form = <<< _________________________________________________________END_OF_FORM
 <textarea id="body_txt" name="body" rows="16" cols="70" class="maintext">{$body_html}</textarea>
 </div>
 <div class="buttons">
-  <span class="hint">Tag:</span>
-  <input type="text"      id="tag_txt"   name="tag" size="20" value="{$tag}"/>
-  <span class="hint">($msg_tag_desc)</span>
   <span id="save_btns">
-    <input type="button"    id="save_btn"   value="$msg_save"/>
-    <input type="submit"    id="submit_btn" value="$msg_save_show"/>
-    <input type="button" onclick="konawiki_edit_preview(); return false;" 
+    <input class="pure-button" type="button"    id="save_btn"   value="$msg_save"/>
+    <input class="pure-button" type="submit"    id="submit_btn" value="$msg_save_show"/>
+    <input class="pure-button" type="button" onclick="konawiki_edit_preview(); return false;" 
            value="$msg_preview"/>
-  </span>
-  <input type="checkbox"  id="editmode_chk"   name="editmode"  value="delete" />
-  <label for="editmode_chk"><span class="hint">$msg_delete</span></label>
-  <input type="checkbox"  id="private_chk"   name="private_chk"  value="1" $private_chk />
-  <label for="private_chk"><span class="hint">$msg_private</span></label>
+    <input type="checkbox"  id="editmode_chk"   name="editmode"  value="delete" />
+    <label for="editmode_chk"><span class="hint">$msg_delete</span></label>
+    <input type="checkbox"  id="private_chk"   name="private_chk"  value="1" $private_chk />
+    <label for="private_chk"><span class="hint">$msg_private</span></label>
+           </span>
+  <p style="padding: 8px;">
+    <span class="hint">Tag:</span>
+    <input type="text"      id="tag_txt"   name="tag" size="20" value="{$tag}"/>
+    <span class="hint">($msg_tag_desc)</span>
+  </p>
   <input type="hidden"    name="page"    value="{$page_raw}" />
   <input type="hidden"    name="action"  value="edit" />
   <input type="hidden"    name="stat"    value="update" />
@@ -154,7 +156,9 @@ $__body =
 //------------------------------------------------------------------------------
 ?>
 
-<div id="wikicommand">
+
+<a name="wikicommand-a">&nbsp;</a>
+<div id="wikicommand" style="display:none;">
 <?php
 include(getSkinPath("parts_attachlist2.tpl.php"));
 include(getSkinPath("parts_backuplist.tpl.php"));
@@ -169,11 +173,20 @@ include(getSkinPath("parts_batch.tpl.php"));
   <li><a href="index.php?all&import">Import all wiki data</a></li>
 </ul>
 </div><!-- wikicommand -->
-
+<div class="box" id="wikicommand-btn">
+  <a class="pure-button"
+  href="#wikicommand-a"
+  onclick="showWikiCommand()">
+  Show Command</a>
+</div>
+<script>
+  function showWikiCommand() {
+    $("#wikicommand").show();
+    $("#wikicommand-btn").hide();
+  }
+</script>
 <?php
 // ---------------------------------------------------------------------
 // footer
 include_once(getSkinPath('parts_footer.tpl.php'));
 // ---------------------------------------------------------------------
-?>
-

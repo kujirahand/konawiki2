@@ -17,15 +17,15 @@ function _action_search_getForm()
     $url = konawiki_getPageURL($page, "search", "exec");
     return <<< EOS__
 <h4>[{$title}]内を検索します</h4>
-<form action="{$url}" method="post">
-<div style="display:none">
-<input type="text" name="dm1"   value=""/>
-<input type="text" name="dm2"   value=""/>
-<input type="text" name="name"  value="草花"/>
-<input type="text" name="title" value="草花"/>
-</div>
-<input type="text" size=32 name="keyword" value="{$keyword}"/>
-<input type="submit" value="検索">
+<form action="{$url}" method="post" class="pure-form">
+    <div style="display:none">
+    <input type="text" name="dm1"   value=""/>
+    <input type="text" name="dm2"   value=""/>
+    <input type="text" name="name"  value="草花"/>
+    <input type="text" name="title" value="草花"/>
+    </div>
+    <input type="text" size=32 name="keyword" value="{$keyword}"/>
+    <input type="submit" value="検索" class="pure-button pure-button-primary">
 </form>
 <p>複数の語句を空白で区切って絞り込みもできます。</p>
 EOS__;

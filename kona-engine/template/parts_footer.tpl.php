@@ -1,6 +1,9 @@
 <!-- footer.begin -->
 <footer>
-<div id="wikifooter">
+<div id="wikifooter"><div class="wikifooterpad">
+<div class="menu">
+  <?php echo konawiki_public("description") ?>
+</div>
 <div class="menu"><?php echo  konawiki_getEditMenu() ?></div>
 <?php if (isset($ctime_html)): ?>
   <div class="pageinfo">
@@ -38,7 +41,7 @@
 
 <div><?php echo $title?> by <?php echo $author?> <?php echo $rsslink?></div>
 <div><a href="https://kujirahand.com/konawiki">konawiki <?php echo $KONAWIKI_VERSION?></a></div>
-</div>
+</div></div>
 <?php
     $s = konawiki_private("footer.analytics");
     if ($s) { echo "<!-- analytics -->\n{$s}\n"; }
@@ -55,3 +58,5 @@ if (konawiki_is_debug()) {
 </footer>
 </body>
 </html>
+
+

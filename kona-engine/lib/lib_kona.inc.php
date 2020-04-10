@@ -7,7 +7,7 @@
  */
 
 // konawiki lib version
-define('KONAWIKI_VERSION', '2.1.0');
+define('KONAWIKI_VERSION', '2.2.0');
 
 // check GPC --- $_GET and $_POST and $_COOKIE
 if(get_magic_quotes_gpc()){
@@ -665,14 +665,17 @@ function getResourceURL($fname)
 {
 	// check skin dir
 	// SKIN DIR
-	$skin = konawiki_public("skin");
-	$path = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
-	$uri  = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
+	$skin  = konawiki_public("skin");
+	$path  = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
+	$uri   = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
 	if (!file_exists($path)) {
 		// DEFAULT SKIN DIR
 		$skin = "default";
 		$path = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
-	  $uri  = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
+	  	$uri  = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
+	} else {
+		$mtime = filemtime($path);
+		$uri .= "?m=$mtime";
 	}
 	return $uri;
 }
@@ -1103,7 +1106,7 @@ function konawiki_getEditMenu($pos = 'bottom')
 			$menu[] = " - ";
 			continue;
 		}
-		$menu[] = "<span class='adminmenu'><a href='$href'>[$cap]</a></span>";
+		$menu[] = "<span class='adminmenu'><a class='pure-button' href='$href'>$cap</a></span>";
 	}
 
 	$ret = join(" ", $menu);
