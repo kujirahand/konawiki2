@@ -14,7 +14,6 @@ $(function(){
   }
   
   function openMenu() {
-    console.log('open');
     btn.addClass("open");
     execMenu(0);
     win.css('left', '0px');
@@ -25,7 +24,6 @@ $(function(){
   }
   
   function closeMenu() {
-    console.log('close');
     btn.removeClass("open");
     execMenu(-300);
     win.fadeOut();
