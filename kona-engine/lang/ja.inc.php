@@ -98,6 +98,7 @@ $ko_lang['Thank you for your message!'] = 'メッセージありがとうござ�
 $ko_lang['Edit MenuBar'] = '[MenuBar]の編集';
 $ko_lang['Edit SideBar'] = '[SideBar]の編集';
 $ko_lang['Edit NaviBar'] = '[NaviBar]の編集';
+$ko_lang['Edit GlobBar'] = '[GlobBar]の編集';
 
 //-----------
 // easy help (external)

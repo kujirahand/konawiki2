@@ -1,6 +1,5 @@
 <header>
 <div id="wikiheader"><div class="headerpad">
-<!-- #wikiheader h1 -->  
 <h1>
   <a class="title" href="<?php echo $baseurl?>">
     <img id="wiki-main-logo"
@@ -37,8 +36,9 @@
     <nav class="global-navi">
       <?php if (konawiki_isLogin_write()): ?>
         <?php echo  konawiki_getEditMenu('top') ?>
+        <?php echo konawiki_getContents("GlobBar"); ?>
       <?php else: ?>
-        <?php echo konawiki_getContents("MenuBar"); ?>
+        <?php echo konawiki_getContents("GlobBar"); ?>
         <?php echo  konawiki_getEditMenu('top') ?>
       <?php endif; ?>
     </nav>

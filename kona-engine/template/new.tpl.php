@@ -13,6 +13,10 @@ $link = array(
   array(
     'url'   => konawiki_getPageURL('NaviBar', 'edit'),
     'label' => konawiki_lang('Edit NaviBar'),
+  ),
+  array(
+    'url'   => konawiki_getPageURL('GlobBar', 'edit'),
+    'label' => konawiki_lang('Edit GlobBar'),
   )
 );
 ?>
