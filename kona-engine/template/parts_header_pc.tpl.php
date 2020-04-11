@@ -26,30 +26,30 @@
 
 <!-- CSS_JS -->
 <?php
-  // CSS and JavaScript code
-  $type_css = 1;
-  $type_jss = 2;
-  $css_list = [
-    [$type_css, 'pure-min.css', FALSE],
-    [$type_css, 'grids-responsive-min.css', FALSE],
-    [$type_css, 'konawiki.css', TRUE],
-    [$type_css, $skin_css, TRUE],
-    [$type_css, $theme_css, TRUE],
-    [$type_jss, 'jquery-3.4.1.min.js', FALSE],
-    [$type_css, 'drawer.css', TRUE],
-  ];
-  foreach ($css_list as $f) {
-    $type  = $f[0]; $name  = $f[1]; $mtime = $f[2];
-    if (!$name) continue;
-    $path = getResourceURL($name, $mtime);
-    if ($type == $type_css) {
-      echo '<link rel="stylesheet" type="text/css" '."\n".
-           ' href="'.$path.'" />'."\n";
-    } else {
-      echo '<script type="text/javascript" '."\n".
-           ' src="'.$path.'"></script>'."\n";
-    }
+// CSS and JavaScript code
+$type_css = 1;
+$type_jss = 2;
+$css_list = [
+  [$type_css, 'pure-min.css', FALSE],
+  [$type_css, 'grids-responsive-min.css', FALSE],
+  [$type_css, 'konawiki.css', TRUE],
+  [$type_css, $skin_css, TRUE],
+  [$type_css, $theme_css, TRUE],
+  [$type_jss, 'jquery-3.4.1.min.js', FALSE],
+  [$type_css, 'drawer.css', TRUE],
+];
+foreach ($css_list as $f) {
+  $type  = $f[0]; $name  = $f[1]; $mtime = $f[2];
+  if (!$name) continue;
+  $path = getResourceURL($name, $mtime);
+  if ($type == $type_css) {
+    echo '<link rel="stylesheet" type="text/css" '."\n".
+         ' href="'.$path.'" />'."\n";
+  } else {
+    echo '<script type="text/javascript" '."\n".
+         ' src="'.$path.'"></script>'."\n";
   }
+}
 ?><!-- end of CSS_JS -->
 
 <?php if (isset($include_js_css)): ?>
@@ -61,9 +61,6 @@
 <link rel="shortcut icon" href="<?php echo $favicon ?>" />
 </head>
 
-<!--- *** *** *** --->
-
-<body class="drawer drawer--left">
+<body>
 <?php include(getSkinPath('parts_header_title.tpl.php')) ?>
-
 

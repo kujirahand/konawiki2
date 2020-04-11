@@ -25,24 +25,19 @@ function plugin_counter_convert($params)
       "name=counter&amp;p=js"); 
     $url = str_replace("&amp;", "&", $url);
     $s = <<< EOS
-<div id="counter_div" class="counter">*</div>
+<ul class="counter">
+  <li class="counter_disp">*</li>
+</ul>
 <script type="text/javascript">
-kona_counter_xhr_get(
-  "$url",
-  function(t) {
-    var e = document.getElementById("counter_div");
-    e.innerHTML = t;
-  });
-function kona_counter_xhr_get(url, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-      callback(xhr.responseText, xhr);
-    }
-  };
-  xhr.send();
-}
+$(function () {
+  if (!window.kona2) { window.kona2 = {}; }
+  if (!window.kona2.counter_go) {
+    window.kona2.counter_go = 1;
+    $.get("$url", function(t) {
+      $(".counter_disp").html(t);
+    });
+  }
+});
 </script>
 EOS;
     return $s;
@@ -105,7 +100,7 @@ function plugin_counter_getCount()
     }
     $db->exec("commit");
     // show result
-    echo "$total <span class='memo'>(today:$value)</span>";
+    echo "$total <em class='counter_memo'>(today:$value)</em>";
 }
 
 // old type counter

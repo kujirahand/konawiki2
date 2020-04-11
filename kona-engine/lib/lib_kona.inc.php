@@ -1,5 +1,5 @@
 <?php
-#vim:set expandtab tabstop=4 softtabstop=4 shiftwidth=4:
+// vim:set expandtab tabstop=4 softtabstop=4 shiftwidth=4:
 /**
  * ---------------------------------------------------------------------
  * konawiki の基本ライブラリ
@@ -36,7 +36,7 @@ function konawiki_init()
   define('KONAWIKI_DIR_LIB',      dirname(__FILE__));
   define("KONAWIKI_DIR_ACTION",   $engineDir."/action");
   define("KONAWIKI_DIR_TEMPLATE", $engineDir."/template");
-  define("KONAWIKI_DIR_JS",       $engineDir."/js");
+  define("KONAWIKI_DIR_DEF_RES",  $engineDir."/resource");
   define("KONAWIKI_DIR_PLUGINS",  $engineDir."/plugins");
   define("KONAWIKI_DIR_HELP",     $engineDir."/help");
   // public area
@@ -49,10 +49,10 @@ function konawiki_init()
   define("KONAWIKI_DIR_ATTACH",   $private['dir.attach']);
   define("KONAWIKI_URI_ATTACH",   $private['uri.attach']);
 
-	require_once(KONAWIKI_DIR_LIB.'/konadb/konadb.inc.php');
-	require_once(KONAWIKI_DIR_LIB.'/html.inc.php');
-	require_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
-	require_once(KONAWIKI_DIR_LIB.'/useragent.inc.php');
+  require_once(KONAWIKI_DIR_LIB.'/konadb/konadb.inc.php');
+  require_once(KONAWIKI_DIR_LIB.'/html.inc.php');
+  require_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
+  require_once(KONAWIKI_DIR_LIB.'/useragent.inc.php');
   // データベース関連のライブラリを取り込む
   require_once(KONAWIKI_DIR_LIB.'/konawiki_db.inc.php');
   // 認証関連のライブラリを取り込む
@@ -188,14 +188,8 @@ function konawiki_parseURI()
 	$keyword = "[[".urlencode($page)."]]";
 	$konawiki['public']['backlink'] = konawiki_getPageURL($page, "backlink", "");
 
-	// set resource url
-	$res = $konawiki['public']['resourceurl'] =
-	    dirname($baseurl)."/skin/default/resource";
-	$rss_uri = konawiki_getPageURL("get","rss2");
-	$rss_gif = getResourceURL("img/rss.gif");
-	$konawiki['public']['rsslink'] =
-	    "<a href='{$rss_uri}'><img src='{$rss_gif}' alt='RSS'/></a>";
-
+  // old resource
+	$konawiki['public']['rsslink'] = '';
 }
 
 
@@ -457,10 +451,10 @@ function konawiki_getPageURL($page = FALSE, $action = FALSE, $stat = FALSE, $par
 	// for - AllowEncodedSlashes Off
 	$page_enc = str_replace('%2F','%252F',$page_enc);
 	$baseurl = konawiki_public("baseurl");
-  if ($action == 'go') {
-    $action = FALSE;
-    $baseurl = str_replace('/index.php', '/go.php', $baseurl);
-  }
+    if ($action == 'go') {
+    	$action = FALSE;
+    	$baseurl = str_replace('/index.php', '/go.php', $baseurl);
+  	}
 	if ($shortpath) {
 		$name = basename($baseurl);
 		$name .= (KONAWIKI_USE_PATH_INFO) ? "/" : "";
@@ -655,26 +649,38 @@ function konawiki_getSkinPath($fname)
 /**
  * Skin 対応版
  */
-function getResourceURL($fname, $use_mtime = TRUE)
+function getResourceURL($fname, $use_mtime = TRUE, $skin = '')
 {
-	// check skin path
-	$skin  = konawiki_public("skin");
-	$path  = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
-  $uri   = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
-  if (!file_exists($path)) {
-    // get default skin dir
-		$skin = "default";
-		$path = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
+	if ($skin == '') {
+		$skin  = konawiki_public("skin");
+	}
+	// DEFAULT RESOURCE
+  	if ($skin == 'default') {
+		$path = KONAWIKI_DIR_DEF_RES."/{$fname}";
+		if (file_exists($path) && $use_mtime) {
+			$mtime = filemtime($path);
+			$uri  = konawiki_getPageURL($fname, 'file', '', "m=$mtime");
+			return $uri;
+		} else {
+			$uri  = konawiki_getPageURL($fname, 'file');
+			return $uri;
+		}
+	}
+	// SKIN RESOURCE
+	$path = KONAWIKI_DIR_SKIN."/{$skin}/resource/{$fname}";
     $uri  = KONAWIKI_URI_SKIN."/{$skin}/resource/{$fname}";
+	// check exists
     if (!file_exists($path)) {
-      $use_mtime = FALSE;
-    }
-  }
-  // add filemtime
-  if ($use_mtime) {
+        if ($skin != 'default') {
+            return getResourceURL($fname, $use_mtime, 'default');
+        }
+        $use_mtime = FALSE;
+	}
+	// add filemtime
+	if ($use_mtime) {
 		$mtime = filemtime($path);
 		$uri .= "?m=$mtime";
-  }
+	}
 	return $uri;
 }
 
@@ -1034,10 +1040,10 @@ function konawiki_jump($url)
 
 function konawiki_getEditMenuArray($pos)
 {
-	// extract variable
-	$page = konawiki_getPage();
-  $log = konawiki_getLog($page);
-  $freeze = intval($log["freeze"]);
+    // extract variable
+    $page = konawiki_getPage();
+    $log = konawiki_getLog($page);
+    $freeze = intval($log["freeze"]);
 	$baseurl = konawiki_public("baseurl");
 	$pageurl = konawiki_getPageURL($page);
 	$FrontPage = konawiki_public("FrontPage");
@@ -1050,10 +1056,10 @@ function konawiki_getEditMenuArray($pos)
 	$logout = konawiki_getPageURL2($page, "logout");
 	$login  = konawiki_getPageURL2($page, "login");
 	$front  = konawiki_getPageURL2($FrontPage);
-  $freeze_url = konawiki_getPageURL2($page, "freeze");
-  //
-  $label_freeze = ($freeze == 0) ? konawiki_lang('Freeze')
-                                 : konawiki_lang('Unfreeze');
+    $freeze_url = konawiki_getPageURL2($page, "freeze");
+    //
+    $label_freeze = ($freeze == 0) ? konawiki_lang('Freeze')
+                                   : konawiki_lang('Unfreeze');
 	// login ?
 	$menu = array();
 	// $menu = array(
@@ -1064,23 +1070,22 @@ function konawiki_getEditMenuArray($pos)
 	// );
 
 	// main menu
-	$menu[] = array('caption'=>konawiki_lang('Top'), 'href'=>$front);
-	$menu[] = array('caption'=>konawiki_lang('Search'),   'href'=>$search);
+	$menu[] = array('caption'=>konawiki_lang('Search'), 'href'=>$search);
 	// login menu
 	if (konawiki_isLogin_write()) {
 		// edit menu
 		$menu[] = array('caption'=>'-',    'href' => '');
 		$menu[] = array('caption'=>konawiki_lang('New'), 'href'=>$new);
-    if ($freeze == 0) {
-		  $menu[] = array('caption'=>konawiki_lang('Edit'), 'href'=>$edit);
-    }
+        if ($freeze == 0) {
+		    $menu[] = array('caption'=>konawiki_lang('Edit'), 'href'=>$edit);
+        }
 		$menu[] = array('caption'=>$label_freeze, 'href'=>$freeze_url);
 		$menu[] = array('caption'=>'-',    'href' => '');
 		$menu[] = array('caption'=>konawiki_lang('Attach'), 'href'=>$attach);
 		$menu[] = array('caption'=>'-',    'href'=> '');
 		$menu[] = array('caption'=>konawiki_lang('Logout'), 'href'=> $logout);
 	}
-  else if (konawiki_isLogin_read()) {
+    else if (konawiki_isLogin_read()) {
 		$menu[] = array('caption'=>'-',    'href'=> '');
 		$menu[] = array('caption'=>konawiki_lang('Logout'), 'href'=> $logout);
     }

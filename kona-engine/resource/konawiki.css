@@ -2,8 +2,7 @@
  * konawiki.css for default skin
  */
 
-/** common setting
- * ------------------------------------------------------------------------------------ */
+/** common setting */
 * {
     margin:0px;
     padding:0px;
@@ -18,134 +17,193 @@ a img
 
 div.underline {
     width:100%;
-    border-bottom: solid 2px #f0f0ff;
+    border-bottom: solid 2px #E0e0FF;
     margin: 0px 8px 8px 0px;
 }
 
 
-/** layout
- * ------------------------------------------------------------------------------------ */
+/** layout */
+
+body {
+    width: 100%;
+}
 
 #wikiheader
 {
-    width:100%;
-    border-bottom: solid 1px #f0f0ff;
+    width: 100%;
+    margin: 0px auto;
+    max-width: 760px;
 }
-
 #wikicontent {
     width: 100%;
-    padding: 0px;
-    margin: 0px;
-}
+    margin: 0px auto;
+    max-width: 760px;
+}    
 
-.LayoutCenterLeft {
-    width:100%;
-    float:none;
-}
+.blue { background-color: blue; }
+.green { background-color: green; }
+.red { background-color: red; }
 
 #wikibody {
-    width       : 100%;
     font-size   : 1em;
     line-height : 1.4em;
-    float       : none;
 }
 
-#wikinavi {
-    width : 100%;
-    float: left;
+#wikinavi { /* LEFT side menu */
+    margin: 0;
 }
 
-#wikisidebar {
-    width: 170%;
-    float:right;
+#wikisidebar { /* RIGHT side bar */
+    margin: 0;
 }
 
 #wikifooter {
+    width: 100%;
+    margin: 0px auto;
+    max-width: 760px;
+
+    border-top: solid 1px #E0e0FF;
+    text-align:center;
+    font-size: 0.6em;
+}
+#wikifooter .wikifooterpad {
     padding: 8px;
-    font-size: 10px;
-    border-top: solid 2px #f0f0ff;
-    text-align: center;
+    margin: 4px;
 }
 
-/** wikiheader
- * ------------------------------------------------------------------------------------ */
+#wikimessage {
+  margin: 0 auto 6px;
+  text-align: left;
+  max-width: 760px;
+}
 
+/** wikiheader */
 #wikiheader .headerpad
 {
-    padding: 4px;
+    margin-top: 8px;
+    margin-bottom: 6px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px;
+    text-align: left;
 }
+@media (max-width:760px) {
+    #wikiheader .headerpad {
+    }
+}
+
 #wikiheader .logo
 {
     text-align:left;
-    background-color:#FFFFFF;
-    font-size:1.3em;
-    padding: 4px 4px 4px 4px;
+    padding: 8px 4px 8px 16px;
 }
+
 
 #wikiheader .menu
 {
-	background-color: #ffffe0;
-	border-bottom: solid 1px #f0f0ff;
-    font-size:1em;
+    float:right;
+    font-size:12px;
     text-align: right;
-	padding: 3px;
+    color: gray;
+    padding-top: 8px;
+    padding-right: 8px;
 }
 
-#wikiheader .description
+#wikiheader .menu a
 {
-    font-size:0.5em;
+    text-decoration: none;
+    color: gray;
 }
 
-#wikiheader .pagename
+#wikiheader div.description
 {
-    font-size:1.5em;
-	padding: 4px;
-	margin: 4px 4px 4px 4px;
-	background-color: #fffff0;
-	border-left: solid 8px #9999ff;
-}
-
-#wikiheader .logo a {
-    text-decoration:none;
+    font-size:10px;
+    padding-right: 8px;
 }
 
 #wikiheader h1 {
-    margin:  0px 0px 4px 0px;
-    padding: 0px 0px 0px 0px;
-    font-size: 32px;
+    margin:  0px 0px 0px 0px;
+    padding: 8px;
+    font-size: 18px;
+    line-height: 22px;
 }
-
+#wikiheader h1 a {
+    text-decoration:none;
+    color: black;
+}
+#wikiheader h1 a.title {
+    font-size: 20px;
+}
 #wikiheader .memo {
-    font-size: 1em;
     color: #a0a0a0;
 }
-#wikiheader .memo a {
-    color: #a0a0ff;
+#wikiheader h1 .pagename {
+    font-weight: normal;
+}
+#wikiheader h1 .pagename-div {
+    background-color: #f0f0f0;
+    padding: 6px;
+    margin: 4px;
+    border-radius: 3px;
+}
+#wikiheader h1 .pagename-div .pagename a {
+    color: #333;
 }
 
+#navivar {
+    text-align: center;
+    width: 100%;
+}
 .navibar {
-	background-color: #f0f0ff;
-	color: #ffffff;
-	padding: 3px;
-	font-size:0.9em;
-	margin-top: 4px;
+    text-align: center;
+    color: #909090;
+    padding: 3px;
+    font-size:0.8em;
+    margin: 0px auto 6px auto;
+    border-top: 1px solid silver;
+    border-bottom: 1px solid silver;
 }
-.navibar ul    { list-style: none; padding: 2px 4px 2px 4px; }
-.navibar ul li { float: left; padding-right: 12px; }
+.navibar ul    {
+    list-style: none;
+    padding: 2px 10px;
+}
+.navibar li a {
+    float: left;
+    padding: 0.5em 1em;
+    border-radius: 2px;
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+    box-sizing: border-box;
+    margin: 2px 2px;
+    text-decoration: none;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: #666;
+    background-color: #e0e0ea;
+}
+.navibar li a:hover {
+    display: inline-block;
+    background-color: #e0f0fa;
+}
 
-/** wikinavi
- * ------------------------------------------------------------------------------------ */
+/** wikinavi */
 
 #wikinavi .navipad {
-    padding: 8px;
+    padding: 10px 6px 16px 6px;
+    margin-top: 8px;
     font-size: 12px;
     line-height: 15px;
-    border-right-style:dotted;
-    border-right-width:1px;
-    border-right-color:#FFCC66;
+    background-color: #f0f0fa;
+    border-radius: 12px;
+    -webkit-border-radius: 12px;
 }
 
 #wikinavi .menubar {
+    padding: 8px;
+    margin: 4px;
+    border-radius: 2px;
+    background-color: #f0f0fa;
 }
 
 #wikinavi .date {
@@ -159,15 +217,16 @@ div.underline {
 }
 
 #wikinavi ul {
-    margin:  2px 0px 4px 4px;
-    padding: 2px;
-    list-style-type:none;
-    line-height: 1.3em;
+    margin:  4px 4px 4px 1em;
+    padding: 6px 6px 6px 8px;
+    list-style-type: square;
+    line-height: 1.4em;
+    color: gray;
 }
 #wikinavi li {
-    margin-left: 0px;
-    padding-left: 16px;
-    padding-bottom: 4px;
+    margin:  0px 0px 4px 0px;
+    padding: 0px 0px 0px 0px;
+    /* background-image: url(pin.gif); */
     background-repeat: no-repeat;
 }
 
@@ -183,29 +242,23 @@ div.underline {
 #wikinavi h5,
 #wikinavi h6
 {
-    background-color: #c0c0ff;
-    color: #FFFFFF;
-    padding: 4px;
-    margin: 2px;
+    background-color: #E0e0FF;
+    color: black;
+    padding: 6px;
+    margin: 12px 0px 4px 0px;
     font-size: 1em;
     font-weight: normal;
 }
 
-/** sidebar
- * ------------------------------------------------------------------------------------ */
+/** sidebar */
 
-#wikisidebar .barpad {
-    padding: 8px;
+#wikisidebar {
     font-size: 12px;
     line-height:14px;
-    border-left-style:dotted;
-    border-left-width:1px;
-    border-left-color:#FFCC66;
 }
-
-#wikisidebar .sidebar {
+#wikisidebar .rightbar {
+    padding: 8px;
 }
-
 #wikisidebar .date {
     color: #888888;
     font-size: 0.8em;
@@ -217,12 +270,14 @@ div.underline {
 }
 
 #wikisidebar ul {
-    margin:  2px 0px 4px 8px;
-    padding: 0px;
+    margin:  4px 0px 4px 8px;
+    padding: 4px 4px 4px 12px;
     list-style-type:square;
+    color:gray;
 }
 #wikisidebar li {
-    margin-left: 4px;
+  margin:0px;
+  padding: 2px 2px 4px 0px;
 }
 
 #wikisidebar .memo {
@@ -237,19 +292,23 @@ div.underline {
 #wikisidebar h5,
 #wikisidebar h6
 {
-    background-color: #c0c0ff;
-    color: white;
-    padding: 4px;
-    margin: 2px;
+    background-color: #E0e0FF;
+    padding: 6px 4px 6px 8px;
+    margin: 2px 0 2px 0;
     font-size: 1em;
     font-weight: normal;
+    border-radius: 10px;
+    -webkit-border-raduis: 10px;
 }
 
 
-/** wikibody
- * ------------------------------------------------------------------------------------ */
-#wikibody .bodypad {
-	padding: 4px;
+/** wikibody */
+
+#wikibody .contents {
+	padding-left: 16px;
+	padding-top: 0px;
+	padding-right: 16px;
+	padding-bottom: 8px;
 }
 
 #wikibody a:link {
@@ -270,41 +329,47 @@ div.underline {
 }
 
 #wikibody .message {
+    margin: 16px;
+    padding: 32px;
     width: 100%;
-	padding: 8px;
     background-color: #fff0f0;
+    float: left;
+    left: 0;
 }
 
 #wikibody .entry {
     width           : 100%;
-    margin-top      : 0px;
+    margin-top      : 10px;
     margin-left     : 0px;
     margin-right    : 8px;
     margin-bottom   : 32px;
     padding         : 0px;
-    border-top      : solid 1px #ffd082;
-    border-right    : solid 1px #ffd082;
-    border-left     : solid 1px #ffd082;
-    border-bottom   : solid 1px #ffd082;
+    border-top      : solid 1px #e0e0e0;
+    border-right    : solid 1px #e0e0e0;
+    border-left     : solid 1px #e0e0e0;
+    border-bottom   : solid 1px #e0e0e0;
 }
 
 #wikibody .entry h3 {
     font-size       : 16px;
     font-weight     : bold;
-    background-color: #ffd082;
-    color           : #404040;
+    background-color: #e0e0e0;
+    color           : black;
     padding         : 4px;
     margin          : 0px;
 }
 
 #wikibody .entry h3 a:active {
-    color           : #ffffff;
+    color           : black;
+    text-decoration: none;
 }
 #wikibody .entry h3 a:link {
-    color           : #ffffff;
+    color           : black;
+    text-decoration: none;
 }
 #wikibody .entry h3 a:visited {
-    color           : #ffffff;
+    text-decoration: none;
+    color           : black;
 }
 #wikibody .entry h3 a:hover {
     color           : #ffd082;
@@ -314,7 +379,7 @@ div.underline {
 #wikibody .entry h3 .date {
     font-size       : 12px;
     font-weight     : normal;
-    color           : #ffffff;
+    color           : #808080;
 }
 
 #wikibody .blognavi2{
@@ -339,6 +404,7 @@ div.underline {
 #wikibody .entry .contents h1 {
     margin-top      : 8px;
     font-size       : 18px;
+    width           : 97%;
 }
 #wikibody .entry .contents h2 {
     margin-top      : 8px;
@@ -347,7 +413,7 @@ div.underline {
 #wikibody .entry .contents h3 {
     margin-top      : 8px;
     font-size       : 15px;
-    background-color: #ffffe0;
+    background-color: white;
 }
 
 #wikibody .entry h4 a {
@@ -404,12 +470,12 @@ div.underline {
     text-decoration: none;
 }
 
-#wikibody .error {
+.error {
     color: red;
     font-weight: bold;
 }
 
-#wikibody .errormessage {
+.errormessage {
     padding-top: 10px;
     padding-left: 30px;
 }
@@ -426,56 +492,56 @@ div.underline {
 #wikibody h1 {
     font-size: 22px;
     font-weight: bold;
-    margin: 10px 0 10px 0;
-    padding: 8px 0 8px 8px;
-    width:100%;
-    border-top: solid 2px #c0c0ff;
-    background-color: #f0f0ff;
+    margin: 20px 0px 15px 0px;
+    padding: 10px 10px 10px 8px;
+    border-top: solid 6px #AAAAF0;
+    background-color: #f0faff;
 }
 
 #wikibody h2 {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
-    margin: 14px 0 10px 0;
-    padding: 8px 0 8px 8px;
-    border-top: solid 2px #c0c0ff;
+    margin: 50px 0 20px 0;
+    padding: 10px 10px 10px 4px;
+    border-top: solid 3px #e0e0e0;
+    color: #000044;
 }
 
 #wikibody h3 {
     font-size: 16px;
     font-weight: bold;
-    margin: 14px 0 10px 0;
-    padding: 6px 0 6px 6px;
-    border-bottom: solid 2px #f0f0ff;
+    margin: 40px 0 15px 0;
+    padding: 8px 0 2px 0px;
+    border-bottom: solid 1px #f0f0f0;
 }
 
 #wikibody h4 {
-    font-size: 22px;
+    font-size: 16px;
     font-weight: bold;
-    margin: 10px 0 10px 0;
-    padding: 8px 0 8px 8px;
-    width:100%;
-    border-bottom: solid 2px #f0f0ff;
+    margin: 30px 0 15px 0;
+    padding: 8px 0 8px 0px;
+    border-bottom: solid 1px #F0F0F0;
 }
 
 #wikibody h5 {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
-    margin: 10px 0 10px 0;
-    padding: 8px 0 8px 8px;
-    border-bottom: solid 2px #f0f0ff;
+    margin: 30px 0 15px 0;
+    padding: 8px 0 8px 0px;
+    border-bottom: solid 1px #F0F0F0;
 }
 
 #wikibody h6 {
     font-size: 16px;
     font-weight: bold;
-    margin: 10px 0 10px 0;
-    padding: 6px 0 6px 6px;
-    border-bottom: solid 2px #f0f0ff;
+    margin: 30px 0 15px 0;
+    padding: 8px 0 6px 0px;
+    border-bottom: solid 1px #F0F0F0;
 }
 
 #wikibody p {
     margin-top: 12px;
+    margin-bottom: 20px;
 }
 #wikibody blockquote {
     margin: 12px 24px;
@@ -490,6 +556,17 @@ div.underline {
     background: #f9f9f9 no-repeat 8px 4px;
     border: solid 1px lightsteelblue;
     color: #666666;
+}
+
+.strong {
+  font-weight: bold;
+}
+.marker {
+  background-color: yellow;
+}
+.red {
+  font-weight: bold;
+  color: red;
 }
 
 #wikibody div.body {
@@ -519,8 +596,6 @@ div.underline {
 #wikibody ol li {
     margin-left: 16px;
 }
-#wikibody dl {
-}
 #wikibody dl dt {
 	font-weight: bold;
 	margin-top: 8px;
@@ -531,8 +606,6 @@ div.underline {
 #wikibody table {
 	border-collapse: collapse;
 	margin: 4px 0;
-}
-#wikibody table tr {
 }
 #wikibody table th {
 	background-color: #e0e0ff;
@@ -558,8 +631,6 @@ div.underline {
 	border-top:1px solid #A0A0A0;
 }
 
-#wikibody table table tr {
-}
 #wikibody table table th {
 	background-color: lavender;
 	border: 0;
@@ -589,7 +660,19 @@ div.underline {
     margin:  0px;
 }
 
-#wikibody div.comment {
+#wikibody div.comment div.article {
+    background-color: white;
+    border: 1px solid #c0c0ff;
+}
+#wikibody div.comment div.article .title {
+    background-color: #eeeeff;
+    padding-left: 6px;
+}
+#wikibody div.comment div.article h3 {
+    border-left: 12px solid #eeeeff;
+    border-top: 1px solid #eeeeff;
+    border-bottom: 1px solid #eeeeff;
+    padding-left: 8px;
 }
 
 #wikibody div.body {
@@ -684,23 +767,19 @@ div.underline {
 }
 
 .topnavipagename {
+    width: 100%;
     text-align: left;
     font-size: 16px;
     font-weight:bold;
-    padding-top:8px;
-    padding-left: 8px;
-    padding-bottom: 8px;
-    margin-bottom:10px;
-    background-color: #aaaaff;
-    color:#ffffff;
+    padding: 8px;
+    margin-bottom:20px;
+    color: black;
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
 }
 
 .topnavipagename a {
     text-decoration:none;
-    color: #ffffff;
-}
-#wikibody .topnavipagename a {
-  color: white;
 }
 
 #wikibody .note {
@@ -736,12 +815,10 @@ li.navi_none {
     float:none;
 }
 li.navi_left {
-    display:inline;
     float:left;
     text-align:left;
 }
 li.navi_right {
-    display:inline;
     float:right;
     text-align:right;
 }
@@ -768,9 +845,12 @@ div.code {
 	padding: 4px;
 	width: 100%;
 	overflow: auto;
-	background-color: lavender;
+	background-color: #f0f0ff;
 	border: solid 1px lightsteelblue;
+	font-size: 15px;
+	font-family: monospace;
 	color: #333333;
+	letter-spacing: 0;
 }
 
 /** source code */
@@ -779,12 +859,13 @@ pre.code {
 	padding: 4px;
 	width: 100%;
 	overflow: auto;
-	background-color: lavender;
+	background-color: #f0f0ff;
 	border: solid 1px lightsteelblue;
 	font-size: 15px;
-	font-family: monospace;
 	color: #333333;
 	letter-spacing: 0;
+  /* 等幅フォント */
+  font-family: "Menlo", "Courier", "monospace", "ＭＳ ゴシック";
 }
 
 pre.code .synSpecial  { color: #c000c0; }
@@ -803,17 +884,43 @@ pre.code span.keyword { color: #0000ff; }
 pre.code span.rem     { color: #909; }
 
 
-/** wikiattach
- * ------------------------------------------------------------------------------------ */
+.block {
+	border: 1px solid orange;
+	padding: 5px;
+}
+
+
+/* menublock */
+
+.menublock_top {
+    margin:0px;
+    padding: 6px 0 0 10px;
+    background: url(img/menu-top.gif) no-repeat top left;
+    border-bottom: 1px solid #ffb96f;
+    font-size: 12px;
+    height: 20px;
+}
+.menublock {
+    margin:0px;
+    padding: 1px;
+    background: url(img/menu-middle.gif) repeat-y top left;
+}
+.menublock_bottom {
+    margin:0px;
+    padding: 2px 0 0 10px;
+    background: url(img/menu-bottom.gif) no-repeat bottom left;
+    height: 8px;
+}
+
+/** wikiattach */
 
 #wikiattach {
-    border-top: solid 2px #ffcc66;
-    padding: 8px;
+    border-top: solid 3px #a0a0a0;
+    padding: 16px;
     font-size: 10px;
 }
 
-/** wikifooter
- * ------------------------------------------------------------------------------------ */
+/** wikifooter */
 
 #wikifooter p {
     padding: 0px;
@@ -836,17 +943,13 @@ pre.code span.rem     { color: #909; }
 
 #wikifooter .menu
 {
-	background-color: #f0f0ff;
-	border-bottom: solid 1px #c0c0ff;
     font-size:1em;
     text-align: right;
-	padding: 3px;
-	margin-bottom: 4px;
+	  padding: 3px;
+	  margin-bottom: 4px;
 }
 
-
-/** buckuplist
- * ------------------------------------------------------------------------------------ */
+/** buckuplist */
 
 #backuplist {
     font-size: 0.8em;
@@ -863,57 +966,62 @@ pre.code span.rem     { color: #909; }
     list-style-type:none;
 }
 
-/** buckuplist
- * ------------------------------------------------------------------------------------ */
+/** buckuplist */
 #wikicommand {
-    background-color: #F0F0FF;
     font-size: 0.8em;
-    padding: 16px;
+    margin: auto;
 }
 #wikicommand h6 {
     font-size: 1em;
-    border-top: solid 2px #ffcc66;
-    border-bottom: solid 2px #ffcc66;
-    margin-bottom: 6px;
+    border-top: solid 3px #a0a0a0;
+    border-bottom: solid 1px #e0e0e0;
+    margin-top: 24px;
+    margin-bottom: 8px;
+    padding: 8px;
 }
-
+#wikicommand form {
+    padding: 8px;
+}
 /**
  * wikiedtior
  */
 #wikieditor {
-    width: 100%;
+    margin: 0px auto;
     text-align: left;
     font-size:1.0em;
     line-height:1.3em;
+    max-width: 760px;
 }
 #wikieditor .editorpad {
     text-align: left;
-    margin: 0px auto;
-    width: 100%;
-    padding: 4px;
+    padding: 8px;
 }
 
 #wikieditorbody {
-    width: 100%;
-    float: none;
-    background-color: #fff0f0;
+    margin: 0;
 }
 #wikieditorbody .bodypad {
     padding:8px;
 }
 
-#wikieditorbody .maintext {
-    line-height: 16px;
-    font-size: 14px;
-    margin:0px;
-    padding:4px;
-	width:95%;
+#wikieditorbody textarea.maintext {
+    box-sizing:border-box;
+    padding: 8px;
+    line-height: 1.4em;
+    font-size: 1em;
+    margin:0 0 12px 0;
+    width: 100%;
+    background-color: #f6f6ff;
+    /* for Mac OSX */
+    font-family: "Menlo", "Courier", "monospace", "ＭＳ ゴシック";
 }
 #wikieditorbody .difftext {
     line-height: 16px;
     font-size: 14px;
-    margin:0px;
-    padding:0px;
+    margin:0 0 12px 0;
+    padding:8px;
+    /* for Mac OSX */
+    font-family: "Menlo", "Courier", "monospace", "ＭＳ ゴシック";
     background-color: #e0e0e0;
 }
 #wikieditorbody .error {
@@ -954,8 +1062,74 @@ pre.code span.rem     { color: #909; }
     font-size: 10px;
 }
 
+#conflict_copy_edit_btn { width: 300px; }
+
 .anchor_super {
     font-size:xx-small;
     vertical-align:super;
     text-decoration:none;
 }
+
+.counter {
+  margin: 4px;
+  padding: 8px;
+}
+
+#wikimessage .bodypad {
+  background-color: #fcfcfc;
+  padding: 16px;
+}
+#wikimessage ul {
+  margin-left: 32px;
+  margin-top: 8px;
+  margin-right: 12px;
+  margin-bottom: 8px;
+}
+#wikimessage h4 {
+  padding: 8px;
+  background-color: #e0f0ff;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 12px;
+}
+#wikimessage h5, h6 {
+  font-size: 1.1em;
+  font-weight: bold;
+  padding: 4px;
+  border-bottom: 1px solid #9090f0;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+
+#wikimessage p { padding:10px; }
+
+#wikimessage input {
+  margin: 4px 0 0 0;
+  padding: 4px;
+}
+#wikimessage blockquote {
+  padding: 32px;
+}
+#wikimessage table {
+  margin: 12px;
+}
+#wikimessage td {
+  padding: 8px;
+  margin: 0px;
+}
+
+#uptime_div { padding: 4px; }
+
+.box {
+    border: 1px solid silver;
+    padding: 8px;
+    margin: 8px;
+}
+
+.loginform
+{
+    padding-left: 3em;
+    line-height: 3em;
+    border-left: 1em solid #e0f0ff;
+}
+
+/* vim:set expandtab ts=4 : */

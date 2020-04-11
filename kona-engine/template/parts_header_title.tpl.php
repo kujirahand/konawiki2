@@ -36,6 +36,7 @@
         <span></span>
         <span></span>
     <nav class="global-navi">
+      <?php echo konawiki_getContents("MenuBar"); ?>
       <?php echo  konawiki_getEditMenu('top') ?>
     </nav>
   </div>

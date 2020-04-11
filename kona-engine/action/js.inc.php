@@ -6,7 +6,12 @@ function action_js_()
 {
     // get special JavaScript file
     $page = konawiki_getPage();
-    $file = KONAWIKI_DIR_JS.'/'.$page;
+    // check file name
+    if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $page)) {
+        echo '[ERROR] file not found';
+        exit;
+    }
+    $file = KONAWIKI_DIR_DEF_RES.'/'.$page;
     if (!file_exists($file)) {
       echo "[error] file not found";
       exit;
