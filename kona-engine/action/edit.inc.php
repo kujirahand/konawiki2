@@ -51,7 +51,7 @@ function action_edit_update()
         _err(konawiki_lang('Sorry, You do not have permission.')); exit;
     }
     konawiki_clearCache();
-    $page = konawiki_getPage();
+    $page = konawiki_getpage();
     if ($page == "") {
         _err('Page name is empty...'); exit;
     }

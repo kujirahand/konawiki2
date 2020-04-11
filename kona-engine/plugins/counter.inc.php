@@ -34,7 +34,7 @@ $(function () {
   if (!window.kona2.counter_go) {
     window.kona2.counter_go = 1;
     $.get("$url", function(t) {
-      $(".counter_disp").html(t);
+      $(".counter_disp").html('✔' + t);
     });
   }
 });
@@ -100,7 +100,8 @@ function plugin_counter_getCount()
     }
     $db->exec("commit");
     // show result
-    echo "$total <em class='counter_memo'>(today:$value)</em>";
+    $today = konawiki_lang('Today');
+    echo "$total <em class='counter_memo'>($today:$value)</em>";
 }
 
 // old type counter

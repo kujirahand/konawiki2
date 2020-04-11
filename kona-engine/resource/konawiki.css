@@ -660,6 +660,14 @@ body {
     margin:  0px;
 }
 
+#wikibody .comment .caption {
+    padding: 6px;
+    margin: 6px;
+}
+#wikibody .comment form {
+    padding: 6px;
+    margin: 8px;
+}
 #wikibody div.comment div.article {
     background-color: white;
     border: 1px solid #c0c0ff;

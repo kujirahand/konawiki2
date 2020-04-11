@@ -23,6 +23,14 @@
     width: 99%;
     display:block;
 }
+#wrapper ul.counter {
+    padding: 0;
+    margin: 0;
+}
+#wrapper #btn-gnavi li.counter_disp {
+    color: white;
+    font-weight: normal;
+}
 #wrapper #btn-gnavi {
     position: fixed;
     top: 20px;
@@ -78,3 +86,14 @@
     background-color: rgba(0,0,0,0.5);
     display: none;
 }
+
+.counter_memo {
+    font-size: 11px;
+    color: silver;
+}
+
+
+
+
+
+

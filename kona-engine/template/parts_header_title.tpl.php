@@ -36,8 +36,8 @@
         <span></span>
         <span></span>
     <nav class="global-navi">
-      <?php echo konawiki_getContents("MenuBar"); ?>
       <?php echo  konawiki_getEditMenu('top') ?>
+      <?php echo konawiki_getContents("MenuBar"); ?>
     </nav>
   </div>
   <div id="closeWindow"></div>

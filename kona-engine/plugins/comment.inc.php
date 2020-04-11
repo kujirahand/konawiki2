@@ -107,18 +107,18 @@ __EOS;
 
 function plugin_comment_getInsertForm($pluginname, $pageurl, $pid)
 {
-    $Name = konawiki_lang("Name");
+  $Name = konawiki_lang("Name");
+  $msgComment = konawiki_lang('Comments');
     return <<<EOS__
-<form method="post" action="{$pageurl}">
+<form method="post" action="{$pageurl}" class="pure-form pure-form-stacked">
 <div style="display:none">
 <input type="text" name="name" />
 <input type="text" name="comment" />
 </div>
 <div>
-<span class="note">$Name:</span>
-<input type="text" name="r_name" size="12"/><br/>
-<textarea name="r_comment" cols="64" rows="3" style="padding:4px;"></textarea><br/>
-<input type="submit" value="Insert Comment"/>
+<input type="text" name="r_name" id="r_name" size="12" placeholder="$Name"/>
+<textarea name="r_comment" cols="64" rows="3" style="padding:4px;"></textarea>
+<input type="submit" value="$msgComment" class="pure-button pure-button-primary"/>
 <input type="hidden" name="plugin" value="{$pluginname}"/>
 <input type="hidden" name="pid" value="$pid"/>
 </div></form>
