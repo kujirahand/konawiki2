@@ -1,6 +1,5 @@
 <header>
 <div id="wikiheader"><div class="headerpad">
-    
 <!-- #wikiheader h1 -->  
 <h1>
   <a class="title" href="<?php echo $baseurl?>">

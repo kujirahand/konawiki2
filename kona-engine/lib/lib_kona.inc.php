@@ -356,25 +356,25 @@ function konawiki_getArray($var, $key, $default)
 function konawiki_private($name, $def = null)
 {
 	global $private;
-  if (empty($private[$name])) {
-    return $def;
-  }
-  return $private[$name];
+    if (empty($private[$name])) {
+        return $def;
+    }
+    return $private[$name];
 }
 
 function konawiki_addPrivate($key, $value)
 {
 	global $private;
-  $private[$key] = $value;
+    $private[$key] = $value;
 }
 
 function konawiki_public($name, $def = null)
 {
-  global $public;
-  if (empty($public[$name])) {
+    global $public;
+    if (isset($public[$name])) {
+        return $public[$name];
+    }
     return $def;
-  }
-  return $public[$name];
 }
 
 function konawiki_addPublic($key, $value)
