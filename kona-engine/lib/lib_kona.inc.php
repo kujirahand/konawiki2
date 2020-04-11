@@ -1084,6 +1084,7 @@ function konawiki_getEditMenuArray($pos)
 		$menu[] = array('caption'=>$label_freeze, 'href'=>$freeze_url);
 		$menu[] = array('caption'=>konawiki_lang('Attach'), 'href'=>$attach);
 		$menu[] = array('caption'=>konawiki_lang('Logout'), 'href'=> $logout);
+	    $menu[] = array('caption'=>'-', 'href'=>'');
 	}
     else if (konawiki_isLogin_read()) {
 		$menu[] = array('caption'=>konawiki_lang('Logout'), 'href'=> $logout);

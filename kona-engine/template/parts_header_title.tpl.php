@@ -35,8 +35,12 @@
         <span></span>
         <span></span>
     <nav class="global-navi">
-      <?php echo  konawiki_getEditMenu('top') ?>
-      <?php echo konawiki_getContents("MenuBar"); ?>
+      <?php if (konawiki_isLogin_write()): ?>
+        <?php echo  konawiki_getEditMenu('top') ?>
+      <?php else: ?>
+        <?php echo konawiki_getContents("MenuBar"); ?>
+        <?php echo  konawiki_getEditMenu('top') ?>
+      <?php endif; ?>
     </nav>
   </div>
   <div id="closeWindow"></div>
