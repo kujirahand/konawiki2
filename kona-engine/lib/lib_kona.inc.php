@@ -1073,23 +1073,24 @@ function konawiki_getEditMenuArray($pos)
 	// );
 
 	// main menu
-	$menu[] = array('caption'=>konawiki_lang('Search'), 'href'=>$search);
 	// login menu
 	if (konawiki_isLogin_write()) {
 		// edit menu
-		$menu[] = array('caption'=>konawiki_lang('New'), 'href'=>$new);
         if ($freeze == 0) {
 		    $menu[] = array('caption'=>konawiki_lang('Edit'), 'href'=>$edit);
+		    $menu[] = array('caption'=>konawiki_lang('Attach'), 'href'=>$attach);
         }
 		$menu[] = array('caption'=>$label_freeze, 'href'=>$freeze_url);
-		$menu[] = array('caption'=>konawiki_lang('Attach'), 'href'=>$attach);
+		$menu[] = array('caption'=>konawiki_lang('New'), 'href'=>$new);
 		$menu[] = array('caption'=>konawiki_lang('Logout'), 'href'=> $logout);
-	    $menu[] = array('caption'=>'-', 'href'=>'');
+	    $menu[] = array('caption'=>konawiki_lang('Search'), 'href'=>$search);
 	}
     else if (konawiki_isLogin_read()) {
+	    $menu[] = array('caption'=>konawiki_lang('Search'), 'href'=>$search);
 		$menu[] = array('caption'=>konawiki_lang('Logout'), 'href'=> $logout);
     }
 	else {
+	    $menu[] = array('caption'=>konawiki_lang('Search'), 'href'=>$search);
 		if ($login_link_visible && $pos == "bottom") {
 			$menu[] = array('caption'=>konawiki_lang('Login'),'href'=> $login);
 		}
