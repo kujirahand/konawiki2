@@ -29,7 +29,7 @@ if (isset($navibar_log["body"])) {
 // check title
 
 // for search page
-$action = $konawiki['public']['action'];
+$action = konawiki_public('action');
 if ($action == "search") { // no page link
   $page = 'search';
   $pagelink = 'search';

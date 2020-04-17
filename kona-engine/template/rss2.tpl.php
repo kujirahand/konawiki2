@@ -19,7 +19,7 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
         <description><![CDATA[<?php echo $description?>]]></description>
         <dc:creator><![CDATA[<?php echo $author?>]]></dc:creator>
         <image>
-            <url><?php echo $resourceurl?>/logo.png</url>
+            <url><?php echo getResourceURL('logo.png', FALSE);?></url>
             <title><![CDATA[<?php echo $title?>]]></title>
             <link><?php echo $baseurl?></link>
         </image>
