@@ -56,6 +56,8 @@ foreach ($css_list as $f) {
 <!-- include js css -->
 <?php echo $include_js_css ?>
 <?php endif ?>
+<script type="text/javascript"
+ src="<?php echo getResourceURL('drawer.js');?>"></script>
 
 <!-- favicon.ico -->
 <link rel="shortcut icon" href="<?php echo $favicon ?>" />

@@ -1,9 +1,8 @@
-// draw.js for konawiki2 (kujirahand)
 $(function(){
 
-  const btn = $('#btn-gnavi');
-  const win = $("#closeWindow");
-  const nav = $("nav.global-navi");
+  const btn = $('#hamburger_icon');
+  const win = $("#drawer_background");
+  const nav = $("nav.menuitems");
   
   function toggleMenu() {
     if (btn.hasClass("open")) {
@@ -38,5 +37,3 @@ $(function(){
   win.on("click", closeMenu);
   
 });
-
-

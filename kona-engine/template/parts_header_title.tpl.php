@@ -27,13 +27,15 @@
 </div></div><!-- end of #wikiheader -->
 </header>
 
-<!-- global navi -->
-<div id="wrapper">
-  <div id="btn-gnavi">
-        <span></span>
-        <span></span>
-        <span></span>
-    <nav class="global-navi">
+<!-- drawer.begin -->
+<div id="drawer_wrapper">
+  <!-- ハンバーガーメニュー -->
+  <div id="hamburger_icon">
+        <span class="yum"></span>
+        <span class="yum"></span>
+        <span class="yum"></span>
+    <!-- 飛び出すメニュー -->
+    <nav class="menuitems">
       <?php if (konawiki_isLogin_write()): ?>
         <?php echo  konawiki_getEditMenu('top') ?>
         <?php echo konawiki_getContents("GlobBar"); ?>
@@ -43,11 +45,8 @@
       <?php endif; ?>
     </nav>
   </div>
-  <div id="closeWindow"></div>
+  <!-- 透明な背景ウィンドウ(閉じる専用) -->
+  <div id="drawer_background"></div>
 </div>
-<script type="text/javascript"
- src="<?php echo getResourceURL('drawer.js')?>"></script>
-
-
 
 
