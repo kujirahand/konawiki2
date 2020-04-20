@@ -1306,19 +1306,21 @@ function konawiki_getContents($page)
   // set page
   $_GET["page"] = $page;
   // render
-	$log = konawiki_getLog($page);
-	if (isset($log["id"])) {
-		$body = $log["body"];
+  $log = konawiki_getLog($page);
+  if (isset($log["id"])) {
+    $body = $log["body"];
     $body = konawiki_parser_convert($body);
     //
     $_GET["page"] = $parent_page;
-		return $body;
+    return $body;
+  } else {
+    $_GET["page"] = $parent_page;
   }
   // edit link
-	$page_ = htmlspecialchars($page);
-	$page_url = rawurlencode($page);
-	$baseurl = konawiki_public("baseurl");
-	return <<<__EOS__
+  $page_ = htmlspecialchars($page);
+  $page_url = rawurlencode($page);
+  $baseurl = konawiki_public("baseurl");
+  return <<<__EOS__
 <p>[<a href="{$baseurl}{$page_url}/edit">{$page_}?</a>]</p>
 __EOS__;
 }
