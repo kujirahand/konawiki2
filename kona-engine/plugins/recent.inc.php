@@ -27,7 +27,9 @@ function plugin_recent_convert($params)
     $baseurl = konawiki_public("baseurl");
     foreach ($r as $e) {
         $name  = $e['name'];
-        if ($name == 'SideBar' || $name == 'MenuBar' || $name == 'FrontPage' || $name == 'NaviBar') { continue; }
+        if ($name == 'SideBar' || $name == 'MenuBar' || 
+            $name == 'FrontPage' || $name == 'NaviBar' || 
+            $name == 'GlobBar') { continue; }
 
         $mtime = intval($e['mtime']);
         $mtime_ = konawiki_date_html($mtime);

@@ -1303,6 +1303,7 @@ function konawiki_getContents($page)
     $_GET["page"] = $parent_page;
   }
   // edit link
+  if ($page == 'GlobBar') { return ""; }
   $page_ = htmlspecialchars($page);
   $page_url = rawurlencode($page);
   $baseurl = konawiki_public("baseurl");
