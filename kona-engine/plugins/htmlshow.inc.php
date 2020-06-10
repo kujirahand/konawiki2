@@ -8,13 +8,13 @@
  * - [公開設定]公開
  */
 
-function plugin_html_convert($params)
+function plugin_htmlshow_convert($params)
 {
     if ($_GET['action'] == 'show') {
       $html = array_shift($params);
       return $html;
     } else {
-      return "(#htmlshow)";
+      return "- #htmlshow -";
     }
 }
 

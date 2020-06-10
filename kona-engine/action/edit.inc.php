@@ -6,7 +6,11 @@ function action_edit_()
     $id   = konawiki_getPageId();
     $page = konawiki_getPage();
     $log  = konawiki_getLogFromId($id);
-    $log["hash"] = md5($log["body"]);
+    if (isset($log['body'])) {
+      $log["hash"] = md5($log["body"]);
+    } else {
+      $log["hash"] = "";
+    }
     // check auth
     if (!konawiki_auth()) {
         konawiki_error(konawiki_lang('Sorry, You do not have permission.'));

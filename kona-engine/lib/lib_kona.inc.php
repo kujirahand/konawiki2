@@ -9,20 +9,6 @@
 // konawiki lib version
 define('KONAWIKI_VERSION', '2.2.0');
 
-// check GPC --- $_GET and $_POST and $_COOKIE
-if(get_magic_quotes_gpc()){
-	$_GET       = array_map("strip_text_slashes",$_GET);
-	$_POST      = array_map("strip_text_slashes",$_POST);
-	$_COOKIE    = array_map("strip_text_slashes",$_COOKIE);
-}
-function strip_text_slashes($arg){
-	if(!is_array($arg)){
-		$arg = stripslashes($arg);
-	}elseif(is_array($arg)){
-		$arg = array_map("strip_text_slashes",$arg);
-	}
-	return $arg;
-}
 //----------------------------------------------------------------------
 /**
  * ディレクトリを設定し初期化する
