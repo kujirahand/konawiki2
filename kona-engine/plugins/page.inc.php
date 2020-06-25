@@ -26,10 +26,9 @@ function plugin_page_convert($params)
     }
     $log = konawiki_getLog($page);
     if (isset($log['body'])) {
-        $defpage = konawiki_param('page');
         $_GET['page'] = $_POST['page'] = $page;
         $htm = konawiki_parser_convert($log['body']);
-        $_GET['page'] = $_POST['page'] = $defpage;
+        $_GET['page'] = $_POST['page'] = $_GET['DEF_PAGE'];
         return $htm;
     }
     $pagestack[$page] = TRUE;

@@ -176,6 +176,8 @@ function konawiki_parseURI()
     
     // old resource
     $public['rsslink'] = '';
+    // set default Page
+    $_GET['DEF_PAGE'] = $page;
 }
 
 
@@ -1032,7 +1034,7 @@ function konawiki_getEditMenuArray($pos)
     // extract variable
     $page = konawiki_getPage();
     $log = konawiki_getLog($page);
-    $freeze = intval($log["freeze"]);
+    $freeze = intval(isset($log["freeze"]) ? $log["freeze"] : 0);
 	$baseurl = konawiki_public("baseurl");
 	$pageurl = konawiki_getPageURL($page);
 	$FrontPage = konawiki_public("FrontPage");
@@ -1308,7 +1310,7 @@ function konawiki_getContents($page)
   $page_url = rawurlencode($page);
   $baseurl = konawiki_public("baseurl");
   // set back parent page
-  $_GET['page'] = $page;
+  $_GET['page'] = $_POST['page'] = $_GET['DEF_PAGE'];
   return <<<__EOS__
 <p>[<a href="{$baseurl}{$page_url}/edit">{$page_}?</a>]</p>
 __EOS__;
