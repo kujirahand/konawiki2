@@ -1307,6 +1307,8 @@ function konawiki_getContents($page)
   $page_ = htmlspecialchars($page);
   $page_url = rawurlencode($page);
   $baseurl = konawiki_public("baseurl");
+  // set back parent page
+  $_GET['page'] = $page;
   return <<<__EOS__
 <p>[<a href="{$baseurl}{$page_url}/edit">{$page_}?</a>]</p>
 __EOS__;
