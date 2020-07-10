@@ -7,7 +7,7 @@
  */
 
 // konawiki lib version
-define('KONAWIKI_VERSION', '2.2.0');
+define('KONAWIKI_VERSION', '2.2.1');
 
 //----------------------------------------------------------------------
 /**
@@ -526,7 +526,9 @@ function konawiki_getPageLink($page = FALSE, $mode = "normal", $caption = FALSE,
 
 function konawiki_getPage()
 {
-	return konawiki_param("page");
+    $page = konawiki_param("page");
+    $page = htmlspecialchars($page, ENT_QUOTES);
+    return $page;
 }
 
 /**
