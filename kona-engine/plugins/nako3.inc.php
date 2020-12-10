@@ -29,7 +29,7 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.1.7"; // default version
+  $ver = "3.1.8"; // default version
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
@@ -119,15 +119,12 @@ function plugin_nako3_convert($params)
 </div><!-- end of #nako3_editor_main_{$pid} -->
 
 <div id="nako3_editor_controlls_{$pid}" class="nako3row" style="padding-bottom:4px;">
-  <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行</button>
+  <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行 </button>
   <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
   <span id="post_span_{$pid}" class="post_span">
-    <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">公開</button>
-    &nbsp;&nbsp;
-    <a href="#" id="save_button_{$pid}" class="tmp_btn" onclick="nako3_save({$pid})">仮保存</a>
-    <a href="#" id="load_button_{$pid}" class="tmp_btn" onclick="nako3_load({$pid})">仮読込</a>
+    <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">保存</button>
   </span>
-  <span class='nako3ver'>&nbsp;&nbsp;v{$ver}</span>
+  <span class='nako3ver'>&nbsp;&nbsp;&nbsp;v{$ver}</span>
 </div><!-- end of #nako3_editor_controlls_{$pid} -->
 
 <!-- ERROR -->
@@ -137,10 +134,6 @@ function plugin_nako3_convert($params)
 <div id="nako3result_div_$pid" class="nako3row" style="display:none;">
   <textarea class="nako3row nako3info" readonly
             id="nako3_info_$pid" rows="5" style="display:none"></textarea>
-  <div style="text-align:right;margin:0;padding:0">
-    <span id="nako3_conv_html_$pid" class="nako3_conv_html_link"
-             onclick="nako3_conv_html($pid)">→HTML出力</span>
-  </div>
   <div id="nako3_info_html_$pid" class="nako3info_html" style="display:none"></div>
 </div><!-- end of #nako3_error_{$pid} -->
 
@@ -348,35 +341,10 @@ function nako3_run(id, use_canvas) {
     console.log(e)
   }
 }
-// コンソールに出したテキストをHTMLに変換して表示
-function nako3_conv_html(id) {
-  var textInfo = document.getElementById('nako3_info_' + id)
-  var htmlInfo = document.getElementById('nako3_info_html_' + id)
-  htmlInfo.style.display = 'block'
-  htmlInfo.innerHTML = textInfo.value
-}
 
 // 仮保存のための処理
 function get_kari_hozon_key(pid) {
   return 'nako3edit_kari_src_' + pid;
-}
-function nako3_save(pid) {
-  var doc = document.getElementById('nako3_code_' + pid)
-  localStorage[get_kari_hozon_key(pid)] = doc.value
-  alert('仮保存しました')
-}
-function nako3_load(pid) {
-  var src = localStorage[get_kari_hozon_key(pid)];
-  if (!src) {
-    alert('仮保存しているプログラムはありません');
-    return;
-  }
-  var a = confirm(
-    '仮保存しているソースを読み込みますか？\\n' + 
-    '---\\n' + src.substr(0, 10));
-  if (!a) return;
-  var doc = document.getElementById('nako3_code_' + pid);
-  doc.value = src;
 }
 </script>
 EOS;
