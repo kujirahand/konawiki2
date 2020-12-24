@@ -29,8 +29,8 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.1.10"; // default version
-  $size_w = 300;
+  $ver = "3.1.11"; // default version
+  $size_w = 400;
   $size_h = 300;
   $use_canvas = false;
   $baseurl = "";
