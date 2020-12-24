@@ -29,7 +29,7 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.1.9"; // default version
+  $ver = "3.1.10"; // default version
   $size_w = 300;
   $size_h = 300;
   $use_canvas = false;
@@ -80,6 +80,8 @@ function plugin_nako3_convert($params)
       $baseurl."release/plugin_markup.js",
       $baseurl."release/plugin_kansuji.js",
       $baseurl."release/plugin_turtle.js",
+      $baseurl."release/plugin_webworker.js",
+      $baseurl."release/plugin_caniuse.js",
       // chart.js
       'https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js'
     );
