@@ -58,7 +58,6 @@ function show_nadesiko($plugin, $log)
             $google2 = "http://www.google.co.jp/search?hl=ja&lr=lang_ja&q={$page2_}";
             $foot = <<< EOS__
 ----
--[[なでしこ学習帖($page)を調べてみる:$url]]
 -[[ググってみる:$google2]]＞[[仕事に役立つプログラミング（コラム）検索:$google]]
 
 #googleadsense(nako-yoko)
