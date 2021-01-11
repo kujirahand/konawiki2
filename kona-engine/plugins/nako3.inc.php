@@ -20,6 +20,8 @@
  * - [公開設定] 公開
  */
 
+require __DIR__.'/nako_version.inc.php';
+
 function plugin_nako3_convert($params)
 {
   konawiki_setPluginDynamic(true);
@@ -29,7 +31,7 @@ function plugin_nako3_convert($params)
   // default value
   $code = "";
   $rows = 5;
-  $ver = "3.1.13"; // default version
+  $ver = NAKO_DEFAULT_VERSION; // default version
   $size_w = 400;
   $size_h = 300;
   $use_canvas = false;
