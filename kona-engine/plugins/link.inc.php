@@ -30,11 +30,15 @@ function plugin_link_convert($params)
         }
         if (substr($p,0,1) == "?") {
             $paramstr = substr($p, 1);
+            $paramstr = htmlspecialchars($paramstr, ENT_QUOTES);
             $type = "normal";
             continue;
         }
         if (substr($p,0,1) == "!") {
             $action = substr($p, 1);
+            if (!preg_match('/^[a-zA-Z0-9]+$/', $action)) {
+                $action = '__invalid__';
+            }
             $type = "normal";
             continue;
         }

@@ -515,6 +515,8 @@ function konawiki_getPageLink($page = FALSE, $mode = "normal", $caption = FALSE,
 	if ($mode == "normal") {
 		if ($caption == FALSE) {
 			$caption = $page_;
+		} else {
+			$caption = htmlspecialchars($caption);
 		}
 		$url = konawiki_getPageURL($page,false, false, $paramstr);
 		$html = "<a href='{$url}{$paramstr}'>{$caption}</a>";
