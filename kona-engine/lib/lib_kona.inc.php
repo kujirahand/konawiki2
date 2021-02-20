@@ -450,6 +450,8 @@ function konawiki_getPageURL($page = FALSE, $action = FALSE, $stat = FALSE, $par
 	if ($page === FALSE) {
 		$page = konawiki_param("page");
 	}
+	// remove "javascript:" protocol
+	$page = preg_replace('/^javascript\:/', '', $page);
 	$page_enc = rawurlencode($page);
 	// for - AllowEncodedSlashes Off
 	$page_enc = str_replace('%2F','%252F',$page_enc);

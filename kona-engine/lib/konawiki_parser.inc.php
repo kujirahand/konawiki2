@@ -620,8 +620,15 @@ function konawiki_parser_makeUriLink($url)
     return "<a href='$link'>$disp</a>";
 }
 
+function konawiki_parser_checkURL($url)
+{
+    $url = preg_replace('/^javascript\:/', '', $url);
+    return $url;
+}
+
 function konawiki_parser_showPageDescription($page)
 {
+    $page = konawiki_parser_checkURL($page);
     $page_htm = htmlspecialchars($page);
     # get page info
     $db = konawiki_getDB();
@@ -719,6 +726,7 @@ function konawiki_parser_makeWikiLink($name)
             }
         }
     }
+    $link = konawiki_parser_checkURL($link);
     return "<a href='$link'>$caption</a>";
 }
 
