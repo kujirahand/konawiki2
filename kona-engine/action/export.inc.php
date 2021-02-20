@@ -16,8 +16,7 @@ function action_export_()
       $cnt = $logs[0][0];
       konawiki_showMessage(
         "Export all wiki data($cnt)<br>".
-        "- <a href='index.php?all&export&p=exe&f=json'>Export JSON format</a><br>".
-        "- <a href='index.php?all&export&p=exe&f=php'>Export PHP format</a>");
+        "- <a href='index.php?all&export&p=exe&f=json'>Export JSON format</a><br>");
       exit;
     }
     // show text
@@ -75,8 +74,6 @@ function action_export_()
     );
     if ($f == "json") {
       echo json_encode($a); 
-    } else if ($f == "php") {
-      echo serialize($a);
     } else {
       echo "error";
     }
