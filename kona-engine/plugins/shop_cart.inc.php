@@ -45,7 +45,7 @@ function plugin_shop_cart_convert($params)
   $html .= html_css_out("shop_cart_box");
   $html .= "<div>";
   $html .= "<form action='$url' method='post'>";
-  $html .= form_input_hidden("sci_name", $name);
+  $html .= form_input_hidden("sci_name", $name_);
   $html .= form_input_hidden("sci_price", $price);
   $html .= form_input_hidden("sci_hash", plugin_shop_cart_hash($name, $price));
   $html .= form_input_hidden("back", $page);
