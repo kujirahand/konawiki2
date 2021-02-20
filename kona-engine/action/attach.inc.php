@@ -19,8 +19,9 @@ function action_attach_()
     }
     $db = konawiki_getDB();
     $file_ = $db->escape($file);
-    $sql = "SELECT * FROM attach WHERE log_id=$log_id AND ".
-        "name='$file'";
+    $log_id_ = $db->escape($log_id);
+    $sql = "SELECT * FROM attach WHERE log_id=$log_id_ AND ".
+      "name='$file_'";
     $res = $db->array_query($sql);
     if (!isset($res[0]['id'])) {
         header('HTTP/1.0 404 Not Found'); exit;
