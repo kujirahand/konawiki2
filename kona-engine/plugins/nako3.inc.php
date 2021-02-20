@@ -8,7 +8,6 @@
  * -- rows=num エディタの行数
  * -- ver=xxx なでしこ3のバージョン
  * -- canvas canvasを用意する場合に指定
- * -- baseurl=url なでしこ3の基本URL
  * --- post=url 保存先CGI(デフォルトは、nako3storage)
  * -- edit/editable 編集可能な状態にする
  * -- size=(width)x(height) canvasの幅と高さ
@@ -48,9 +47,6 @@ function plugin_nako3_convert($params)
     }
     if (preg_match('#ver\=([0-9\.]+)#', $s, $m)) {
       $ver = $m[1]; continue;
-    }
-    if (preg_match('#baseurl\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
-      $baseurl = $m[1]; continue;
     }
     if (preg_match('#post\=([0-9a-zA-Z\.\_\/\%\:\&\#]+)#', $s, $m)) {
       $post_url = $m[1]; continue;
