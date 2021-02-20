@@ -37,7 +37,8 @@ function plugin_code_convert($params)
     } else {
         $code = array_shift($params);
     }
-    $code = htmlspecialchars($code);
+    $code = htmlspecialchars($code, ENT_QUOTES);
+    $lang = htmlspecialchars($lang, ENT_QUOTES);
     // kick
     global $konawiki_plugin_code_kick;
     if (empty($konawiki_plugin_code_kick)) {
