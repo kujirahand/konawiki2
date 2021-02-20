@@ -166,6 +166,12 @@ function konawiki_parseURI()
     $action = konawiki_param('action');
     $stat   = konawiki_param('stat');
     
+	// Check Action pattern
+	if (!preg_match('#^[a-zA-Z0-9_]+$#', $_GET['action'])) {
+		$_GET['action'] = 'show';		
+	}
+
+	// encode params and set to public
     $public['page']     = htmlspecialchars($page);
     $public['page_raw'] = $page;
     $public['action']   = htmlspecialchars($action);
@@ -190,18 +196,21 @@ function konawiki_execute_action()
   $action = konawiki_param('action');
   $stat   = konawiki_param('stat');
   $module = KONAWIKI_DIR_ACTION."/{$action}.inc.php";
-  $func   = "action_{$action}_{$stat}";
-  if (file_exists($module)) {
-      require_once($module);
-      if (is_callable($func)) {
-          call_user_func($func);
-      }
-      else {
-          echo "<div>PAGE NOT FOUND</div>";
-      }
-  } else {
-      echo "not found";
+  // check action module
+  if (!file_exists($module)) {
+    header("HTTP/1.0 404 Not Found");
+    echo "Action module Not Found.";
+	exit;
   }
+  // check action function
+  $func   = "action_{$action}_{$stat}";
+  require_once($module);
+  if (!is_callable($func)) {
+    header("HTTP/1.0 404 Not Found");
+    echo "Action function Not Found.";
+	exit;
+  }
+  call_user_func($func);
 }
 
 
