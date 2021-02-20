@@ -250,7 +250,6 @@ function konawiki_init_config()
 function check_is_writable($dir)
 {
     if (!is_writable($dir)) {
-    	@chmod($dir, 0777);
     	if (!is_writable($dir)) {
     		echo '<div style="color:red">[ERROR] The directory is not wriable. : '.$dir.'</div>';
     		exit;

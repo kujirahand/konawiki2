@@ -214,7 +214,6 @@ function action_attach_write()
         konawiki_error("添付に失敗。アップロードエラー。");
         return;
     }
-    chmod($uploadfile, 0644); // ファイル権限の修正(FTP経由でバックアップできるように)
     $db->commit();
     // include
     $page_link = konawiki_getPageLink();
