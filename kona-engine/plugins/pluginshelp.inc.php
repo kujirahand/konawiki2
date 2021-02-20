@@ -17,6 +17,10 @@ function plugin_pluginshelp_convert($params)
     if (!$name) {
         return "[#pluginshelp(プラグイン名) の書式で指定します。]";
     }
+    $name = str_replace('/', '', $name);
+    $name = str_replace('.', '', $name);
+    $name = str_replace('[', '', $name);
+    $name = str_replace(']', '', $name);
     return _plugin_pluginslist_convert_more($name);
 }
 

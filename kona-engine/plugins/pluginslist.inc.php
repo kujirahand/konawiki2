@@ -70,6 +70,7 @@ function _plugin_pluginslist_convert_more($pname)
     $path = KONAWIKI_DIR_PLUGINS."/";
     $full = $path . urlencode($pname) . ".inc.php";
     if (!file_exists($full)) {
+        $pname = htmlspecialchars($pname);
         return "[$pname] というプラグインはありません。";
     }
     $body = file_get_contents($full);
