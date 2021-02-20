@@ -175,7 +175,8 @@ function action_attach_write()
     // check ext
     $ext = konawiki_getContentType($name);
     // check same file, overwrite?
-    $sql = "SELECT * FROM attach WHERE name='$name' AND ".
+    $name_ = $db->escape($name);
+    $sql = "SELECT * FROM attach WHERE name='$name_' AND ".
         "log_id=$log_id;";
     $res = $db->array_query($sql);
     if (isset($res[0]["id"])) {
@@ -187,7 +188,7 @@ function action_attach_write()
     else {
         // insert into db
         $sql = "INSERT INTO attach (log_id,name,ext,ctime,mtime)".
-            "VALUES($log_id,'$name','$ext',$mtime,$mtime)";
+            "VALUES($log_id,'$name_','$ext',$mtime,$mtime)";
         if (!$db->exec($sql)) {
             $db->rollback();
             konawiki_error("添付に失敗。データベースエラー(1/2)。");
