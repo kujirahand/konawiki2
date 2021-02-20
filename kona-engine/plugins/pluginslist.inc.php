@@ -16,6 +16,12 @@ function plugin_pluginslist_convert($params)
     // check mode
     $mode = konawiki_param("{$pid}mode", "");
     $name = konawiki_param("{$pid}name", "");
+    
+    // sanitize plugin name
+    $name = str_replace('/', '', $name);
+    $name = str_replace('.', '', $name);
+    $name = str_replace('[', '', $name);
+    $name = str_replace(']', '', $name);
     if ($mode == "more") {
         return _plugin_pluginslist_convert_more($name);
     }
@@ -46,7 +52,7 @@ function plugin_pluginslist_convert($params)
         $desc = htmlspecialchars(trim($desc));
         // 詳細解説ページへのリンク
         $pname_u = urlencode($pname);
-        $url = konawiki_getPageURL2(konawiki_getPage(), FALSE, FALSE, "{$pid}mode=more&{$pid}name={$pname_u}");
+        $url = konawiki_getPageURL2(konawiki_getPage(), 'plugin', '', "name=pluginslist&{$pid}mode=more&{$pid}name={$pname_u}");
         $list[] = "<li><a href='{$url}'>{$pname}</a> -- {$desc}</li>";
     }
     $filelist = join("\n", $list);
@@ -84,14 +90,15 @@ function _plugin_pluginslist_convert_more($pname)
     // back to list
     $url = konawiki_getPageURL(konawiki_getPage());
     $param_str = join("\n", $params);
+    $pname_ = htmlspecialchars($pname, ENT_QUOTES);
     $str = <<< EOS__
-** [$pname]プラグインの使い方
+** [$pname_]プラグインの使い方
 {$desc}
 {$param_str}
 ----
-- [[→プラグイン一覧に戻る:$url]]
+- [[→戻る:$url]]
 EOS__;
-    return konawiki_parser_convert($str);
+    $html = konawiki_parser_convert($str);
+    konawiki_showMessage($html);
+    exit;
 }
-
-?>
