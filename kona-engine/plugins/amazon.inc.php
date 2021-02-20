@@ -20,9 +20,15 @@ function plugin_amazon_convert($params)
 
 function plugin_amazon_convert_getCode($asin,$tcode)
 {
+  $asin = htmlspecialchars($asin, ENT_QUOTES);
+  $tcode = htmlspecialchars($tcode, ENT_QUOTES);
   return <<<EOS
-<iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="https://rcm-fe.amazon-adsystem.com/e/cm?ref=tf_til&t={$tcode}&m=amazon&o=9&p=8&l=as1&IS2=1&detail=1&asins={$asin}&linkId=97170724c87fa892e4a05732776c9586&bc1=000000&lt1=_blank&fc1=333333&lc1=0066C0&bg1=FFFFFF&f=ifr">
-    </iframe>
+<!-- amazon.begin -->
+<iframe style="width:120px;height:240px;" marginwidth="0"
+  marginheight="0" scrolling="no" frameborder="0" 
+  src="https://rcm-fe.amazon-adsystem.com/e/cm?ref=tf_til&t={$tcode}&m=amazon&o=9&p=8&l=as1&IS2=1&detail=1&asins={$asin}&linkId=97170724c87fa892e4a05732776c9586&bc1=000000&lt1=_blank&fc1=333333&lc1=0066C0&bg1=FFFFFF&f=ifr">
+</iframe>
+<!-- amazon.end -->
 EOS;
 }
 
