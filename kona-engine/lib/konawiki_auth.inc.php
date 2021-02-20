@@ -180,6 +180,7 @@ function konawiki_show_loginForm($msg = "") {
 
     $page = konawiki_getPage();
     $action = konawiki_getPageURL($page, "login");
+    $edit_token = konawiki_getEditToken(TRUE);
     $log['body'] = <<< EOS__
 <h4>{$msg_login_title}</h4>
 {$msg}
@@ -191,7 +192,8 @@ function konawiki_show_loginForm($msg = "") {
 
     <label for="pw">$msg_password : </label>
     <input type="password" id="pw" name="pw" />
-    
+
+    <input type="hidden" id="edit_token" name="edit_token" value="$edit_token" />
     <input type="submit" value="{$msg_login}" class="pure-button pure-button-primary" />
   </fieldset>
 </form>

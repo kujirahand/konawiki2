@@ -8,6 +8,7 @@ function action_login_()
     // ログイン実行するか？
     $user = konawiki_param("user", false);
     $pass = konawiki_param("pass", false);
+    $page = konawiki_getPage();
 
     // ロボットには登録しない
     $public['norobot'] = TRUE;
@@ -17,11 +18,22 @@ function action_login_()
         exit;
     }
 
+    // check edit_token for clickjacking
+    $checkResult = konawiki_checkEditToken();
+    if (!$checkResult) {
+        $label = konawiki_lang('Login');
+        $login_link = konawiki_getPageURL2($page, "login");
+        konawiki_showMessage(
+            "<div><h3>{$label}:</h3><p>".
+            "<a class=\"pure-button pure-button-primary\" href=\"$login_link\">{$label}</a>".
+            "</p></div>");
+        exit;
+    }
+
     // ログイン実行
     konawiki_auth();
 
     $baseurl = konawiki_public("baseurl");
-    $page = konawiki_getPage();
     $edit_token = konawiki_getEditToken();
     $url_edit = konawiki_getPageURL($page, "edit", "", "edit_token=$edit_token");
     $url_look = konawiki_getPageURL($page);

@@ -1042,10 +1042,10 @@ function konawiki_jump($url)
 	exit;
 }
 
-function konawiki_getEditToken()
+function konawiki_getEditToken($force = FALSE)
 {
 	global $konawiki;
-	if (konawiki_isLogin_write()) {
+	if (konawiki_isLogin_write() || $force) {
 		if (isset($konawiki['private']['edit_token'])) {
 			$edit_token = $konawiki['private']['edit_token'];
 		} else {
@@ -1057,6 +1057,16 @@ function konawiki_getEditToken()
 		$edit_token = 'PleaseLogin';
 	}
 	return $edit_token;
+}
+
+function konawiki_checkEditToken()
+{
+    $ses_edit_token = isset($_SESSION['konawiki2_edit_token']) ? $_SESSION['konawiki2_edit_token'] : '';
+    $get_edit_token = konawiki_param('edit_token', '');
+	if (($get_edit_token == '') || ($ses_edit_token != $get_edit_token)) {
+		return FALSE;
+	}
+	return TRUE;
 }
 
 

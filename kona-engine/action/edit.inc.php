@@ -32,9 +32,8 @@ function action_edit_()
     }
 
     // check edit_token for clickjacking
-    $ses_edit_token = isset($_SESSION['konawiki2_edit_token']) ? $_SESSION['konawiki2_edit_token'] : '';
-    $get_edit_token = isset($_GET['edit_token']) ? $_GET['edit_token'] : '';
-    if (($get_edit_token == '') || ($ses_edit_token != $get_edit_token)) {
+    $checkResult = konawiki_checkEditToken();
+    if (!$checkResult) {
         $label = konawiki_lang('Edit');
         $edit_token = konawiki_getEditToken();
         $edit_link = konawiki_getPageURL2($page, "edit", "", "edit_token=".$edit_token);
