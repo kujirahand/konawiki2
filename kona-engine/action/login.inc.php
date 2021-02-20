@@ -22,7 +22,8 @@ function action_login_()
 
     $baseurl = konawiki_public("baseurl");
     $page = konawiki_getPage();
-    $url_edit = konawiki_getPageURL($page, "edit");
+    $edit_token = konawiki_getEditToken();
+    $url_edit = konawiki_getPageURL($page, "edit", "", "edit_token=$edit_token");
     $url_look = konawiki_getPageURL($page);
 
     // ログイン権限を調べる

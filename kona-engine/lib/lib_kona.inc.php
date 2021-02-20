@@ -1042,6 +1042,23 @@ function konawiki_jump($url)
 	exit;
 }
 
+function konawiki_getEditToken()
+{
+	global $konawiki;
+	if (konawiki_isLogin_write()) {
+		if (isset($konawiki['private']['edit_token'])) {
+			$edit_token = $konawiki['private']['edit_token'];
+		} else {
+			$edit_token = bin2hex(random_bytes(32));
+			$_SESSION['konawiki2_edit_token'] = $edit_token;
+			$konawiki['private']['edit_token'] = $edit_token;
+		}
+	} else {
+		$edit_token = 'PleaseLogin';
+	}
+	return $edit_token;
+}
+
 
 function konawiki_getEditMenuArray($pos)
 {
@@ -1053,10 +1070,11 @@ function konawiki_getEditMenuArray($pos)
 	$pageurl = konawiki_getPageURL($page);
 	$FrontPage = konawiki_public("FrontPage");
 	$login_link_visible = konawiki_public("login.link.visible");
+	$edit_token = konawiki_getEditToken();
 	//
 	$search = konawiki_getPageURL2($page, "search");
 	$new    = konawiki_getPageURL2($page, "new");
-	$edit   = konawiki_getPageURL2($page, "edit");
+	$edit   = konawiki_getPageURL2($page, "edit", "", "edit_token=".$edit_token);
 	$attach = konawiki_getPageURL2($page, "attach");
 	$logout = konawiki_getPageURL2($page, "logout");
 	$login  = konawiki_getPageURL2($page, "login");
@@ -1102,7 +1120,7 @@ function konawiki_getEditMenuArray($pos)
 
 function konawiki_getEditMenu($pos = 'bottom')
 {
-	$menu = array();
+  $menu = array();
   $menuitems = konawiki_getEditMenuArray($pos);
   if ($pos == 'bottom') {
     foreach ($menuitems as $row) {
@@ -1169,7 +1187,7 @@ function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private 
 	$page = konawiki_getPage();
 	$page_ = $db->escape($page);
 	$body_ = $db->escape($body);
-  $private = intval($private);
+	$private = intval($private);
 	// update or insert
 	$log = konawiki_getLog($page);
 	$mtime = time();

@@ -1,4 +1,7 @@
 <?php
+/*
+ * Edit Action
+ */
 
 function action_edit_()
 {
@@ -11,11 +14,13 @@ function action_edit_()
     } else {
       $log["hash"] = "";
     }
+
     // check auth
     if (!konawiki_auth()) {
         konawiki_error(konawiki_lang('Sorry, You do not have permission.'));
         return;
     }
+
     // check freeze
     if (isset($log["freeze"]) && $log["freeze"] > 0) {
         $link = konawiki_getPageURL($page, "freeze");
@@ -25,6 +30,22 @@ function action_edit_()
         );
         exit;
     }
+
+    // check edit_token for clickjacking
+    $ses_edit_token = isset($_SESSION['konawiki2_edit_token']) ? $_SESSION['konawiki2_edit_token'] : '';
+    $get_edit_token = isset($_GET['edit_token']) ? $_GET['edit_token'] : '';
+    if (($get_edit_token == '') || ($ses_edit_token != $get_edit_token)) {
+        $label = konawiki_lang('Edit');
+        $edit_token = konawiki_getEditToken();
+        $edit_link = konawiki_getPageURL2($page, "edit", "", "edit_token=".$edit_token);
+        konawiki_showMessage(
+            "<div><h3>{$label}:</h3><p>".
+            "<a class=\"pure-button pure-button-primary\" href=\"$edit_link\">{$label}</a>".
+            "</p></div>");
+        exit;
+    }
+
+    // cache
     konawiki_clearCache();
     // create auth hash
     $login_auth_hash = base64_encode(random_bytes(256));
