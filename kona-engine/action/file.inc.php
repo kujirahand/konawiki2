@@ -41,7 +41,7 @@ function action_file_()
 function __404() {
     header('HTTP/1.0 404 File not found');
     header('Content-type: text/plain');
-    echo '401 File not found';
+    echo '404 File not found';
 }
 
 function __out($path, $page) {

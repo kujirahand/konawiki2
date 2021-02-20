@@ -8,20 +8,15 @@ function action_javascript_()
     $page = konawiki_getPage();
     $log = konawiki_getLog($page);
     if ($log == FALSE) {
-        $body = "** ページ一覧\n".
-            "#ls\n";
-        $log = array(
-            'id'            => 0,
-            'body'          => $body,
-            'body_header'   => '',
-            'body_footer'   => '',
-            'ctime'         => time(),
-            'mtime'         => time(),
-        );
+        header("HTTP/1.0 404 Not Found");
+        echo "404 Not Found";
+        exit;
+    }
+    // check PRIVATE ?
+    if (isset($log['private']) && $log['private']) {
+        $log["body"] = "/*".konawiki_lang('Private Page.')."*/\n";
     }
     // show text
     header("Content-Type:text/javascript; charset=UTF-8");
     echo $log["body"];
 }
-
-?>

@@ -10,21 +10,20 @@ function action_bloghtml_()
     $page = konawiki_getPage();
     $log = konawiki_getLog($page);
     if ($log == FALSE) {
-        $body = "** ページ一覧\n".
-            "#ls\n";
-        $log = array(
-            'id'            => 0,
-            'body'          => $body,
-            'body_header'   => '',
-            'body_footer'   => '',
-            'ctime'         => time(),
-            'mtime'         => time(),
-        );
+        header("HTTP/1.0 404 Not Found");
+        echo "/* 404 Not Found */";
+        exit;
     }
-    $_GET['noanchor'] = 1;
-    $body = konawiki_parser_convert($log["body"]);
-    $body = str_replace('<pre class="code">', '<pre class="brush:java; wrap-lines:false">', $body);
-    $body = trim($body);
+    // check PRIVATE ?
+    if (isset($log['private']) && $log['private']) {
+        $body = konawiki_lang('Private Page.');
+        $page = "private_page";
+    } else {
+        $_GET['noanchor'] = 1;
+        $body = konawiki_parser_convert($log["body"]);
+        $body = str_replace('<pre class="code">', '<pre class="brush:java; wrap-lines:false">', $body);
+        $body = trim($body);
+    }
     // show text
     header("Content-Type:text/plain; charset=UTF-8");
     header("Content-Disposition: inline; filename=\"{$page}.txt\"");
