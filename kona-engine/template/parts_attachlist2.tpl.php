@@ -19,7 +19,7 @@
                 "onclick='this.select()'/>{$x}";
             $res[] = $z;
         }
-        echo join($res, " - ");
+        echo implode(" - ", $res);
     } else {
         echo konawiki_lang('None');
     }

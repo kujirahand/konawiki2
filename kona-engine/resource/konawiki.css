@@ -978,6 +978,7 @@ pre.code span.rem     { color: #909; }
 #wikicommand {
     font-size: 0.8em;
     margin: auto;
+    width: 760px;
 }
 #wikicommand h6 {
     font-size: 1em;
@@ -989,6 +990,11 @@ pre.code span.rem     { color: #909; }
 }
 #wikicommand form {
     padding: 8px;
+}
+#wikicommand-btn {
+    font-size: 0.8em;
+    margin: auto;
+    width: 760px;
 }
 /**
  * wikiedtior
