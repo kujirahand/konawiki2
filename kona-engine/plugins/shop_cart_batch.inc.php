@@ -21,6 +21,10 @@ function plugin_shop_cart_batch_convert($params)
   $back = konawiki_param("back", "FrontPage");
   $baseurl = konawiki_public("baseurl", "");
 
+  // Check Token
+  plugin_shop_cart_checkToken();
+
+  // batch
   switch ($mode) {
   case "add":       plugin_shop_cart_batch_add(); break;
   case "rmItem":    plugin_shop_cart_batch_rmItem(); break;

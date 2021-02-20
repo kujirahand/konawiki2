@@ -49,6 +49,7 @@ function plugin_shop_cart_convert($params)
   $html .= form_input_hidden("sci_price", $price);
   $html .= form_input_hidden("sci_hash", plugin_shop_cart_hash($name, $price));
   $html .= form_input_hidden("back", $page);
+  $html .= form_input_hidden("shop_token", plugin_shop_cart_getToken());
   $html .= "<table>";
   $html .= "<tr><th class='sch'>商品</th><td>$name_</td></tr>";
   $html .= "<tr><th class='sch'>値段</th><td>{$price_}円</td></tr>";
@@ -56,6 +57,27 @@ function plugin_shop_cart_convert($params)
   $html .= "</table></form></div>";
   return $html;
 }
+
+function plugin_shop_cart_getToken() {
+  global $konawiki;
+  if (!isset($konawiki['shop_token'])) {
+    $shop_token = $konawiki['shop_token'] = bin2hex(random_bytes(32));
+    $_SESSION['konawiki2_shop_token'] = $shop_token;
+  } else {
+    $shop_token = $konawiki['shop_token'];
+  }
+  return $shop_token;
+}
+
+function plugin_shop_cart_checkToken() {
+  $shop_token = isset($_SESSION['konawiki2_shop_token']) ? $_SESSION['konawiki2_shop_token'] : '';
+  $shop_token_get = konawiki_param('shop_token');
+  if ($shop_token != $shop_token_get) {
+    konawiki_error('意図せぬ操作が行われました。ページを戻って改めて操作を行ってください。');
+    exit;
+  }
+}
+
 
 function plugin_shop_cart_hash($name, $price) {
   $fixkey = "f29dfj2nFjFF";

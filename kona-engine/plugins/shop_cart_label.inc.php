@@ -42,11 +42,13 @@ function plugin_shop_cart_label_convert($params)
     $cnt = count($_SESSION[CART_ITEMS_KEY]);
     if ($cnt > 0) $lbl = "{$cnt}個入ってます";
   }
+  $shop_token = plugin_shop_cart_getToken();
   //
   $html .= "<div class='shopbox'>";
   $html .=   "<div class='shopbox-head'>買い物カゴ</div>";
   $html .=   "<form action='$jump' method='post'>";
   $html .=   "<input class='shopbox_btn' type='submit' value='お会計'>";
+  $html .=   "<input type='hidden' name='shop_token' value='$shop_token'>";
   $html .=   "{$lbl}</form>";
   $html .= "</div>";
   return $html;

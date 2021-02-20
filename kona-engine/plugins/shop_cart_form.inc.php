@@ -19,7 +19,6 @@ function plugin_shop_cart_form_convert($params)
   $head = "<div id='shop_cart'>\n";
   $foot = "</div><!-- end of shop_cart -->\n";
   $page = konawiki_getPage();
-  //
   // モードで分岐する
   $sc_mode = konawiki_param('sc_mode', '');
   if ($sc_mode == "logout") {
@@ -74,6 +73,7 @@ function plugin_shop_cart_form_convert($params)
 
 function shop_cart_getTable() {
   $page = konawiki_getPage();
+  $shop_token = plugin_shop_cart_getToken();
   $html = "";
   $html .= "<h3>買い物かごの内容:</h3>";
   // カゴの中のアイテム  
@@ -92,6 +92,7 @@ function shop_cart_getTable() {
     "name=shop_cart_batch&p=rmAll&back=".urlencode($page));
   $clean_html =
     "<form method='post' action='$clearurl' onsubmit='return checkSubmit()'>".
+    "<input type='hidden' name='shop_token' value='$shop_token'>".
     "<input type='submit' value='全てを空にする'>".
     "</form>";
   // HTML
@@ -127,6 +128,7 @@ function shop_cart_getTable() {
     $url = konawiki_getPageURL($page, "plugin", "",
       "name=shop_cart_batch&p=rmItem&order_id=$order_id&back=".urlencode($page));
     $remove_btn = "<form method='post' action='$url'>".
+      "<input type='hidden' name='shop_token' value='$shop_token'>".
       "<input type='submit' value='削除'></form>";
     //
     $html .= "<tr>".
@@ -257,6 +259,8 @@ function shop_cart_getCustomerForm() {
   $html .= "</div>";
   $html .= "<br/>";
   $html .= form_input_hidden('sc_mode', 'save1');
+  $shop_token = plugin_shop_cart_getToken();
+  $html .= "<input type='hidden' name='shop_token' value='$shop_token'>";
   $html .= form_input_submit('注文を確定する');
   $html .= "</form>";
   return $html;
@@ -273,6 +277,9 @@ function shop_cart_logout() {
 }
 
 function shop_cart_save1() {
+  // Check shop_token
+  plugin_shop_cart_checkToken();
+  
   $err = array();
   $keys = array(
     'sc_name', 'sc_email', 'sc_pw', 'sc_tel', 'sc_zip', 'sc_addr',
