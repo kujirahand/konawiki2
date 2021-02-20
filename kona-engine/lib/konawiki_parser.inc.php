@@ -497,12 +497,12 @@ function __konawiki_parser_tohtml(&$text, $level)
             $pname  = trim($m[1]);
             $plugin = konawiki_parser_getPlugin($pname);
             $text   = substr($text, strlen($m[0]));
-            if (!file_exists($plugin["file"])) {
+            if ($plugin['disable'] || !file_exists($plugin["file"])) {
                 $result .= htmlspecialchars("&".$pname."(");
             } else {
                 $pparam = __konawiki_parser_tohtml($text, $level + 1);
                 $param_ary = explode(",", $pparam);
-                include_once($plugin["file"]);
+                include_once $plugin["file"];
                 $p = array("cmd"=>"plugin", "text"=>$pname, "params"=>$param_ary);
                 $s = konawiki_parser_render_plugin($p);
                 $result .= $s;
@@ -595,14 +595,16 @@ function konawiki_parser_tosource_block($src)
         }
         array_push($args, $src);
         // call plugin function
-        $path = KONAWIKI_DIR_PLUGINS."/".$pname.".inc.php";
-        $func = "plugin_{$pname}_convert";
-        if (file_exists($path)) {
-            include_once($path);
-            if (is_callable($func)) {
-                $res = @call_user_func($func, $args);
-                return $res;
-            }
+        $pname = preg_replace('#[\/\.]#', '', $pname);
+        $plugin = konawiki_parser_getPlugin($pname);
+        if ($plugin['disable'] || !file_exists($plugin['file'])) {
+            return "<!-- disable #".htmlspecialchars($pname)." -->";
+        }
+        include_once $plugin['file'];
+        $func = $plugin['convert'];
+        if (is_callable($func)) {
+            $res = @call_user_func($func, $args);
+            return $res;
         }
     }
     // no plugin
@@ -615,14 +617,15 @@ function konawiki_parser_tosource_block($src)
 function konawiki_parser_makeUriLink($url)
 {
     $disp = mb_strimwidth($url, 0, 60, "..");
-    // $disp = htmlspecialchars($url);
-    $link = htmlspecialchars($url);
+    $link = konawiki_parser_checkURL($url);
+    $disp = htmlspecialchars($disp, ENT_QUOTES);
     return "<a href='$link'>$disp</a>";
 }
 
 function konawiki_parser_checkURL($url)
 {
     $url = preg_replace('/^javascript\:/', '', $url);
+    $url = htmlspecialchars($url, ENT_QUOTES);
     return $url;
 }
 
@@ -786,8 +789,8 @@ function konawiki_parser_plugins(&$text, $flag)
     // check plugins
     $plugin = konawiki_parser_getPlugin($word);
     $f = $plugin["file"];
-    if (file_exists($f)) {
-        include_once($f);
+    if (!$plugin['disable'] && file_exists($f)) {
+        include_once $f;
         if (is_callable($plugin["init"])) {
             call_user_func($plugin["init"]);
         }
@@ -810,12 +813,11 @@ function konawiki_parser_render_plugin($value)
     $text   = "";
     $pname  = $value["text"];
     $params = $value["params"];
-    // check security
-    $disable = konawiki_private("plugins.disable");
-    if (isset($disable[$pname]) && $disable[$pname] == true) {
-        return "<!-- disable #{$pname} -->"; // disable
-    }
+
     $plugin = konawiki_parser_getPlugin($pname);
+    if ($plugin['disable']) {
+        return "<!-- disable #".htmlspecialchars($pname)." -->";
+    }
     // check dynamic
     $plugin_params["flag_dynamic"] = true;
     // count plugins id

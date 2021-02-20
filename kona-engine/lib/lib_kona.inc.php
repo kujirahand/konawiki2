@@ -1477,6 +1477,9 @@ function konawiki_checkPassword($user, $pass)
  */
 function konawiki_parser_getPlugin($pname)
 {
+	$plugins_disable = konawiki_private('plugins.disable');
+	$disable = isset($plugins_disable[$pname]) ? $plugins_disable[$pname] : FALSE;
+
 	// Sanitize path
 	$pname = str_replace('/', '', $pname);
 	$pname = str_replace('.', '', $pname);
@@ -1489,6 +1492,7 @@ function konawiki_parser_getPlugin($pname)
         "init"    => "plugin_{$pname_fun}_init",
         "action"  => "plugin_{$pname_fun}_action",
         "convert" => "plugin_{$pname_fun}_convert",
+		"disable" => $disable,
     );
     return $res;
 }
