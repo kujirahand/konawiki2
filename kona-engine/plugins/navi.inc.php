@@ -28,6 +28,8 @@ function plugin_navi_convert($params)
     }
     if (!$order) {
         $order = "ASC";
+    } else {
+        $order = "DESC";
     }
     $where = "name like ";
     $pattern = str_replace('*','%',$pattern);
