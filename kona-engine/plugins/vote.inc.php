@@ -27,7 +27,7 @@ function plugin_vote_convert($params)
         $res .= form_tag($action);
         $res .= form_input_hidden("plugin","vote");
         $res .= form_input_hidden("vote-mode","write-csv");
-        $res .= form_input_hidden("vote_id",htmlspecialchars($vote_id));
+        $res .= form_input_hidden("vote_id",htmlspecialchars($vote_id, ENT_QUOTES));
         $res .= "<textarea cols='50' rows='4' name='csv'>$body_html</textarea>\n";
         if (konawiki_isLogin_write()) {
             $res .= form_input_submit("編集");
@@ -37,7 +37,7 @@ function plugin_vote_convert($params)
     }
     
     // --- 一般表示
-    $vote_id_htm = htmlspecialchars($vote_id);
+    $vote_id_htm = htmlspecialchars($vote_id, ENT_QUOTES);
     $vote_hash = md5($vote_id);
     $url = konawiki_getPageURL();
     $res = "<div class='memo'>{$vote_id_htm}<a name='{$vote_hash}' href='{$url}#{$vote_hash}'>&dagger;</a></div>\n";
@@ -45,7 +45,7 @@ function plugin_vote_convert($params)
     $rows = explode("\n", trim($body));
     $i = 0;
     foreach ($rows as $line) {
-        list($k, $v) = explode(",", $line); 
+        list($k, $v) = explode(",", $line.",,"); 
         //----------------------------------
         // 投票フォームの作成
         //----------------------------------
@@ -69,7 +69,7 @@ function plugin_vote_convert($params)
  * 書き込みがあった場合 (TRUE or FLASE) を返す
  * plugin_xxx_action($param)
  */
-function plugin_vote_action(&$params)
+function plugin_vote_action($params)
 {
     global $plugin_params;
     
