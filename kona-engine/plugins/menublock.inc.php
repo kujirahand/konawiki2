@@ -22,7 +22,7 @@ function plugin_menublock_convert($params)
     if (!$params) return "";
     $title = "&nbsp;";
     if (count($params) >= 2) {
-        $title = trim(array_shift($params));
+        $title = htmlspecialchars(trim(array_shift($params)),ENT_QUOTES);
     }
     $body  = trim(array_shift($params));
     $html = konawiki_parser_convert($body, FALSE);
