@@ -167,8 +167,12 @@ function konawiki_parseURI()
     $stat   = konawiki_param('stat');
     
 	// Check Action pattern
-	if (!preg_match('#^[a-zA-Z0-9_]+$#', $_GET['action'])) {
-		$_GET['action'] = 'show';		
+	if (!preg_match('#^[a-zA-Z0-9_]+$#', $action)) {
+		$_GET['action'] = '__INVALID__';		
+	}
+  	// Check invalid status
+  	if (!preg_match('#^[a-zA-Z0-9_]*$#', $stat)) {
+		$_GET['stat'] = '__INVALID__';
 	}
 
 	// encode params and set to public
@@ -207,7 +211,7 @@ function konawiki_execute_action()
   require_once($module);
   if (!is_callable($func)) {
     header("HTTP/1.0 404 Not Found");
-    echo "Action function Not Found.";
+    echo "Action function Not Found.".$func;
 	exit;
   }
   call_user_func($func);
@@ -1444,9 +1448,13 @@ function konawiki_checkPassword($user, $pass)
  */
 function konawiki_parser_getPlugin($pname)
 {
+	// Sanitize path
+	$pname = str_replace('/', '', $pname);
+	$pname = str_replace('.', '', $pname);
+
     $dir = KONAWIKI_DIR_PLUGINS;
     $pname_url = urlencode($pname);
-    $pname_fun = str_replace('%','', $pname_url);
+    $pname_fun = str_replace('%','', $pname_url);	
     $res = array(
         "file"    => "{$dir}/{$pname_url}.inc.php",
         "init"    => "plugin_{$pname_fun}_init",
