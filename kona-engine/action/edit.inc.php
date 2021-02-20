@@ -27,8 +27,7 @@ function action_edit_()
     }
     konawiki_clearCache();
     // create auth hash
-    $s = "auth_hash@{$id}@".(rand())."@".date("Y-m-d/H:i:s");
-    $login_auth_hash = md5($s);
+    $login_auth_hash = base64_encode(random_bytes(256));
     konawiki_setAuthHash($id, $login_auth_hash);
     // show editor
     $log["login_auth_hash"] = $login_auth_hash;
