@@ -16,6 +16,7 @@ if (empty($hash)) $hash = "";
 if (empty($login_auth_hash)) $login_auth_hash = "";
 if (empty($private)) $private = 0;
 $private_chk = ($private) ? "checked" : "";
+$tag = htmlspecialchars($tag, ENT_QUOTES);
 //------------------------------------------------------------------------------
 // header
 //------------------------------------------------------------------------------
