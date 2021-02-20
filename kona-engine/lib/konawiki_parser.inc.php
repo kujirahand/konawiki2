@@ -800,7 +800,7 @@ function konawiki_parser_plugins(&$text, $flag)
         if ($word != $eword) {
         	$word .= "($eword)";
         }
-        $res["text"] = "[No Plugin:{$word}]";
+        $res["text"] = "[plugin error #{$word}]";
     }
     return $res;
 }
