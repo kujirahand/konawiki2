@@ -6,7 +6,7 @@
 
 function mime_content_type_e( $filename )
 {
-    if (!preg_match("#(\..+)$#",$filename,$m)) {
+    if (!preg_match("#(\.[a-zA-Z0-9_]+)$#",$filename,$m)) {
         return "application/octet-stream";
     }
     $ext = $m[1];

@@ -168,12 +168,18 @@ function action_attach_write()
         "パーミッションを確認してください。");
       return;
     }
+    // check ext
+    $ext = konawiki_getContentType($name);
+    if ($ext == "application/octet-stream") {
+      konawiki_error(
+        "アップロードできない形式です。<br>".
+        "ファイ形式を確認してください。");
+      return;
+    }
     // check db
     $db = konawiki_getDB();
     $db->begin();
     $mtime = time();
-    // check ext
-    $ext = konawiki_getContentType($name);
     // check same file, overwrite?
     $name_ = $db->escape($name);
     $sql = "SELECT * FROM attach WHERE name='$name_' AND ".
