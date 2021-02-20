@@ -21,6 +21,7 @@ function plugin_center_convert($params)
   $color = array_shift($params);
 
   $text = konawiki_parser_convert($text, false);
+  $color = htmlspecialchars($text, ENT_QUOTES);
   if ($color !== null) {
     $color = "color:$color;";
   } else {
