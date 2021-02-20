@@ -44,6 +44,7 @@ function plugin_ref_convert($params)
     $res = $db->array_query($sql);
     if (!isset($res[0]['id'])) {
       // attachにファイルがあれば、それに直リンク
+      $fname = str_replace('/', '', $fname);
       $target = $dir_attach.'/'.$fname;
       if (file_exists($target)) {
         $file_url = konawiki_private('uri.attach')."/{$fname}";
