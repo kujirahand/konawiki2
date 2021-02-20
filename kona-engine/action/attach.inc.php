@@ -172,7 +172,7 @@ function action_attach_write()
     if ($ext == "application/octet-stream") {
       konawiki_error(
         "アップロードできない形式です。<br>".
-        "ファイ形式を確認してください。");
+        "ファイル形式を確認してください。");
       return;
     }
     // check db
@@ -368,7 +368,7 @@ function konawiki_getAttachListLink($page)
     foreach ($res as $line) {
         $name = $line["name"];
         $nameu = urlencode($name);
-        $nameh = htmlspecialchars($name);
+        $nameh = htmlspecialchars($name, ENT_QUOTES);
         $url = "{$baseurl}{$page_}/attach?file=$nameu";
         $link = "<a href='$url'>$nameh</a>";
         $list[] = $link;

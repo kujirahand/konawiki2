@@ -11,7 +11,7 @@
     if ($links) {
         $res = array();
         foreach ($links as $s) {
-            $w = '#ref('.$s['name'].')';
+            $w = '#ref('.htmlspecialchars($s['name'], ENT_QUOTES).')';
             $name_ = urlencode($s['name']);
             $u = "{$page_}/attach?file=".$name_;
             $x = "<a href='$u'>($msg_etu)</a>";
