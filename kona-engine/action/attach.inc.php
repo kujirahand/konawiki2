@@ -169,7 +169,7 @@ function action_attach_write()
     }
     // check ext
     $ext = konawiki_getContentType($name);
-    if ($ext == "application/octet-stream") {
+    if ($ext == "application/octet-stream" || $ext == "text/html") {
       konawiki_error(
         "アップロードできない形式です。<br>".
         "ファイル形式を確認してください。");
