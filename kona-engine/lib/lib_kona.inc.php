@@ -1067,7 +1067,7 @@ function konawiki_checkEditToken()
 {
     $ses_edit_token = isset($_SESSION['konawiki2_edit_token']) ? $_SESSION['konawiki2_edit_token'] : '';
     $get_edit_token = konawiki_param('edit_token', '');
-	if (($get_edit_token == '') || ($ses_edit_token != $get_edit_token)) {
+	if (($get_edit_token == '') || (!hash_equals($ses_edit_token,$get_edit_token)) {
 		return FALSE;
 	}
 	return TRUE;
@@ -1471,7 +1471,7 @@ function konawiki_checkPassword($user, $pass)
   else {
     $hash = $user;
   }
-  return ($hash == $pass);
+  return (hash_equals($hash, $pass));
 }
 
 /**
