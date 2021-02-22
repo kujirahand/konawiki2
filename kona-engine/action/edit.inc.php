@@ -5,6 +5,7 @@
 
 function action_edit_()
 {
+    header('X-Frame-Options: SAMEORIGIN');
     // get page info
     $id   = konawiki_getPageId();
     $page = konawiki_getPage();
