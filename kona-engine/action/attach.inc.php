@@ -3,9 +3,10 @@
 // index.php?(page)&attach&file=(filename)
 // index.php?FrontPage&attach&file=xxx.txt
 
+header('X-Frame-Options: SAMEORIGIN');
+
 function action_attach_()
 {
-    header('X-Frame-Options: SAMEORIGIN');
     // check file parameter
     $file = konawiki_param("file", FALSE);
     if ($file === FALSE) { // show form

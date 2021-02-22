@@ -2,10 +2,10 @@
 /*
  * Edit Action
  */
+header('X-Frame-Options: SAMEORIGIN');
 
 function action_edit_()
 {
-    header('X-Frame-Options: SAMEORIGIN');
     // get page info
     $id   = konawiki_getPageId();
     $page = konawiki_getPage();
@@ -52,7 +52,6 @@ function action_edit_()
     konawiki_setAuthHash($id, $login_auth_hash);
     // show editor
     $log["login_auth_hash"] = $login_auth_hash;
-    $log["edit_token"] = konawiki_getEditToken();
     include_template("edit.tpl.php", $log);
 }
 
@@ -64,10 +63,6 @@ function _err($msg)
 
 function action_edit_update()
 {
-    // check edit_token
-    if (!konawiki_checkEditToken()) {
-      _err('Sorry, Invalid Token. Please submit again.'); exit;
-    }
     // login check (1) auth hash
     $id = konawiki_getPageId();
     $svr_auth_hash = konawiki_getAuthHash($id);
@@ -110,7 +105,6 @@ function action_edit_update()
                 "<div class='desc'>".konawiki_lang('Old writing with diff').":</div>";
         }
         $log["body"] = $body_;
-        $log["edit_token"] = konawiki_getEditToken();
         include_template("edit.tpl.php", $log);
         return;
     }

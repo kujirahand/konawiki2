@@ -90,9 +90,6 @@ $form = <<< _________________________________________________________END_OF_FORM
   <input type="hidden" id="login_auth_hash" 
          name="login_auth_hash" 
         value="{$login_auth_hash}" />
-  <input type="hidden" id="edit_token" 
-         name="edit_token" 
-        value="{$edit_token}" />
 </div><!--end of buttons-->
 
 </form>
