@@ -5,6 +5,7 @@
 
 function action_attach_()
 {
+    header('X-Frame-Options: SAMEORIGIN');
     // check file parameter
     $file = konawiki_param("file", FALSE);
     if ($file === FALSE) { // show form
