@@ -624,7 +624,18 @@ function konawiki_parser_makeUriLink($url)
 
 function konawiki_parser_checkURL($url)
 {
-    $url = preg_replace('/^javascript\:/', '', $url);
+    // check protocol?
+    $url = trim($url);
+    if (preg_match('#^(.+?)\:(.*)$#', $url, $m)) {
+      if ($m[1] == 'http' || $m[1] == 'https') { // allow
+        // ok
+      } else {
+        // remove protocol for security reason
+        // (example) javascript:alert('xxx')
+        $url = preg_replace('#[^a-zA-Z0-9_\-]#', '_', $url);
+        $url = '?__WIKILINK_ERROR__'.$url;
+      }
+    }
     $url = htmlspecialchars($url, ENT_QUOTES);
     return $url;
 }
@@ -695,10 +706,12 @@ function konawiki_parser_makeWikiLink($name)
         $caption = $e[1];
         $link    = $e[2];
         // protocol ?
+        // [[https://xxx]]
         if ($caption == 'http' || $caption == 'https' || $caption == 'ftp' || $caption == 'mailto') {
             $link = $caption = $name;
         }
         // check all url
+        // [[caption:link]]
         if (strpos($link, '://') !== FALSE || strpos($link, 'mailto:') !== FALSE) {
             // url
             $caption = konawiki_parser_disp_url($caption);
