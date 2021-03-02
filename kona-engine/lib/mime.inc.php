@@ -14,10 +14,13 @@ function mime_content_type_e( $filename )
     $list = array(
         '.jar'=>'application/java-archive',
         '.doc'=>'application/msword',
+        '.docx'=>'application/msword',
         '.pdf'=>'application/pdf',
         '.rtf'=>'application/rtf',
+        '.xlsx'=>'application/vnd.ms-excel',
         '.xls'=>'application/vnd.ms-excel',
         '.ppt'=>'application/vnd.ms-powerpoint',
+        '.pptx'=>'application/vnd.ms-powerpoint',
         '.swf'=>'application/x-shockwave-flash',
         '.js'=>'application/x-javascript',
         '.flv'=>'video/x-flv',
@@ -43,6 +46,7 @@ function mime_content_type_e( $filename )
         '.mid'=>'audio/midi',
         '.mp3'=>'audio/mp3',
         '.wav'=>'audio/wav',
+        '.zip'=>'application/zip',
     );
     $mime = isset($list[$ext]) ? $list[$ext] : "application/octet-stream";
     return $mime;
