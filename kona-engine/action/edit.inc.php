@@ -2,6 +2,7 @@
 /*
  * Edit Action
  */
+header('X-Frame-Options: SAMEORIGIN');
 
 function action_edit_()
 {

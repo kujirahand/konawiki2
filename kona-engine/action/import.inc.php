@@ -54,14 +54,8 @@ function action_import_()
         exit;
       }
     } else if ($t == "php") {
-      $a = unserialize($f);
-      if ($a === false) {
-        $len = ceil(strlen($f) / (1024*1024));
-        konawiki_error(
-          "PHP DECODE ERROR({$len}MB)"
-        );
-        exit;
-      }
+      konawiki_error("Now, not supported.");
+      exit;
     }
     $fac = isset($a['logs']) && isset($a['attach']) 
                              && isset($a['tags'])
