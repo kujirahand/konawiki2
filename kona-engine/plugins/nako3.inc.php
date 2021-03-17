@@ -289,6 +289,9 @@ var nako3_clear = function (s, use_canvas) {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
   }
+  if (navigator.nako3) {
+    navigator.nako3.clearPlugins()
+  }
 }
 
 // 独自関数の登録
@@ -328,13 +331,12 @@ function nako3_run(id, use_canvas) {
     addon += 
       "「" + canvas_name + "」へ描画開始;" +
       "カメ描画先=「" + canvas_name + "」;" +
-      "カメ全消去;" +
-      "カメ画像URL=「" + baseurl + "/demo/turtle.png」;"
+      "カメ画像URL=「" + baseurl + "/demo/image/turtle.png」;"
   } 
   try {
     nako3_info_id = id
     nako3_clear()
-    navigator.nako3.run(addon + "\\n" + code)
+    navigator.nako3.runReset(addon + "\\n" + code)
     console.log("DONE")
   } catch (e) {
     nako3_print("==ERROR==" + e.message + "")
