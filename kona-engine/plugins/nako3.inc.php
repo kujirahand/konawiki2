@@ -122,10 +122,15 @@ function plugin_nako3_convert($params)
   <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行 </button>
   <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
   <span id="post_span_{$pid}" class="post_span">
-    <button id="post_button_{$pid}" onclick="nako3_post_{$pid}()">保存</button>
+    <button id="save_button_{$pid}" onclick="nako3_save_storage({$pid})">保存</button>
+    <button style="display:none" id="load_button_{$pid}" onclick="nako3start_check_files({$pid})">開く</button>
+    &nbsp;
+    <button style="display:none" id="post_button_{$pid}" onclick="nako3_post({$pid})">公開</button>
   </span>
   <span class='nako3ver'>&nbsp;&nbsp;&nbsp;v{$ver}</span>
 </div><!-- end of #nako3_editor_controlls_{$pid} -->
+<!-- LOAD AREA -->
+<div id="nako3start_files_{$pid}" class="nako3files" style="display:none"></div>
 
 <!-- ERROR -->
 <div class="nako3row nako3error" id="nako3_error_{$pid}" style="display:none"></div>
@@ -147,11 +152,9 @@ function plugin_nako3_convert($params)
 
 <!-- dynamic js code -->
 <script type="text/javascript">
-post_span_{$pid}.style.visibility = {$can_save} ? "visible" : "hidden"; // for post
-function nako3_post_{$pid}() {
-  const post_button = document.getElementById('post_button_{$pid}')
-  document.getElementById('nako3codeform_{$pid}').submit();
-}
+// 保存ボタン
+post_span_{$pid}.style.visibility = {$can_save} ? "visible" : "hidden";
+if ({$can_save}) {nako3start_check_files_btn({$pid})}
 </script>
 <!-- /nako3 plugin -->
 EOS;
@@ -221,6 +224,19 @@ function plugin_nako3_gen_style_code() {
 .nako3_div input[type=checkbox] {
   padding: 4px;
   margin: 4px;
+}
+.nako3file {
+  background-color: #f0f0f0;
+  color: black;
+  font-size: 0.9em;
+  border: 1px solid gray;
+  margin: 2px; padding: 8px;
+}
+.nako3files {
+  background-color: #f0f0ff;
+  font-size:0.8em; color: gray;
+  border: 1px dashed gray;
+  padding: 12px; margin: 8px;
 }
 </style>
 EOS;
@@ -296,8 +312,8 @@ var nako3_clear = function (s, use_canvas) {
 
 // 独自関数の登録
 var nako3_add_func = function () {
-  navigator.nako3.setFunc("表示", [['の', 'を', 'と']], nako3_print)
-  navigator.nako3.setFunc("表示ログクリア", [], nako3_clear)
+  navigator.nako3.setFunc("表示", [['の', 'を', 'と']], nako3_print, true)
+  navigator.nako3.setFunc("表示ログクリア", [], nako3_clear, true)
 }
 var nako3_init_timer = setInterval(function(){
   if (typeof(navigator.nako3) === 'undefined') return
@@ -311,6 +327,7 @@ function to_html(s) {
           .replace(/\</g, '&lt;')
           .replace(/\>/g, '&gt;')
 }
+
 //------------------------------------
 // なでしこのプログラムを実行する関数
 //------------------------------------
@@ -344,9 +361,86 @@ function nako3_run(id, use_canvas) {
   }
 }
 
-// 仮保存のための処理
-function get_kari_hozon_key(pid) {
-  return 'nako3edit_kari_src_' + pid;
+// 投稿
+function nako3_post(pid) {
+  const post_button = document.getElementById('post_button_' + pid)
+  const ta = document.getElementById('nako3_code_' + pid)
+  if (ta.value != '') {post_button.submit()}
+}
+
+// ローカル保存
+const nako3_save_key = 'nako3start::'
+const nako3_save_key_files = 'nako3start::__files__'
+var nako3_save_name = 'テスト.nako3'
+function nako3_save_storage(pid) {
+  // 要素を得る
+  const ta = document.getElementById('nako3_code_' + pid)
+  const pb = document.getElementById('post_button_' + pid)
+  // ファイル名を尋ねて保存
+  var filename = prompt('保存名を入力してください', nako3_save_name)
+  filename = filename.replace('::', '__')
+  if (filename == '') {return}
+  nako3_save_name = filename
+  const savekey = nako3_save_key + nako3_save_name
+  localStorage[savekey] = ta.value
+  if (!localStorage[nako3_save_key_files]) {
+    localStorage[nako3_save_key_files] = ''
+  }
+  localStorage[nako3_save_key_files] += nako3_save_name + '::'
+  alert('保存しました')
+  // 公開ボタンを表示
+  if (pb) {pb.style.display = 'inline'}
+  // ファイル一覧を表示
+  nako3start_check_files(pid)
+}
+function nako3start_check_files_btn(pid) {
+  const btn = document.getElementById('load_button_' + pid)
+  if (!localStorage[nako3_save_key_files]) {
+    btn.style.display = 'none'
+    return
+  }
+  btn.style.display = 'inline'
+}
+function nako3start_check_files(pid) {
+  const files_div = document.getElementById('nako3start_files_' + pid)
+  if (!localStorage[nako3_save_key_files]) {
+    files_div.style.display = 'none'
+    return
+  }
+  files_div.style.display = 'block'
+  const files = localStorage[nako3_save_key_files].split('::')
+  var html = '一覧: '
+  for (var i in files) {
+    if (!files[i]) {continue}
+    html += '<span class="nako3file" onclick="nako3start_loadfile(' + pid + ',' + i + ')">'
+    html += to_html(files[i]) + '</span>'
+  }
+  html += '<span class="nako3file" onclick="nako3sotart_init(' + pid + ')">'
+  html += '(全消去)</span>'
+  files_div.innerHTML = html
+}
+function nako3sotart_init(pid) {
+  const cf = confirm('保存したプログラムを全部消去しますがよろしいですか？')
+  if (!cf) {return}
+  const files = localStorage[nako3_save_key_files].split('::')
+  for (var i in files) {
+    const fkey = nako3_save_key + files[i]
+    localStorage.removeItem(fkey)
+  }
+  localStorage.removeItem(nako3_save_key_files)
+  nako3start_check_files(pid)
+}
+function nako3start_loadfile(pid, no) {
+  const files = localStorage[nako3_save_key_files].split('::')
+  const ta = document.getElementById('nako3_code_' + pid)
+  if (ta.value != '') {
+    const cf = confirm(files[no]+'を読み込みますか？')
+    if (!cf) {return}
+  }
+  nako3_save_name = files[no]
+  const fkey = nako3_save_key + files[no]
+  ta.value = localStorage[fkey]
+  ta.focus()
 }
 </script>
 EOS;
