@@ -123,7 +123,7 @@ function plugin_nako3_convert($params)
   <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
   <span id="post_span_{$pid}" class="post_span">
     <button id="save_button_{$pid}" onclick="nako3_save_storage({$pid})">保存</button>
-    <button style="display:none" id="load_button_{$pid}" onclick="nako3start_check_files({$pid})">開く</button>
+    <button style="display:none" id="load_button_{$pid}" onclick="nako3_load_click({$pid})">開く</button>
     &nbsp;
     <button style="display:none" id="post_button_{$pid}" onclick="nako3_post({$pid})">公開</button>
   </span>
@@ -151,17 +151,14 @@ function plugin_nako3_convert($params)
 </div><!-- end of #nako3 -->
 
 <!-- dynamic js code -->
-<script type="text/javascript">
-// 保存ボタン
-post_span_{$pid}.style.visibility = {$can_save} ? "visible" : "hidden";
-if ({$can_save}) {nako3start_check_files_btn({$pid})}
-</script>
+<script>nako3_init_edit_area({$pid},{$can_save})</script>
+
 <!-- /nako3 plugin -->
 EOS;
 }
 
 // ---------------------------------------------------------
-// CSS
+// CSS - 1度だけ取り込まれる
 // ---------------------------------------------------------
 function plugin_nako3_gen_style_code() {
   // --- CSS --
@@ -242,7 +239,7 @@ function plugin_nako3_gen_style_code() {
 EOS;
 }
 // ---------------------------------------------------------
-// JavaScript
+// JavaScript - 1度だけ取り込まれる
 // ---------------------------------------------------------
 function plugin_nako3_gen_js_code($baseurl, $use_canvas) {
   $s_use_canvas = ($use_canvas) ? "true" : "false";
@@ -361,17 +358,32 @@ function nako3_run(id, use_canvas) {
   }
 }
 
-// 投稿
+//------------------------------------
+// 投稿などエディタの機能
+//------------------------------------
+const nako3_save_key = 'nako3start::'
+const nako3_save_key_files = 'nako3start::__files__'
+var nako3_save_name = 'テスト.nako3'
+
+function _id(eid) {
+  return document.getElementById(eid)
+}
+
+function nako3_init_edit_area(pid, can_save) {
+  // 保存ボタン
+  _id('post_span_' +pid).style.visibility = can_save ? "visible" : "hidden";
+  if (!can_save) {return}
+  // 開くボタン
+  nako3_check_load_button(pid)
+}
+
 function nako3_post(pid) {
-  const post_button = document.getElementById('post_button_' + pid)
-  const ta = document.getElementById('nako3_code_' + pid)
+  const post_button = _id('post_button_' + pid)
+  const ta = _id('nako3_code_' + pid)
   if (ta.value != '') {post_button.submit()}
 }
 
 // ローカル保存
-const nako3_save_key = 'nako3start::'
-const nako3_save_key_files = 'nako3start::__files__'
-var nako3_save_name = 'テスト.nako3'
 function nako3_save_storage(pid) {
   // 要素を得る
   const ta = document.getElementById('nako3_code_' + pid)
@@ -390,18 +402,20 @@ function nako3_save_storage(pid) {
   alert('保存しました')
   // 公開ボタンを表示
   if (pb) {pb.style.display = 'inline'}
-  // ファイル一覧を表示
-  nako3start_check_files(pid)
+  // 開くボタンを確認
+  nako3_check_load_button(pid)
 }
-function nako3start_check_files_btn(pid) {
-  const btn = document.getElementById('load_button_' + pid)
+
+function nako3_check_load_button(pid) {
+  const btn = _id('load_button_' + pid)
   if (!localStorage[nako3_save_key_files]) {
     btn.style.display = 'none'
     return
   }
   btn.style.display = 'inline'
 }
-function nako3start_check_files(pid) {
+
+function nako3_load_click(pid) {
   const files_div = document.getElementById('nako3start_files_' + pid)
   if (!localStorage[nako3_save_key_files]) {
     files_div.style.display = 'none'
@@ -415,11 +429,18 @@ function nako3start_check_files(pid) {
     html += '<span class="nako3file" onclick="nako3start_loadfile(' + pid + ',' + i + ')">'
     html += to_html(files[i]) + '</span>'
   }
-  html += '<span class="nako3file" onclick="nako3sotart_init(' + pid + ')">'
+  html += '<span class="nako3file" onclick="nako3_clear_files(' + pid + ')">'
   html += '(全消去)</span>'
+  html += '<span class="nako3file" style="color:blue" '
+  html += 'onclick="nako3_cancel_files(' + pid + ')">'
+  html += 'キャンセル</span>'
   files_div.innerHTML = html
 }
-function nako3sotart_init(pid) {
+function nako3_cancel_files(pid) {
+  const files_div = _id('nako3start_files_' + pid)
+  files_div.style.display = 'none'
+}
+function nako3_clear_files(pid) {
   const cf = confirm('保存したプログラムを全部消去しますがよろしいですか？')
   if (!cf) {return}
   const files = localStorage[nako3_save_key_files].split('::')
@@ -428,11 +449,12 @@ function nako3sotart_init(pid) {
     localStorage.removeItem(fkey)
   }
   localStorage.removeItem(nako3_save_key_files)
-  nako3start_check_files(pid)
+  nako3_load_click(pid)
 }
 function nako3start_loadfile(pid, no) {
   const files = localStorage[nako3_save_key_files].split('::')
   const ta = document.getElementById('nako3_code_' + pid)
+  const files_div = document.getElementById('nako3start_files_' + pid)
   if (ta.value != '') {
     const cf = confirm(files[no]+'を読み込みますか？')
     if (!cf) {return}
@@ -441,6 +463,7 @@ function nako3start_loadfile(pid, no) {
   const fkey = nako3_save_key + files[no]
   ta.value = localStorage[fkey]
   ta.focus()
+  files_div.style.display = 'none'
 }
 </script>
 EOS;
