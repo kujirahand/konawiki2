@@ -234,6 +234,7 @@ function plugin_nako3_gen_style_code() {
   font-size:0.8em; color: gray;
   border: 1px dashed gray;
   padding: 12px; margin: 8px;
+  line-height: 2.8em;
 }
 </style>
 EOS;
@@ -378,9 +379,9 @@ function nako3_init_edit_area(pid, can_save) {
 }
 
 function nako3_post(pid) {
-  const post_button = _id('post_button_' + pid)
+  const post_form = _id('nako3codeform_' + pid)
   const ta = _id('nako3_code_' + pid)
-  if (ta.value != '') {post_button.submit()}
+  if (ta.value != '') {post_form.submit()}
 }
 
 // ローカル保存
@@ -398,12 +399,21 @@ function nako3_save_storage(pid) {
   if (!localStorage[nako3_save_key_files]) {
     localStorage[nako3_save_key_files] = ''
   }
-  localStorage[nako3_save_key_files] += nako3_save_name + '::'
+  const files = localStorage[nako3_save_key_files].split('::')
+  if (files[0] == '') {files.shift()}
+  const fi = files.indexOf(filename)
+  if (fi >= 0) {
+    files[fi] = filename
+  } else {
+    files.push(filename)
+  }
+  localStorage[nako3_save_key_files] = files.join('::')
   alert('保存しました')
   // 公開ボタンを表示
   if (pb) {pb.style.display = 'inline'}
   // 開くボタンを確認
   nako3_check_load_button(pid)
+  nako3_cancel_files(pid)
 }
 
 function nako3_check_load_button(pid) {
@@ -431,7 +441,7 @@ function nako3_load_click(pid) {
   }
   html += '<span class="nako3file" onclick="nako3_clear_files(' + pid + ')">'
   html += '(全消去)</span>'
-  html += '<span class="nako3file" style="color:blue" '
+  html += '<span class="nako3file" style="color:blue;" '
   html += 'onclick="nako3_cancel_files(' + pid + ')">'
   html += 'キャンセル</span>'
   files_div.innerHTML = html
@@ -449,7 +459,8 @@ function nako3_clear_files(pid) {
     localStorage.removeItem(fkey)
   }
   localStorage.removeItem(nako3_save_key_files)
-  nako3_load_click(pid)
+  nako3_cancel_files(pid)
+  nako3_check_load_button(pid)
 }
 function nako3start_loadfile(pid, no) {
   const files = localStorage[nako3_save_key_files].split('::')
