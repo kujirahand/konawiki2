@@ -351,7 +351,7 @@ function nako3_run(id, use_canvas) {
   try {
     nako3_info_id = id
     nako3_clear()
-    navigator.nako3.runReset(addon + "\\n" + code)
+    navigator.nako3.runReset(addon + code, '', addon)
     console.log("DONE")
   } catch (e) {
     nako3_print("==ERROR==" + e.message + "")
