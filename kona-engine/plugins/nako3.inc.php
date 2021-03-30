@@ -345,9 +345,9 @@ function nako3_run(id, use_canvas) {
   if (use_canvas) {
     addon += 
       "「" + canvas_name + "」へ描画開始;" +
-      "カメ描画先=「" + canvas_name + "」;" +
-      "カメ画像URL=「" + baseurl + "/demo/image/turtle.png」;"
-  } 
+      "カメ描画先=「" + canvas_name + "」;"
+  }
+  addon += "\\n" // 重要(インデント構文対策)
   try {
     nako3_info_id = id
     nako3_clear()
