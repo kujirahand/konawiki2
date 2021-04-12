@@ -4,7 +4,8 @@ konawiki2
 WIKI clone 
 
 - [URL] http://kujirahand.com/konawiki
-- [DB]  Sqlite3 
+- [PHP] PHP 7.x / 8.x
+- [DB]  Sqlite3
 
 
 ## セキュリティアップデートのお知らせ (2021/02/22)
