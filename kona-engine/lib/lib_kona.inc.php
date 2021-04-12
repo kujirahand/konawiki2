@@ -7,7 +7,7 @@
  */
 
 // konawiki lib version
-define('KONAWIKI_VERSION', '2.2.3');
+define('KONAWIKI_VERSION', '2.2.4');
 
 //----------------------------------------------------------------------
 /**
