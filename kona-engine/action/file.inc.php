@@ -12,7 +12,7 @@ function action_file_()
     $skin = konawiki_public("skin");
     // check filename
     if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $page)) {
-        return __404();
+        return __404('Invalid File name.');
     }
     // default
     if ($skin == 'default') {
@@ -38,10 +38,10 @@ function action_file_()
     return __out($path, $page);
 }
 
-function __404() {
+function __404($msg = '') {
     header('HTTP/1.0 404 File not found');
     header('Content-type: text/plain');
-    echo '404 File not found';
+    echo '404 File not found. '.$msg."\n";
 }
 
 function __out($path, $page) {

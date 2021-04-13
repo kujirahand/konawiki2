@@ -7,7 +7,7 @@
  */
 
 // konawiki lib version
-define('KONAWIKI_VERSION', '2.2.4');
+define('KONAWIKI_VERSION', '2.3.1');
 
 //----------------------------------------------------------------------
 /**
@@ -60,118 +60,60 @@ function konawiki_init()
  */
 function konawiki_parseURI()
 {
+	// parameter's format
+	// index.php?page&action&stat&params ...
     global $public, $private, $konawiki;
-    // p1  : /path/page/NAME/ACTION/STAT?param=xxx
-    // p2  : /path/page/NAME?action=action&param=xxx
-    // p3  : /path/index.php?NAME/ACTION/STAT&param=xxx
-    // p4  : /path/index.php?NAME&action=ACTION&stat=STAT&param=xxx
-    // p5  : /path/
-    
-    // PATH_INFO で処理するかどうか
-    if (!defined("KONAWIKI_USE_PATH_INFO")) {
-        define("KONAWIKI_USE_PATH_INFO", FALSE);
-        $scriptname = basename($_SERVER['SCRIPT_NAME']);
-    }
-    $host   = $_SERVER['HTTP_HOST'];
-    $uri    = $_SERVER['REQUEST_URI'];
-    
-    // DIR + SCRIPT + PARAM
-    if (preg_match("#^(.*?){$scriptname}[\/\?]?(.*)$#", $uri, $m)) {
-        $dir   = $m[1];
-        $param = $m[2];
-    }
-    else if (preg_match('#^(.*?)(\?.*)$#', $uri, $m)) {
-        $dir    = $m[1];
-        $param  = $m[2];
-    }
-    else if (!preg_match("#{$scriptname}#", $uri)) { // SCRIPT省略
-        $dir = $uri;
-        $param = "";
-    }
-    else {
-        echo "想定外のURI:".$uri;
-        exit;
-    }
-    // flag
-    $flag = (KONAWIKI_USE_PATH_INFO) ? "/" : "?";
-    
     //--------------------------------------------------------------
-    // get PATH_INFO
-    $c = substr($param, 0, 1);
-    if ($c == "?" || $c == "/") {
-        $param = substr($param, 1);
-    }
-    // set path
-    $query = "";
-    $path_args = array();
-    $a = preg_split('#[\/\?\&]#', $param);
-    foreach($a as $p) {
-        if (strpos($p, "=") !== FALSE) {
-            list($key,$val) = explode("=", $p);
-        } else {
-            $key = $p;
-            $val = NULL;
-        }
-        $key = urldecode($key);
-        $val = urldecode($val);
-        if ($val == NULL) {
-            $path_args[] = $key;
-        }
-        else {
-            $_GET[$key] = $val;
-        }
-    }
-    // push dummy
-    array_push($path_args, FALSE, FALSE, FALSE); // set dummy params
-    
-    // Set default value
+	// get page / action / stat
+	$qs = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
+	$qa = explode('&', $qs.'&&&');
+	// パラメータに key=val があればWiki規則に合わない値なので無視する
+	$qa2 = [];
+	foreach ($qa as $a) {
+		if (strpos($a, '=') === FALSE) {
+			$qa2[] = $a;
+		}
+	}
+	list($page, $action, $stat) = $qa2;
+	$page = urldecode($page);
+	$action = urldecode($action);
+	$stat = urldecode($stat);
+
+	// check page action stat parameter
+	if (isset($_GET['page'])) { $page = $_GET['page']; }
+	if (isset($_GET['action'])) { $action = $_GET['action']; }
+	if (isset($_GET['stat'])) { $stat = $_GET['stat']; }
+
+	// set default page & action
     // page
-    if (konawiki_param('page', FALSE) === FALSE) {
+    if ($page == '') {
         $FrontPage = konawiki_public('FrontPage');
-        $_GET['page'] = $path_args[0] ? $path_args[0] : $FrontPage;
+        $page = $FrontPage;
     }
     // action
-    if (konawiki_param('action', FALSE) === FALSE) {
-        $_GET['action'] = $path_args[1] ? $path_args[1] : 'show';
-    }
-    // stat
-    if (konawiki_param('stat', FALSE) === FALSE) {
-        $_GET['stat'] = $path_args[2] ? $path_args[2] : '';
-    }
-    // file ?
-    if (isset($GET["action"])) {
-        if ($_GET["action"] == "file") {
-            $_GET["page"] = $_GET["stat"];
-            $_GET["stat"] = "";
-        }
-    }
-    if (isset($_GET['page'])) {
-        // for - AllowEncodedSlashes Off
-        $_GET['page'] = str_replace('%252F', '/', konawiki_param('page'));
-        $_GET['page'] = str_replace('%26', '&', konawiki_param('page'));
-        $_GET['page'] = str_replace('%2F', '/', konawiki_param('page'));
-        $_GET['stat'] = str_replace('%252F', '/', konawiki_param('stat'));
-        $_GET['stat'] = str_replace('%26', '&', konawiki_param('stat'));
-        $_GET['stat'] = str_replace('%2F', '/', konawiki_param('stat'));
-    }
+	if ($action == '') { $action = 'show'; }
+
+	// set to $_GET
+	$_GET['page'] = $page;
+	$_GET['action'] = $action;
+	$_GET['stat'] = $stat;
     
     // baseuri
+	$host = $_SERVER['HTTP_HOST'];
+	$uri = $_SERVER['REQUEST_URI'];
+	$flag = '?';
+	$scriptname = $_SERVER['SCRIPT_NAME'];
     $protocol = (empty($_SERVER["HTTPS"]) ? "http://" : "https://");
-    $baseurl  = "{$protocol}{$host}{$dir}{$scriptname}{$flag}"; // BASE URI
+    $baseurl  = "{$protocol}{$host}{$scriptname}{$flag}"; // BASE URI
     konawiki_addPublic('baseurl', $baseurl);
     konawiki_addPublic('scriptname', $scriptname);
     
-    // set action and status params
-    $page   = konawiki_param('page');
-    $action = konawiki_param('action');
-    $stat   = konawiki_param('stat');
-    
 	// Check Action pattern
 	if (!preg_match('#^[a-zA-Z0-9_]+$#', $action)) {
-		$_GET['action'] = '__INVALID__';		
+		$_GET['action'] = '__INVALID__';
 	}
   	// Check invalid status
-  	if (!preg_match('#^[a-zA-Z0-9_]*$#', $stat)) {
+  	if ($stat != '' && !preg_match('#^[a-zA-Z0-9_]*$#', $stat)) {
 		$_GET['stat'] = '__INVALID__';
 	}
 
@@ -211,7 +153,14 @@ function konawiki_execute_action()
   require_once($module);
   if (!is_callable($func)) {
     header("HTTP/1.0 404 Not Found");
-    echo "Action function Not Found.".$func;
+	if (konawiki_private('debug', FALSE)) {
+		echo "<pre>Page Action Not Found: $func";
+		global $konawiki;
+		print_r($_GET);
+		print_r($konawiki);
+	} else {
+		echo "Page Action Not Found.";
+	}
 	exit;
   }
   call_user_func($func);
@@ -311,6 +260,7 @@ function konawiki_page_debug()
     //$db = konawiki_getBackupDB();
     echo '<pre>';
     echo '【テストモードです--ReadMe.txtをご覧ください。】'."\n";
+	print_r($_GET);
     //echo "url:"; print_r($_SERVER);
     echo "scriptname:$scriptname\n";
     echo "baseurl:".konawiki_public("baseurl")."\n";
@@ -452,17 +402,15 @@ function konawiki_getPageURL($page = FALSE, $action = FALSE, $stat = FALSE, $par
 	}
 	// remove "javascript:" protocol
 	$page = preg_replace('/^javascript\:/', '', $page);
-	$page_enc = rawurlencode($page);
-	// for - AllowEncodedSlashes Off
-	$page_enc = str_replace('%2F','%252F',$page_enc);
+	$page_enc = urlencode($page);
 	$baseurl = konawiki_public("baseurl");
     if ($action == 'go') {
     	$action = FALSE;
     	$baseurl = str_replace('/index.php', '/go.php', $baseurl);
   	}
+	// page
 	if ($shortpath) {
 		$name = basename($baseurl);
-		$name .= (KONAWIKI_USE_PATH_INFO) ? "/" : "";
 		$url = "{$name}{$page_enc}";
 	} else {
 		$url = "{$baseurl}{$page_enc}";
@@ -470,32 +418,19 @@ function konawiki_getPageURL($page = FALSE, $action = FALSE, $stat = FALSE, $par
 	// action & stat
 	if ($action || $stat) {
 		if ($action == FALSE) { $action = "show"; }
-		if (KONAWIKI_USE_PATH_INFO == TRUE) {
-			$url .= "/$action";
-		} else {
-			$url .= "&amp;$action";
-		}
+		$url .= "&amp;$action";
 	}
 	if ($stat) {
-		$stat = rawurlencode($stat);
-		// for - AllowEncodedSlashes Off
-		$stat = str_replace('%2F','%252F',$stat);
-		if (KONAWIKI_USE_PATH_INFO == TRUE) {
-			$url .= "/$stat";
-		} else {
-			$url .= "&amp;$stat";
-		}
+		$stat = urlencode($stat);
+		$url .= "&amp;$stat";
 	}
-  if ($param_str) {
-    // escape
-    if (strpos($param_str, '&amp;') === FALSE) {
-      $param_str = str_replace('&', '&amp;', $param_str);
-    }
-		if (KONAWIKI_USE_PATH_INFO == TRUE) {
-			$url .= "?$param_str";
-		} else {
-			$url .= "&amp;$param_str";
-		}
+	// param_str
+  	if ($param_str) {
+    	// escape
+    	if (strpos($param_str, '&amp;') === FALSE) {
+      		$param_str = str_replace('&', '&amp;', $param_str);
+    	}
+		$url .= "&amp;$param_str";
 	}
 	return $url;
 }
