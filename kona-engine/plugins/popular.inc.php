@@ -11,8 +11,7 @@
 
 function plugin_popular_convert($params)
 {
-	konawiki_setPluginDynamic(true);
-	
+    konawiki_setPluginDynamic(true);
     if (!isset($params[0])) $params[0] = "10";
     if (!isset($params[1])) $params[1] = "90";
     $count = intval($params[0]);
@@ -52,30 +51,29 @@ function plugin_popular_convert($params)
 
 function popular_makeRanking($timelimit, $count, $cache_key) {
     // make ranking
-    $db = konawiki_getSubDB();
     $result = array();
     if ($timelimit >= 1) {
         // time limit ranking
         $t = time() - $timelimit * 60 * 60 * 24;
         $sql = "SELECT log_id, sum(value) as total ".
             " FROM mcounter_day ".
-            " WHERE log_id > 2 AND mtime >= $t ".
+            " WHERE log_id > 2 AND mtime >= ? ".
             " GROUP BY log_id ".
             " ORDER BY total DESC LIMIT {$count}";
-        $result = $db->array_query($sql);
+        $result = db_get($sql, [$t], 'sub');
         // no result
         if (!$result) {
             $sql = "SELECT * FROM mcounter_total ".
                 " WHERE log_id > 2 ".
                 " ORDER BY total DESC LIMIT {$count}";
-            $result = $db->array_query($sql);
+            $result = db_get($sql, [], 'sub');
         }
     } else {
         // total ranking
         $sql = "SELECT * FROM mcounter_total ".
             " WHERE log_id > 2 ".
             " ORDER BY total DESC LIMIT {$count}";
-        $result = $db->array_query($sql);
+        $result = db_get($sql, [], 'sub');
     }
     // make cache
     if ($result) {
@@ -84,13 +82,13 @@ function popular_makeRanking($timelimit, $count, $cache_key) {
         $sql_rm = 
             "DELETE FROM sublogs WHERE ".
             " plug_name='$pname' AND plug_key='$cache_key' LIMIT 1";
-        $db->exec($sql_rm);
+        db_exec($sql_rm, [], 'sub');
         $now = time();
         $sql_ins = 
             "INSERT INTO sublogs ".
             "(log_id,plug_name,plug_key,body,ctime,mtime) VALUES".
-            "(     0,'$pname' ,'$cache_key' ,'$body',$now,$now)";
-        $r = $db->exec($sql_ins);
+            "(     0,'$pname' , ?, ?, $now, $now)";
+        db_exec($sql_ins, [$cache_key, $body], 'sub');
     }
     return $result;
 }
@@ -98,14 +96,13 @@ function popular_makeRanking($timelimit, $count, $cache_key) {
 function popular_getCache($timelimit,$count,&$cap) {
     // cache interval
     $t = time() - (24 * 60 * 60);
-    $db = konawiki_getSubDB();
     $pname = "popular";
     $pkey  = "{$timelimit},{$count}";
     $sql = 
         "SELECT * FROM sublogs WHERE ".
         " plug_name='$pname' AND plug_key='$pkey' ".
         " AND ctime > $t LIMIT 1";
-    $r = $db->array_query($sql);
+    $r = db_get($sql, [], 'sub');
     if (isset($r[0]["body"])) {
         $cap = "{$cap}<span class='memo'>#</span>";
         $body = $r[0]["body"];
@@ -114,6 +111,4 @@ function popular_getCache($timelimit,$count,&$cap) {
         return popular_makeRanking($timelimit,$count,$pkey);
     }
 }
-
-
 
