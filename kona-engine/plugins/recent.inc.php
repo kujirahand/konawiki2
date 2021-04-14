@@ -16,14 +16,14 @@ function plugin_recent_convert($params)
     if (!isset($params[0])) $params[0] = 10;
     $count = intval($params[0]);
     if ($count < 1) $count = 10;
-    $sql = "SELECT name, mtime FROM logs ".
-        // " WHERE id > 2". // FrontPage, MenuBar
-        " ORDER BY mtime DESC LIMIT {$count}";
-    $res .= "<ul>";
-    $r = konawiki_query($sql);
+    $sql = 
+        "SELECT name, mtime FROM logs ".
+        "  ORDER BY mtime DESC LIMIT ?";
+    $r = db_get($sql, [$count]);
     if ($r == FALSE) {
         return "";
     }
+    $res .= "<ul>";
     $baseurl = konawiki_public("baseurl");
     foreach ($r as $e) {
         $name  = $e['name'];

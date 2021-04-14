@@ -35,11 +35,11 @@ function konawiki_init()
     define("KONAWIKI_DIR_ATTACH",   $private['dir.attach']);
     define("KONAWIKI_URI_ATTACH",   $private['uri.attach']);
 
-    require_once(KONAWIKI_DIR_LIB.'/konadb/konadb.inc.php');
     require_once(KONAWIKI_DIR_LIB.'/html.inc.php');
     require_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
     require_once(KONAWIKI_DIR_LIB.'/useragent.inc.php');
     // データベース関連のライブラリを取り込む
+    require_once(KONAWIKI_DIR_LIB.'/fw_database.lib.php');
     require_once(KONAWIKI_DIR_LIB.'/konawiki_db.inc.php');
     // 認証関連のライブラリを取り込む
     require_once(KONAWIKI_DIR_LIB.'/konawiki_auth.inc.php');
@@ -50,7 +50,7 @@ function konawiki_init()
     konawiki_parseURI();
     // Initialize Database
     konawiki_auth_read();
-    konawiki_initDB();
+    konawiki_initDB(); // @see ./konawiki_db.inc.php
     konawiki_execute_action();
 }
 
@@ -153,17 +153,22 @@ function konawiki_execute_action()
   require_once($module);
   if (!is_callable($func)) {
     header("HTTP/1.0 404 Not Found");
-	if (konawiki_private('debug', FALSE)) {
-		echo "<pre>Page Action Not Found: $func";
-		global $konawiki;
-		print_r($_GET);
-		print_r($konawiki);
-	} else {
-		echo "Page Action Not Found.";
-	}
-	exit;
+    if (konawiki_private('debug', FALSE)) {
+      echo "<pre>Page Action Not Found: $func";
+      global $konawiki;
+      print_r($_GET);
+      print_r($konawiki);
+    } else {
+      echo "Page Action Not Found.";
+    }
+    exit;
   }
-  call_user_func($func);
+  try {
+    call_user_func($func);
+  } catch (Exception $e) {
+    echo "<pre>";
+    print_r($e);
+  }
 }
 
 
@@ -186,6 +191,7 @@ function konawiki_init_config()
 
     // language support
     $lang = konawiki_public('lang', 'en');
+	if ($lang != 'ja' && $lang != 'en') { $lang = 'en'; }
     $path = konawiki_private('dir.engine', '..')."/lang/{$lang}.inc.php";
     if (file_exists($path)) { include_once($path); }
     else {
@@ -503,14 +509,12 @@ function konawiki_getPageId($page = FALSE)
 		return $konawiki_page_cache[$page];
 	}
 
-	$db = konawiki_getDB();
-	$page_ = $db->escape($page);
-	$sql = "SELECT id FROM logs WHERE name='$page_' LIMIT 1";
-	$log = $db->array_query($sql);
-	if ($log == FALSE) {
+	$sql = "SELECT id FROM logs WHERE name=? LIMIT 1";
+  $log = db_get1($sql, [$page]);
+	if (!$log) {
 		return FALSE;
 	}
-	$log_id = isset($log[0]['id']) ? $log[0]['id'] : FALSE;
+	$log_id = isset($log['id']) ? $log['id'] : FALSE;
 	$konawiki_page_cache[$page] = $log_id; // save cache
 	return $log_id;
 }
@@ -526,27 +530,19 @@ function konawiki_getPageNameFromId($log_id)
 		return $konawiki_pagename_cache[$log_id];
 	}
 
-	$log_id = intval($log_id);
-	$db = konawiki_getDB();
-	$sql = "SELECT name FROM logs WHERE id=$log_id";
-	$log = $db->array_query($sql);
-	if ($log == FALSE) {
+  $sql = "SELECT name FROM logs WHERE id=? LIMIT 1";
+  $log = db_get1($sql, [$log_id]);
+  if (!isset($log['name'])) {
 		return FALSE;
-	}
-	$konawiki_pagename_cache[$log_id] = $name = isset($log[0]['name']) ? $log[0]['name'] : FALSE;
-	if ($name == FALSE) { unset($konawiki_pagename_cache[$log_id]); }
+  }
+  $name = $log['name'];
+	$konawiki_pagename_cache[$log_id] = $name;
 	return $name;
 }
 
 function konawiki_resourceurl()
 {
 	return konawiki_public('resourceurl');
-}
-
-function konawiki_query($sql)
-{
-	$db = konawiki_getDB();
-	return $db->array_query($sql);
 }
 
 function include_template($fname, $vars = FALSE)
@@ -828,11 +824,8 @@ function konawiki_error($msg)
 	// show debug info
 	$is_debug = konawiki_is_debug();
 	if ($is_debug) {
-		echo "<div id='wikimessage'><p>[Debug log]</p><pre>";
-		// print_r(debug_backtrace());
-		$db = konawiki_getDB();
-		echo "\nSQL_LOG:\n".$db->sql_logs;
-		echo "</pre></div>";
+		echo "<div id='wikimessage'><p>[Debug log]</p>";
+		echo "</div>";
 	}
 	// show template
 	$r = array('body'=>$msg);
@@ -848,19 +841,14 @@ function konawiki_showMessage($msg)
  * @param	{string} page    PageName (Raw Name)
  * @return	{array}  Log from DB or FALSE
  */
-function konawiki_getLog($page = FALSE, $tablename = "logs")
+function konawiki_getLog($page = FALSE)
 {
-	global $konawiki_log_cache;
-
 	if ($page === FALSE) {
 		$page = konawiki_getPage();
 	}
 	$log_id = konawiki_getPageId($page);
-	if (!$log_id) {
-		return FALSE;
-	}
-  $log = konawiki_getLogFromId($log_id, $tablename);
-  return $log;
+	if (!$log_id) {return FALSE;}
+  return konawiki_getLogFromId($log_id);
 }
 
 /** get tag
@@ -873,8 +861,8 @@ function konawiki_getTag($log_id = FALSE)
 	if ($log_id === FALSE) {
 		$log_id = konawiki_getPageId();
 	}
-	$sql = "SELECT * FROM tags WHERE log_id=$log_id";
-	$res = $db->array_query($sql);
+  $sql = "SELECT * FROM tags WHERE log_id=?";
+  $res = db_get($sql, [$log_id]);
 	if (!$res) {
 		return array();
 	}
@@ -927,7 +915,7 @@ function konawiki_makeTagLink($tag_str)
 	return $res;
 }
 
-function konawiki_getLogFromId($log_id, $tablename = "logs")
+function konawiki_getLogFromId($log_id)
 {
 	global $konawiki_log_cache;
 	// check log_id
@@ -945,13 +933,16 @@ function konawiki_getLogFromId($log_id, $tablename = "logs")
 		return $konawiki_log_cache[$log_id];
 	}
 	//
-	$db = konawiki_getDB();
-	$sql = "SELECT * FROM {$tablename} WHERE id={$log_id} LIMIT 1";
-	$res = $db->array_query($sql);
-	if (!isset($res[0]['id'])) {
+	$sql = "SELECT * FROM logs WHERE id=? LIMIT 1";
+  $res = db_get1($sql, [$log_id]);
+	if (!isset($res['id'])) {
 		return FALSE;
-	}
-	$konawiki_log_cache[$log_id] = $log = $res[0];
+  }
+  // 大きすぎるログはキャッシュしない
+  $logsize = 1024 * 30; // 30kb
+  if (strlen($res['body']) < $logsize) {
+    $konawiki_log_cache[$log_id] = $log = $res;
+  }
 	// get tag
 	$log['tag'] = join(",", konawiki_getTag($log_id));
 	return $log;
@@ -1125,141 +1116,141 @@ function konawiki_getEditLink($page = FALSE, $message = FALSE)
 
 /**
  * Write Text to Wiki DB
- * @return      TRUE or FALSE
+ * @return {boolean} TRUE or FALSE
  */
-function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private = 0)
-{
-  // clear cache
-	konawiki_clearCache();
-	// prepare database
-	$db = konawiki_getDB();
-	$page = konawiki_getPage();
-	$page_ = $db->escape($page);
-	$body_ = $db->escape($body);
+function konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private = 0) {
+  db_begin();
+  try {
+    $r = _konawiki_writePage(
+      $body, $err, $hash, $tag, $private
+    );
+    if ($r) {
+      db_commit();
+    } else {
+      db_rollback();
+    }
+    return $r;
+  } catch (PDOException $e) {
+    db_rollback();
+    $err = $e->getMessage();
+    print_r($e);
+    return FALSE;
+  } catch (Exception $e) {
+    db_rollback();
+    $err = $e->getMessage();
+    print_r($e);
+    return FALSE;
+  }
+}
+
+function _konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private = 0)
+{ 
+  // get log
+  $page = konawiki_getPage();
 	$private = intval($private);
-	// update or insert
 	$log = konawiki_getLog($page);
-	$mtime = time();
-	$db->begin();
-	if ($log == FALSE) {
-		// insert
-		$sql = "INSERT INTO logs (name,body,ctime,mtime,private)".
-            " VALUES ('{$page_}','{$body_}',$mtime,$mtime,$private)";
-		if (!$db->exec($sql)) {
-			$db->rollback();
-			$err = "ログの保存に失敗しました。";
-			return FALSE;
-		}
-		$id = $db->getLastId();
-		$sql = "INSERT INTO log_counters (id,value) VALUES ".
-            "($id,0)";
-		if (!$db->exec($sql)) {
-			$db->rollback();
-			$err = "ログの保存に失敗しました。";
-			return FALSE;
-		}
+  $mtime = time();
+  
+  // insert or update 
+  if ($log == FALSE) {
+    // ----------
+    // insert
+    // ----------
+    $sql = 
+      "INSERT INTO logs ".
+      "      (name,body,ctime,mtime,private)".
+      "VALUES(   ?,   ?,    ?,    ?,      ?)";
+    $id = db_insert($sql, 
+        [$page, $body, $mtime, $mtime, $private]);
+    $sql = 
+      "INSERT INTO log_counters (id,value) VALUES ".
+      "(?, 0)";
+    db_exec($sql, [$id]);
 		$log['ctime'] = $mtime;
 		$log_id = $id;
-	} else {
+  } else {
+    // -----------
+    // update
+    // -----------
 		// check conflict
 		if ($hash !== FALSE) {
 			$c_hash = md5($log['body']);
 			if ($c_hash !== $hash) {
-				$db->rollback();
 				$err = "本文が衝突しています。";
 				return FALSE;
 			}
 		}
 		// UPDATE LOG
-		$id = $log['id'];
+    $id = $log_id = $log['id'];
 		$ctime = $log['ctime'];
 		if ($ctime == 0) { $ctime = $mtime; }
-		$sql = "UPDATE logs SET body='{$body_}',mtime=$mtime,ctime=$ctime,private=$private ".
-            "WHERE id=$id";
-		$res = $db->exec($sql);
-		if (!$res) {
-			$db->rollback();
-			$err = "ログの保存に失敗しました。";
-			return FALSE;
-		}
-		/*
-		 * ログのバックアップ
-		 * 最近のログをチェック
-		 */
+    $sql = 
+      "UPDATE logs".
+      "  SET body=?, mtime=?, ctime=?, private=?".
+      "  WHERE id=?";
+    db_exec($sql, [
+      $body, $mtime, $ctime, $private, $id
+    ]);
+    
+    // ------------------
+    // backup log
+    // ------------------
 		$log_id = $id;
 		$recent_time = time() - (1*(60*30)); // before 1 hour
-		$backup_db = konawiki_getBackupDB();
-		$page_ = $backup_db->escape($page);
-		$sql = "SELECT * FROM oldlogs WHERE name='$page_'".
-            " AND mtime > $recent_time";
-		$res = $backup_db->array_query($sql);
-		$body_ = $backup_db->escape($log['body']);
+    $sql =
+      "SELECT * FROM oldlogs WHERE".
+      "  name=? AND mtime>?";
+    $res = db_get($sql, [$page, $recent_time], 'backup');
 		$ctime2 = $log['ctime'];
 		if (isset($res[0]['id'])) {
 			$id = $res[0]['id'];
-			$sql = "UPDATE oldlogs SET body='$body_', mtime=$mtime ".
-                " WHERE id=$id";
-		}
-		else {
-			$sql = "INSERT INTO oldlogs (log_id, name,body,ctime,mtime)".
-                "VALUES($log_id,'$page_','$body_',$ctime2,$mtime)";
-		}
-		$res = $backup_db->exec($sql);
-		if (!$res) {
-			$db->rollback();
-			$err = "バックアップログの保存に失敗しました。";
-			return FALSE;
-		}
+			$sql = "UPDATE oldlogs SET body=?, mtime=? ".
+        " WHERE id=?";
+      db_exec($sql, [$body, $mtime, $id], 'backup');
+		} else {
+      $sql = 
+        "INSERT INTO oldlogs ".
+        "      (log_id, name,body,ctime,mtime)".
+        "VALUES(     ?,    ?,   ?,    ?,    ?)";
+      db_exec($sql, [
+        $log_id, $page, $body, $ctime2, $mtime
+      ], 'backup');
+    }
 		// -----------------------------------------------------
 		// キャッシュをクリアする
 		// -----------------------------------------------------
-		// 普通にキャッシュをクリア
-		if ($backup_db) {
-			// 現状、被リンク問題(@49)(#87)により、全てのキャッシュをクリアする必要がある
-			$r = $backup_db->array_query("SELECT log_id FROM cache_logs LIMIT 1");
-		    if ($r) {
-			    $backup_db->exec("DELETE FROM cache_logs");
-		    }
-		}
+    // 現状、被リンク問題(@49)(#87)により
+    // 全てのキャッシュをクリアする必要がある
+    konawiki_clearCacheDB_All();
 	}
-	// タグを処理する
+  
+  // タグを処理する
 	if ($tag !== FALSE) {
-		$r = $db->array_query("SELECT * FROM tags WHERE log_id={$log_id} LIMIT 1");
+    $sql = "SELECT * FROM tags WHERE log_id=? LIMIT 1";
+    $r = db_get1($sql, [$log_id]);
 		if ($r) {
-			$sql = "DELETE FROM tags WHERE log_id={$log_id}";
-			if (!($db->exec($sql))) {
-				$err = "タグの保存準備に失敗しました。";
-				$db->rollback();
-				return FALSE;
-			}
+      $sql = "DELETE FROM tags WHERE log_id=?";
+      db_exec($sql, [$log_id]);
 		}
 		if ($tag != "") {
 			$tags = explode(",", $tag);
 			foreach ($tags as $w) {
 				$w = trim($w);
-				$w_ = $db->escape($w);
-				$sql = "INSERT INTO tags (log_id, tag)VALUES({$log_id}, '{$w_}')";
-				if (!($db->exec($sql))) {
-					$err = "タグの保存に失敗しました。".$sql;
-					$db->rollback();
-					return FALSE;
-				}
+        $sql = "INSERT INTO tags (log_id, tag)VALUES(?,?)";
+        db_exec($sql, [$log_id, $w]);
 			}
 		}
 	}
+  
   // Update FrontPage mtime
   $FrontPage = konawiki_public("FrontPage");
-  $sql = "UPDATE logs SET mtime=$mtime WHERE name='$FrontPage'";
-  $r = $db->exec($sql);
-  if (!$r) {
-    $err = "FrontPageの更新に失敗:" . $sql;
-    $db->rollback();
-    return FALSE;
-  }
-	// Commit page
-  $db->commit();
-  header('X-Konawiki-Result: ok,' . date('Y-m-d H:i:s', $mtime));
-	return TRUE;
+  $sql = "UPDATE logs SET mtime=? WHERE name=?";
+  db_exec($sql, [$mtime, $FrontPage]);
+  
+  // clear cache
+  konawiki_clearCache();
+  
+  return TRUE;
 }
 
 
@@ -1370,9 +1361,9 @@ function konawiki_clearCacheDB($log_id = FALSE)
     	$log = konawiki_getLog($page);
     	if (empty($log["id"])) return;
     	$log_id = $log["id"];
-	}
-	$back_db = konawiki_getBackupDB();
-	@$back_db->exec("DELETE FROM cache_logs WHERE log_id=$log_id");
+  }
+	$sql = "DELETE FROM cache_logs WHERE log_id=?";
+  db_exec($sql, [$log_id], "backup");
 }
 /**
  * Cache DB の全てのページをクリアする
@@ -1380,8 +1371,8 @@ function konawiki_clearCacheDB($log_id = FALSE)
  */
 function konawiki_clearCacheDB_All()
 {
-	$back_db = konawiki_getBackupDB();
-	@$back_db->exec("DELETE FROM cache_logs");
+	$sql = "DELETE FROM cache_logs";
+  db_exec($sql, [], "backup");
 }
 
 /**

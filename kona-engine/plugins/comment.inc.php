@@ -1,5 +1,4 @@
 <?php
-#vim:set expandtab tabstop=4 softtabstop=4 shiftwidth=4:
 /** konawiki plugins -- コメントを記入するプラグイン
  * - [書式] #comment([id])
  * - [引数]
@@ -22,7 +21,6 @@ function plugin_comment_action($params)
 }
 
 // 以下、コメントに関する処理
-
 function plugin_comment_convert_sub($pluginname, $params)
 {
     konawiki_setPluginDynamic(true);
@@ -33,18 +31,17 @@ function plugin_comment_convert_sub($pluginname, $params)
         $plug_key = $params[0];
     }
     // query
-    $db = konawiki_getSubDB();
     $log_id = konawiki_getPageId();
     if (!$log_id) {
         return "";
     }
     // DB のプラグイン名は共通の comment とする
-    $plug_key = $db->escape($plug_key);
-    $sql =  "SELECT * FROM sublogs WHERE log_id={$log_id}".
-            " AND plug_name='comment'AND plug_key='$plug_key'".
-            " LIMIT 1";
-    $r = $db->array_query($sql);
-    $logs = "";
+    $sql =
+      "SELECT * FROM sublogs WHERE log_id=?".
+      "  AND plug_name='comment'AND plug_key=?".
+      "  LIMIT 1";
+    $r = db_get($sql, [$log_id, $plug_key], 'sub');
+    $logs = '';
     if (isset($r[0]['id'])) {
         $logs = $r[0]['body'];
     }
@@ -54,37 +51,44 @@ function plugin_comment_convert_sub($pluginname, $params)
     $insert_form = plugin_comment_getInsertForm(
                        $pluginname, $pageurl, $plug_key);
     if ($mode == 'edit') {
-        // --------------- 編集モードのとき
-        $logs = htmlspecialchars($logs);
-        $logs = "<form method='post' action='$pageurl'>".
-            "<textarea rows=5 cols=80 name='body'>".
-            $logs.
-            "</textarea><br/>".
-            form_input_hidden("name", "").
-            form_input_hidden("comment", "").
-            form_input_hidden("plugin", $pluginname).
-            form_input_hidden("pid", $plug_key).
-            form_input_hidden("comment-mode", "edit").
-            form_input_submit("Edit comments").
-            "</form>";
-        $showlink = konawiki_getPageURL(konawiki_getPage(), FALSE, FALSE, "comment-mode=show");
-        $footer = "<div class='rightopt'>".
-            "<a href='$showlink'>→Show comments</a>".
-            "</div>";
-        $insert_form = "";
+      // --------------- 編集モードのとき
+      $logs = htmlspecialchars($logs);
+      $logs = 
+        "<form method='post' action='$pageurl'>".
+        "<textarea rows=5 cols=80 name='body'>".
+        $logs.
+        "</textarea><br/>".
+        form_input_hidden("name", "").
+        form_input_hidden("comment", "").
+        form_input_hidden("plugin", $pluginname).
+        form_input_hidden("pid", $plug_key).
+        form_input_hidden("comment-mode", "edit").
+        form_input_submit("Edit comments").
+        "</form>";
+      $showlink = konawiki_getPageURL(
+        konawiki_getPage(), FALSE, FALSE, 
+        "comment-mode=show");
+      $footer = 
+        "<div class='rightopt'>".
+        "<a href='$showlink'>→Show comments</a>".
+        "</div>";
+      $insert_form = "";
     }
     else {
-        //if ($mode == 'show'):
-        // --------------- 普通表示モードのとき
-        $logs = konawiki_parser_convert($logs);
-        if (konawiki_isLogin_write()) { // ログインしているときだけ編集ボタンを表示
-            $editlink = konawiki_getPageURL(konawiki_getPage(), FALSE, FALSE, "comment-mode=edit");
-            $footer = "<div class='rightopt'>".
-                "<a href='{$editlink}'>→Edit comments</a>".
-                "</div>";
-        } else {
-            $footer = "<div class='rightopt'>&nbsp;</div>";
-        }
+      // --------------- 普通表示モードのとき
+      $logs = konawiki_parser_convert($logs);
+      if (konawiki_isLogin_write()) { // ログインしているときだけ編集ボタンを表示
+        $editlink = konawiki_getPageURL(
+          konawiki_getPage(), FALSE, FALSE, 
+          "comment-mode=edit");
+        $footer = 
+          "<div class='rightopt'>".
+          "<a href='{$editlink}'>".
+          "→Edit comments</a>".
+          "</div>";
+      } else {
+        $footer = "<div class='rightopt'>&nbsp;</div>";
+      }
     }
     $Comments = konawiki_lang('Comments');
     $s = <<<__EOS
@@ -128,108 +132,108 @@ EOS__;
 
 function plugin_comment_action_sub($pluginname, $params)
 {
-    global $plugin_params;
-    // check pid
-    $post_pid = konawiki_param("pid", 0);
-    $pid = konawiki_getPluginInfo($pluginname, "pid", 0);
-    $plug_key = $pid;
-    if (count($params) >= 1) {
-        $plug_key = $params[0];
+  global $plugin_params;
+  // check pid
+  $post_pid = konawiki_param("pid", 0);
+  $pid = konawiki_getPluginInfo($pluginname, "pid", 0);
+  $plug_key = $pid;
+  if (count($params) >= 1) {
+      $plug_key = $params[0];
+  }
+  if ($plug_key != $post_pid) return TRUE;
+  // check auth
+  $commentmode = konawiki_param("comment-mode");
+  if ($commentmode == "edit") {
+      konawiki_auth();
+  }
+  // query
+  $sublog_id = 0;
+  $log_id = konawiki_getPageId();
+  $sql = 
+    "SELECT * FROM sublogs WHERE log_id=?".
+    "  AND plug_name='comment' AND plug_key=?".
+    "  LIMIT 1";
+  $r = db_get($sql, [$log_id, $plug_key], 'sub');
+  $logs = "";
+  if (isset($r[0]['id'])) {
+      $logs = trim($r[0]['body'])."\n";
+      $sublog_id = $r[0]['id'];
+  }
+  
+  // get comment
+  $dummy1 = konawiki_param("comment");
+  $dummy2 = konawiki_param("name");
+  $comment = konawiki_param("r_comment");
+  $name    = konawiki_param("r_name");
+  if ($dummy1 !== "" || $dummy2 !== "") {
+    // maybe spam
+    $plugin_params["error"] = "Sorry may be SPAM..";
+    return FALSE;
+  }
+  if ($commentmode != "edit") {
+    if ($name === "") $name = konawiki_lang("Nanasi");
+    if ($comment == "") {
+      // maybe spam
+      $params["error"] = "Need to write body.";
+      return FALSE;
     }
-    if ($plug_key != $post_pid) return TRUE;
-    // check auth
-    $commentmode = konawiki_param("comment-mode");
-    if ($commentmode == "edit") {
-        konawiki_auth();
-    }
-    // query
-    $sublog_id = 0;
-    $db = konawiki_getSubDB();
-    $db->begin();
-    $log_id = konawiki_getPageId();
-    $plug_key = $db->escape($plug_key);
-    $sql =  "SELECT * FROM sublogs WHERE log_id={$log_id}".
-            " AND plug_name='comment' AND plug_key='$plug_key'".
-            " LIMIT 1";
-    $r = $db->array_query($sql);
-    $logs = "";
-    if (isset($r[0]['id'])) {
-        $logs = trim($r[0]['body'])."\n";
-        $sublog_id = $r[0]['id'];
-    }
-    
-    // get comment
-    $dummy1 = konawiki_param("comment");
-    $dummy2 = konawiki_param("name");
-    $comment = konawiki_param("r_comment");
-    $name    = konawiki_param("r_name");
-    if ($dummy1 !== "" || $dummy2 !== "") {
-        // maybe spam
-        $plugin_params["error"] = "Sorry may be SPAM..";
-        $db->rollback();
-        return FALSE;
-    }
-    if ($commentmode != "edit") {
-        if ($name === "") $name = konawiki_lang("Nanasi");
-        if ($comment == "") {
-            // maybe spam
-            $params["error"] = "Need to write body.";
-            $db->rollback();
-            return FALSE;
-        }
-        $mtime   = konawiki_datetime(time());
-        //$instext = "- $comment -- $name (&new($mtime);)";
-        $comment = preg_replace('/(\r|\n)/', '', $comment);
-        $instext = "|$name|$comment (&new($mtime);)|";
-        $logs .= $instext . "\n";
-    }
-    else { // edit mode
-        $logs = konawiki_param("body");
-    }
-    $logs = trim($logs);
-    $logs_ = $db->escape($logs);
-    $mtime = time();
-    // delete ?
-    if ($logs === '' && $sublog_id > 0) {
-        $sql = "DELETE FROM sublogs WHERE id=$sublog_id";
-    }
-    // insert ?
-    else if ($sublog_id == 0) {
-        $sql = "INSERT INTO sublogs".
-            " (log_id, plug_name, plug_key, body, ctime, mtime)".
-            " VALUES ($log_id, 'comment', '$plug_key', '{$logs_}', $mtime, $mtime)";
-    }
-    else {
-        $sql = "UPDATE sublogs SET body='$logs_', mtime=$mtime".
-            " WHERE id=$sublog_id";
-    }
-    if ($db->exec($sql)) {
-        $db->commit();
-        $url = konawiki_getPageURL();
-        konawiki_jump($url);
-        return TRUE;
-    }
-    else {
-        $param["error"] = "Failed to write.";
-        $db->rollback();
-        return FALSE;
-    }
+    $mtime   = konawiki_datetime(time());
+    //$instext = "- $comment -- $name (&new($mtime);)";
+    $comment = preg_replace('/(\r|\n)/', '', $comment);
+    $instext = "|$name|$comment (&new($mtime);)|";
+    $logs .= $instext . "\n";
+  } else { // edit mode
+    $logs = konawiki_param("body");
+  }
+  $logs = trim($logs);
+  $mtime = time();
+  
+  // delete ?
+  if ($logs === '' && $sublog_id > 0) {
+    $sql = "DELETE FROM sublogs WHERE id=?";
+    db_exec($sql, [$sublog_id], 'sub');
+    $url = konawiki_getPageURL();
+    konawiki_jump($url);
+    return TRUE;
+  }
+  
+  // insert ?
+  if ($sublog_id == 0) {
+    $sql = 
+      "INSERT INTO sublogs".
+      " (log_id, plug_name, plug_key, body, ctime, mtime)".
+      " VALUES (?, 'comment', ?, ?, $mtime, $mtime)";
+    db_exec($sql, [$log_id, $plug_key, $logs], 'sub');
+    $url = konawiki_getPageURL();
+    konawiki_jump($url);
+    return TRUE;
+  }
+  // update
+  $sql = 
+    "UPDATE sublogs SET body=?, mtime=$mtime".
+    "  WHERE id=?";
+  db_exec($sql, [$logs, $sublog_id], 'sub');
+  $url = konawiki_getPageURL();
+  konawiki_jump($url);
+  return TRUE;
 }
 
 function konawiki_comment_getLog($page)
 {
-    $db     = konawiki_getSubDB();
     $log_id = konawiki_getPageId();
-    $sql    =  "SELECT * FROM sublogs WHERE log_id={$log_id}".
-               " AND plug_name='comment'";
-    $r = $db->array_query($sql);
+    $sql =  
+      "SELECT * FROM sublogs WHERE log_id=?".
+      "  AND plug_name='comment'";
+    $r = db_get($sql, [$log_id], 'sub');
+    if (!$r) { return ''; }
+    
     $logs = "";
     foreach ($r as $line) {
-        $logs .= $line['body'] . "\n";
+      $logs .= $line['body']."\n";
     }
     if ($logs != "") {
-        $logs = "||Comments|\n".$logs;
-        $logs = konawiki_parser_convert($logs);
+      $logs = "||Comments|\n".$logs;
+      $logs = konawiki_parser_convert($logs);
     }
     $s = <<<__EOS
 <div class="comment">

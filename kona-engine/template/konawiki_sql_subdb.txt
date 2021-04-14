@@ -4,7 +4,7 @@
 
 CREATE TABLE sublogs
 (
-    id        INTEGER PRIMARY KEY AUTO_INCREMENT,
+    id        INTEGER PRIMARY KEY,
     log_id    INTEGER,
     plug_name TEXT DEFAULT '',     /* プラグインの名前 */
     plug_key  TEXT DEFAULT '',     /* ページ内に複数ある際の識別キー */

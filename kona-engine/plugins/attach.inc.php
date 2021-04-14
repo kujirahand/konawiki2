@@ -19,10 +19,11 @@ function plugin_attach_convert($params)
     $page_id  = konawiki_getPageId();
 
     // attachファイルのパスを得る
-    $db = konawiki_getDB();
-    $fname_ = $db->escape($name);
-    $sql = "SELECT * FROM attach WHERE log_id=$page_id AND name='$fname_' LIMIT 1";
-    $res = $db->array_query($sql);
+    $fname = $name;
+    $sql = 
+      "SELECT * FROM attach WHERE ".
+      "  log_id=? AND name=? LIMIT 1";
+    $res = db_get($sql, [$page_id, $name]);
     if (!isset($res[0]['id'])) {
       $fname_ = htmlspecialchars($fname);
       return "<div class='error'>[#ref:file not found:$fname_]</div>";

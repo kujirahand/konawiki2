@@ -57,10 +57,11 @@ function action_show_()
 	    // check CACHE
 	    if ($log_exists) {
 	    	// CHECK CACHE
-	    	$back_db = konawiki_getBackupDB();
-	    	$r = @$back_db->array_query("SELECT * FROM cache_logs WHERE log_id=$log_id LIMIT 1");
+	    	// $r = @$back_db->array_query("SELECT * FROM cache_logs WHERE log_id=$log_id LIMIT 1");
+        $sql = "SELECT * FROM cache_logs WHERE log_id=? LIMIT 1";
+        $r = db_get1($sql, [$log_id], 'backup');
 	    	if ($r) {
-	    		$log['body'] = $r[0]['html'];
+	    		$log['body'] = $r['html'];
 	    		$has_cache = TRUE;
 	    	}
 	    }
@@ -72,15 +73,13 @@ function action_show_()
 	    $html = $log['body'] = konawiki_parser_convert($log['body']);
 	    // make cache
 	    if (($log_exists) && ($konawiki_show_as_dynamic_page == FALSE)) {
-	    	$back_db = konawiki_getBackupDB();
-	    	$r = @$back_db->array_query("SELECT log_id FROM cache_logs WHERE log_id=$log_id LIMIT 1");
-	    	if (isset($r[0]['log_id'])) {
-		    	$r = @$back_db->exec("DELETE FROM cache_logs WHERE log_id=$log_id");
+        $sql = "SELECT log_id FROM cache_logs WHERE log_id=? LIMIT 1";
+        $r = db_get1($sql, [$log_id], 'backup');
+	    	if (isset($r['log_id'])) {
+		    	$r = db_exec("DELETE FROM cache_logs WHERE log_id=?", [$log_id], 'backup');
 	    	}
-	    	$_html = $back_db->escape($html);
-	    	$now = time();
-	    	$sql = "INSERT INTO cache_logs (log_id,html,ctime)VALUES($log_id,'$_html',$now)";
-	    	@$back_db->exec($sql);
+	    	$sql = "INSERT INTO cache_logs (log_id,html,ctime)VALUES(?,?,?)";
+        db_exec($sql, [$log_id, $html, time()], 'backup');
 	    }
     }
     $cache_checker = "";
@@ -153,20 +152,21 @@ function _konawiki_show_tag($tag, $id)
     $ret = "<!-- tags -->";
     // related page
     if ($tag_visible && ($tag != "")) {
-        $db = konawiki_getDB();
         $tags = explode(",", $tag);
         $or = array();
         $tag_html = "";
+        $params = [];
         foreach ($tags as $word) {
-            $w = $db->escape($word);
-            $or[] = "tag='{$w}'";
+            $or[] = "tag=?";
+            $params[] = $word;
             $word_html = htmlspecialchars($word);
             $uw = urlencode($word);
             $tag_html .= " <a href='index.php?{$uw}&amp;taglist'> {$word_html} </a>";
         }
         $or_str = join(" OR ", $or);
-        $sql = "SELECT log_id FROM tags WHERE {$or_str} ORDER BY log_id DESC LIMIT $taglimit";
-        $r = $db->array_query($sql);
+        $sql = "SELECT log_id FROM tags WHERE {$or_str} ORDER BY log_id DESC LIMIT ?";
+        $params[] = $taglimit;
+        $r = db_get($sql, $params);
         if ($r) {
             $pages = array();
             foreach ($r as $row) {

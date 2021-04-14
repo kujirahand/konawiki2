@@ -19,17 +19,16 @@ function action_attach_()
     if (FALSE == $log_id) {
         header('HTTP/1.0 404 Not Found'); exit;
     }
-    $db = konawiki_getDB();
-    $file_ = $db->escape($file);
-    $log_id_ = $db->escape($log_id);
-    $sql = "SELECT * FROM attach WHERE log_id=$log_id_ AND name='$file_'";
-    $res = $db->array_query($sql);
-    if (!isset($res[0]['id'])) {
+    $sql = 
+      "SELECT * FROM attach WHERE log_id=? AND name=?".
+      "  LIMIT 1";
+    $res = db_get1($sql, [$log_id, $file]);
+    if (!isset($res['id'])) {
         header('HTTP/1.0 404 Not Found'); exit;
     }
-    $id     = $res[0]['id'];
-    $mime   = $res[0]['ext'];
-    $name   = $res[0]['name'];
+    $id     = $res['id'];
+    $mime   = $res['ext'];
+    $name   = $res['name'];
     // get real ext
     $ext = "";
     if (preg_match('/(\.\w+)$/',$name, $m)) {
@@ -94,7 +93,7 @@ function action_attach_form()
     if ($list) {
         $dlink = "<table border=1 cellpadding=4>\n".
             "<tr><td>直リンク</td><td>日付</td><td>削除</td>".
-            "<td>Wikiに貼る時(小)</td><td>Wikiに貼る時(中)</td><td>Wikiに貼る時(原寸)</td></tr>\n";
+            "<td>Wikiに貼る時</td></tr>\n";
         foreach ($list as $line) {
             $id     = $line['id'];
             $name   = $line['name'];
@@ -108,16 +107,12 @@ function action_attach_form()
                 "<input type='hidden' name='id' value='$id'/>".
                 "<input type='submit' value='削除'/></form>";
             $date   = konawiki_date($line['mtime']);
-            $ref1   = "<input type='text' size=20 value='#ref($name_h,w=300,*{$name_})'onclick='this.select()'/>";
-            $ref2   = "<input type='text' size=20 value='#ref($name_h,w=500,*{$name_})'onclick='this.select()'/>";
-            $ref3   = "<input type='text' size=20 value='#ref($name_h,*{$name_})'onclick='this.select()'/>";
+            $ref1   = "<input type='text' size=20 value='#ref($name_h,w=300,*{$name_h})'onclick='this.select()'/>";
             $dlink .=
                 "<tr><td>$con</td>".
                     "<td>$date</td>".
                     "<td>$button</td>".
                     "<td>$ref1</td>".
-                    "<td>$ref2</td>".
-                    "<td>$ref3</td>".
                 "</tr>";
         }
         $dlink .= "</table>";
@@ -178,45 +173,37 @@ function action_attach_write()
       return;
     }
     // check db
-    $db = konawiki_getDB();
-    $db->begin();
+    db_begin();
     $mtime = time();
     // check same file, overwrite?
-    $name_ = $db->escape($name);
-    $sql = "SELECT * FROM attach WHERE name='$name_' AND ".
-        "log_id=$log_id;";
-    $res = $db->array_query($sql);
-    if (isset($res[0]["id"])) {
-        // check password
-        $db->rollback();
-        action_attach_already_exists($res[0]);
-        return;
-    }
-    else {
-        // insert into db
-        $sql = "INSERT INTO attach (log_id,name,ext,ctime,mtime)".
-            "VALUES($log_id,'$name_','$ext',$mtime,$mtime)";
-        if (!$db->exec($sql)) {
-            $db->rollback();
-            konawiki_error("添付に失敗。データベースエラー(1/2)。");
-            return;
-        }
-        $id = $db->getLastId();
-        $sql = "INSERT INTO attach_counters (id) VALUES ($id)";
-        if (!$db->exec($sql)) {
-            $db->rollback();
-            konawiki_error("添付に失敗。データベースエラー(2/2)。");
-            return;
-        }
+    $sql = 
+        "SELECT * FROM attach WHERE name=? AND ".
+        "log_id=?";
+    $res = db_get1($sql, [$name, $log_id]);
+    if (isset($res["id"])) {
+      // check password
+      $db_rollback();
+      action_attach_already_exists($res[0]);
+      return;
+    } else {
+      // insert into db
+      $sql = 
+        "INSERT INTO attach (log_id,name,ext,ctime,mtime)".
+        "             VALUES(     ?,   ?,  ?,    ?,    ?)";
+      $id = db_insert($sql, [
+          $log_id, $name, $ext, $mtime, $mtime
+      ]);
+      $sql = "INSERT INTO attach_counters (id) VALUES (?)";
+      db_exec($sql, [$id]);
     }
     // copy file
     $uploadfile = $uploaddir . "/{$id}{$name_ext}";
     if (!move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
-        $db->rollback();
-        konawiki_error("添付に失敗。アップロードエラー。");
-        return;
+      db_rollback();
+      konawiki_error("添付に失敗。アップロードエラー。");
+      return;
     }
-    $db->commit();
+    db_commit();
     // include
     $page_link = konawiki_getPageLink();
     $name_htm = htmlspecialchars($name);
@@ -289,51 +276,32 @@ function action_attach_delete()
         return;
     }
     $id = intval($id);
-    //
-    $sql = "SELECT * FROM attach WHERE id=$id;";
-    $db = konawiki_getDB();
-    $res = $db->array_query($sql);
-    if (!isset($res[0]['id'])) {
+    $sql = "SELECT * FROM attach WHERE id=?";
+    $info = db_get1($sql, [$id]);
+    if (!isset($info['id'])) {
         konawiki_error("削除エラー。id が不正です。");
         return;
     }
-    //
-    $db->begin();
-    // ファイルがあるか確認
-    $sql = "SELECT * FROM attach WHERE id=$id LIMIT 1";
-    $info_ary = $db->array_query($sql);
-    if (!$info_ary) {
-        $db->rollback();
-        konawiki_error("削除エラー。id が不正です。");
-        return;
-    }
-    $info = $info_ary[0];
+    db_begin();
     $name = $info["name"];
     $name_html = htmlspecialchars($name);
     // 削除実行！
-    $sql = "DELETE FROM attach WHERE id=$id;";
-    if (!$db->exec($sql)) {
-        $db->rollback();
-        konawiki_error("削除エラー。id が不正です。");
-        return;
-    }
+    $sql = "DELETE FROM attach WHERE id=?";
+    db_exec($sql, [$id]);
     // カウンタもリセット
-    $sql = "DELETE FROM attach_counters WHERE id=$id";
-    if (!$db->exec($sql)) {
-        $db->rollback();
-        konawiki_error("削除エラー。id が不正です。");
-        return;
-    }
+    $sql = "DELETE FROM attach_counters WHERE id=?";
+    db_exec($sql, [$id]);
+    // 
     $page = konawiki_getPage();
     $page_enc = konawiki_getPageURL($page);
     $page_htm = htmlspecialchars($page);
     $name = htmlspecialchars($name);
     $backlink = konawiki_getPageURL($page, "attach");
     //
-    $file = KONAWIKI_DIR_ATTACH.$id;
+    $file = KONAWIKI_DIR_ATTACH.'/'.$id;
     $baseurl = konawiki_public("baseurl");
     @unlink($file);
-    $db->commit();
+    db_commit();
     $body = "<p>(id:{$id})「{$name_html}」を削除しました。</p>".
         "<p><a href='{$backlink}'>→「{$page_htm}」の添付へ戻る</a></p>";
     include_template("form.tpl.php", array('body'=>$body));
@@ -352,9 +320,8 @@ function konawiki_getAttachList($page)
     if ($log_id == FALSE) {
         return FALSE;
     }
-    $db = konawiki_getDB();
-    $sql = "SELECT * FROM attach WHERE log_id=$log_id";
-    $res = $db->array_query($sql);
+    $sql = "SELECT * FROM attach WHERE log_id=?";
+    $res = db_get($sql, [$log_id]);
     return $res;
 }
 
@@ -379,5 +346,3 @@ function konawiki_getAttachListLink($page)
 }
 
 
-
-?>

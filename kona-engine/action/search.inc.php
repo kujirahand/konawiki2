@@ -52,23 +52,29 @@ function action_search_exec()
     $where_body = array();
     $where_name = array();
     $where_tag  = array();
+    $params_name = [];
+    $params_body = [];
+    $params_tag = [];
     foreach ($key_ary as $key) {
-        $key = $db->escape($key);
-        $where_name[] = "name like '%$key%'";
-        $where_body[] = "body like '%$key%'";
-        $where_tag[]  = "tag = '$key'";
+        $where_name[] = "name like ?";
+        $where_body[] = "body like ?";
+        $where_tag[] = "tag = ?";
+        $params_name[] = "%$key%";
+        $params_body[] = "%$key%";
+        $params_tag[] = $key;
     }
-    // タイトルの検索
+    // 
     $where_str = join(" AND ", $where_name);
     $sql = "select name from logs where {$where_str} limit 31";
-    $res = konawiki_query($sql);
+    $res = db_get($sql, $params_name);
+    //
     $keyword_ = htmlspecialchars($keyword);
-    $body = "<h5>ページ名の一致：キーワード[$keyword_]</h5>";
+    $body = "<h5>Page name = [$keyword_]</h5>";
     $body .= action_search_exec_result($res);
     // タグの検索
     $wherestr = join(" OR ", $where_tag);
     $sql= "SELECT * FROM tags WHERE $wherestr limit 31";
-    $res = konawiki_query($sql);
+    $res = db_get($sql, $params_tag);
     $log_ids = array();
     foreach ($res as $row) {
         $log_id = $row['log_id'];
@@ -77,19 +83,19 @@ function action_search_exec()
     $log_id_str = join(" OR ", $log_ids);
     if ($log_id_str != "") {
         $sql = "SELECT name from logs where $log_id_str";
-        $res = konawiki_query($sql);
+        $res = db_get($sql);
     } else {
         $res = array();
     }
     $keyword_ = htmlspecialchars($keyword);
-    $body .= "<h5>タグの一致：キーワード[$keyword_]</h5>";
+    $body .= "<h5>Tag = [$keyword_]</h5>";
     $body .= action_search_exec_result($res);
     // 本文の検索
     $where_str = join(" AND ", $where_body);
     $sql = "select name from logs where {$where_str} limit 31";
-    $res = konawiki_query($sql);
+    $res = db_get($sql, $params_body);
     $keyword_ = htmlspecialchars($keyword);
-    $body .= "<h5>本文の一致：キーワード[$keyword_]</h5>";
+    $body .= "<h5>Body = [$keyword_]</h5>";
     $body .= action_search_exec_result($res);
     //
     $log["body"] = _action_search_getForm() . $body;
@@ -103,14 +109,12 @@ function action_search_backlink()
     $backlink   = konawiki_param("backlink", "");
     $body = "";
     // search
-    $db = konawiki_getDB();
-    $keyword_ = $db->escape("[[".$keyword."]]");
-    $where_body = "body like '%{$keyword_}%'";
+    $where_body = "body like ?";
     // 本文の検索
     $sql = "select name from logs where {$where_body} limit 31";
-    $res = konawiki_query($sql);
+    $res = db_get($sql, ["%$keyword%"]);
     $keyword_ = htmlspecialchars($keyword);
-    $body .= "<h5>バックリンク：[$keyword_]</h5>";
+    $body .= "<h5>Backlink = [$keyword_]</h5>";
     $body .= action_search_exec_result($res);
     //
     $log["body"] = $body;
@@ -124,29 +128,30 @@ function action_search_tag()
     // search
     $db = konawiki_getDB();
     $key_ary = explode(' ', $keyword);
-    $where_tag  = array();
+    $where_tag  = [];
+    $params_tag = [];
     foreach ($key_ary as $key) {
-        $key = $db->escape($key);
-        $where_tag[]  = "tag = '$key'";
+      $where_tag[]  = "tag = ?";
+      $params_tag[] = $key;
     }
     // タグの検索
     $wherestr = join(" OR ", $where_tag);
     $sql= "SELECT * FROM tags WHERE $wherestr limit 31";
-    $res = konawiki_query($sql);
+    $res = db_get($sql, $params_tag);
     $log_ids = array();
     foreach ($res as $row) {
-        $log_id = $row['log_id'];
-        $log_ids[] = "id=$log_id";
+      $log_id = $row['log_id'];
+      $log_ids[] = "id=$log_id";
     }
     $log_id_str = join(" OR ", $log_ids);
     if ($log_id_str != "") {
-        $sql = "SELECT name from logs where $log_id_str";
-        $res = konawiki_query($sql);
+      $sql = "SELECT name from logs where $log_id_str";
+      $res = db_get($sql);
     } else {
-        $res = array();
+      $res = array();
     }
     $keyword_ = htmlspecialchars($keyword);
-    $body .= "<h5>[$keyword_]のタグがついているページ</h5>";
+    $body .= "<h5>Pages tag=[$keyword_]</h5>";
     $body .= action_search_exec_result($res);
     
     konawiki_showMessage($body);

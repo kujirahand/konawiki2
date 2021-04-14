@@ -20,7 +20,7 @@ function plugin_countpages_convert($params)
     if (!$pagename) {
         return "[$countpages(pagename)]";
     }
-    $db = konawiki_getDB();
+    $params = [];
     if (!$limit) {
         $limit = $limit_max;
     }
@@ -28,22 +28,23 @@ function plugin_countpages_convert($params)
     if (strpos($pagename, "*") !== FALSE) {
         $pagename = str_replace("*", "%",$pagename);
     }
-    $pagename_ = $db->escape($pagename);
     if (strpos($pagename, "%") !== FALSE) {
-        $where = "name LIKE '$pagename_'";
+        $where = "name LIKE ?";
+        $params[] = $pagename;
     } else {
-        $where = "name = '$pagename_'";
+        $where = "name = ?";
+        $params[] = $pagename;
     }
     $sql = "SELECT id FROM logs WHERE $where LIMIT $limit";
     $count_m = 0;
     $count_b = 0;
     $page_count = 0;
-    $a = $db->array_query($sql);
+    $a = db_get($sql, $params);
     if ($a) {
         foreach ($a as $row) {
             $id = intval($row["id"]);
-            $sql = "SELECT body FROM logs WHERE id=$id LIMIT 1";
-            $r = $db->array_query($sql);
+            $sql = "SELECT body FROM logs WHERE id=? LIMIT 1";
+            $r = db_get($sql, [$id]);
             if ($r) {
                 $r = $r[0];
                 $body = $r["body"];
@@ -70,5 +71,3 @@ function plugin_countpages_convert($params)
 EOS_;
 }
 
-
-?>

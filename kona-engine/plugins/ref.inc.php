@@ -39,10 +39,9 @@ function plugin_ref_convert($params)
     // まずはデータベースを確認
     $dir_attach = konawiki_private('dir.attach');
     $db = konawiki_getDB();
-    $fname_ = $db->escape($fname);
-    $sql = "SELECT * FROM attach WHERE log_id=$page_id AND name='$fname_' LIMIT 1";
-    $res = $db->array_query($sql);
-    if (!isset($res[0]['id'])) {
+    $sql = "SELECT * FROM attach WHERE log_id=? AND name=? LIMIT 1";
+    $res = db_get1($sql, [$page_id, $fname]);
+    if (!isset($res['id'])) {
       // attachにファイルがあれば、それに直リンク
       $fname = str_replace('/', '', $fname);
       $target = $dir_attach.'/'.$fname;
@@ -54,9 +53,9 @@ function plugin_ref_convert($params)
       }
     } else {
       // データベースのパスに応じてURLを設定
-      $id   = $res[0]['id'];
-      $mime = $res[0]['ext'];
-      $name = $res[0]['name'];
+      $id   = $res['id'];
+      $mime = $res['ext'];
+      $name = $res['name'];
       // get real ext
       $ext = "";
       if (preg_match('/(\.\w+)$/',$name, $m)) {

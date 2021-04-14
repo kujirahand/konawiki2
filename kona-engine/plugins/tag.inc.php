@@ -68,10 +68,10 @@ function plugin_tag_convert($params)
     $offset = $p * $PER_PAGE;
     $res = "";
     // enum pattern
-    $pattern = $db->quote($pattern);
-    $query = "SELECT log_id FROM tags WHERE tag = {$pattern} ".
-             "ORDER BY log_id DESC LIMIT {$limit} OFFSET {$offset}";
-    $r = konawiki_query($query);
+    $query = 
+      "SELECT log_id FROM tags WHERE tag = ? ".
+      "ORDER BY log_id DESC LIMIT {$limit} OFFSET {$offset}";
+    $r = db_get($query,[$pattern]);
     if (!$r) {
         return "なし";
     }
@@ -83,7 +83,7 @@ function plugin_tag_convert($params)
     $log_id_str = implode(',', $log_ids);
     if ($log_id_str != '') {
 	    $query = "SELECT * FROM logs WHERE id in ({$log_id_str});";
-    	$r = konawiki_query($query);
+    	$r = db_get($query);
     } else {
     	$r = FALSE;
     }

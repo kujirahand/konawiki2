@@ -89,10 +89,11 @@ function plugin_ls_convert($params)
     $offset = $p * $PER_PAGE;
     $res = "";
     // enum pattern
-    $pattern = $db->escape($pattern);
-    $query = "SELECT id,name,body FROM logs WHERE name LIKE '{$pattern}' ".
-             "ORDER BY {$sort_field} {$sort_type} LIMIT {$limit} OFFSET {$offset}";
-    $r = konawiki_query($query);
+    $query = 
+      "SELECT id,name,body FROM logs WHERE name LIKE ?".
+      "  ORDER BY {$sort_field} {$sort_type}".
+      "  LIMIT ? OFFSET ?";
+    $r = db_get($query, [$pattern, $limit, $offset]);
     if (!$r) {
         return "なし";
     }

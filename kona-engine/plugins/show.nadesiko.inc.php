@@ -7,6 +7,9 @@
  * - [公開設定] 非公開
  */
 //------------------------------------------------------------------------------
+//
+// TODO: v2.3.x では動かない。。。
+//
 /* option
 $konawiki['private']['show.plugins']['nadesiko'] = array(
         'enabled'   => FALSE,
@@ -85,7 +88,7 @@ function show_nadesiko_showH0()
 {
     $db = show_nadesiko_getDB();
     $sql = "SELECT h1 FROM command group by h1";
-    $r = $db->array_query($sql);
+    $r = $db->query($sql);
     if (!$r) {
         return "ありません\n";
     }
@@ -112,9 +115,12 @@ function show_nadesiko_showH0()
 function show_nadesiko_showH1($h1)
 {
     $db = show_nadesiko_getDB();
-    $h1_ = $db->escape(toSJIS($h1));
-    $sql = "SELECT name,h1,h2 FROM command WHERE h1='$h1_' order by h2";
-    $r = $db->array_query($sql);
+    $sql = 
+      "SELECT name,h1,h2 FROM command WHERE ".
+      "h1=? order by h2";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$h1]);
+    $r = $stmt->fetchAll();
     if (!$r) {
         return "ありません\n";
     }
@@ -142,35 +148,39 @@ function show_nadesiko_showH1($h1)
 function show_nadesiko_showH2($h1,$h2)
 {
     $db = show_nadesiko_getDB();
-    $h1_ = $db->escape(toSJIS($h1));
-    $h2_ = $db->escape(toSJIS($h2));
-    $sql = "SELECT name,h1,h2 FROM command WHERE h1='$h1_' AND h2='$h2_' order by h1";
-    $r = $db->array_query($sql);
+    $h1 = toSJIS($h1);
+    $h2 = toSJIS($h2);
+    $sql = 
+      "SELECT name,h1,h2 FROM command WHERE ".
+      "  h1=? AND h2=? order by h1";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$h1, $h2]);
+    $r = $stmt->fetchAll();
     if (!$r) {
-        return "ありません\n";
+      return "ありません\n";
     }
     $res = "";
     $head_h1 = $old_head_h1 = $head_h2 = $old_head_h2 = "";
     foreach ($r as $row) {
-        foreach ($row as $key => $val) { // to utf8
-            $row[$key] = toUTF8($val);
-        }
-        $h1   = $row["h1"];
-        $h2   = $row["h2"];
-        $h1 = str_replace('/','／',$h1);
-        $h2 = str_replace('/','／',$h2);
-        $name = $row["name"];
-        $head_h1 = "- &link(分類/{$h1});\n";
-        if ($head_h1 != $old_head_h1) {
-            $res .= $head_h1;
-            $old_head_h1 = $head_h1;
-        }
-        $head_h2 = "-- &link(分類/{$h1}/{$h2});\n";
-        if ($head_h2 != $old_head_h2) {
-            $res .= $head_h2;
-            $old_head_h2 = $head_h2;
-        }
-        $res .= "---[[$name]]\n";
+      foreach ($row as $key => $val) { // to utf8
+          $row[$key] = toUTF8($val);
+      }
+      $h1   = $row["h1"];
+      $h2   = $row["h2"];
+      $h1 = str_replace('/','／',$h1);
+      $h2 = str_replace('/','／',$h2);
+      $name = $row["name"];
+      $head_h1 = "- &link(分類/{$h1});\n";
+      if ($head_h1 != $old_head_h1) {
+          $res .= $head_h1;
+          $old_head_h1 = $head_h1;
+      }
+      $head_h2 = "-- &link(分類/{$h1}/{$h2});\n";
+      if ($head_h2 != $old_head_h2) {
+          $res .= $head_h2;
+          $old_head_h2 = $head_h2;
+      }
+      $res .= "---[[$name]]\n";
     }
     return $res;
 }
@@ -179,9 +189,10 @@ function show_nadesiko_showCommand($name)
 {
     $db = show_nadesiko_getDB();
     $name = toSJIS($name);
-    $name_ = $db->escape($name);
-    $sql = "SELECT * FROM command WHERE name='$name_'";
-    $r = $db->array_query($sql);
+    $sql = "SELECT * FROM command WHERE name=?";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$name]);
+    $r = $stmt->fetchAll();
     $res = '';
     if ($r) {
         foreach ($r as $row) {
@@ -225,20 +236,18 @@ function show_nadesiko_getDB()
 {
     global $plug_nadesiko;
     $db = isset($plug_nadesiko['db.handle']) 
-	? $plug_nadesiko['db.handle'] : "" ;
+	      ? $plug_nadesiko['db.handle'] : "" ;
     if (!$db) {
         $dns = $plug_nadesiko['db.dns'];
-        $db = konadb_create_dsn($dns);
+        $dns = preg_replace('#^sqlite\:\/+#', '', $dns);
+        $db = new PDO("sqlite:".$dns);
         if (!$db) {
             echo 'COMMAND DATABASE OPEN ERROR!';
             exit;
         }
-        $plug_nadesiko['db.handle'] =& $db;
-        $db->debug = konawiki_private('debug');
-        if (!$db->open()) {
-            echo 'COMMAND DATABASE OPEN ERROR!';
-            exit;
-        }
+        $plug_nadesiko['db.handle'] = $db;
     }
     return $db;
 }
+
+

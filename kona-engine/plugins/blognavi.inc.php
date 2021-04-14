@@ -18,26 +18,26 @@ function plugin_blognavi_convert($params)
     
     // check params
     $pat = isset($params[0]) ? $params[0] : "";
+    $FrontPage = konawiki_public('FrontPage');
     // db
-    $db  = konawiki_getDB();
     $where = '';
     $order = 'ctime';
+    $params = [$FrontPage];
     if ($pat) {
-        $pat_ = $db->escape($pat);
+        $pat_ = $pat;
         $pat_ = str_replace('*','%',$pat_);
         if (strpos($pat_, '%') === FALSE) {
             $pat .= '%';
         }
         $order = 'name';
-        $where = "AND name like '$pat_'";
+        $where = "AND name like ?";
+        $params[] = $pat_;
     }
-    $FrontPage = konawiki_public('FrontPage');
     $sql =
         "SELECT id,name,ctime FROM logs ".
-        "   WHERE name != '$FrontPage' $where".
+        "   WHERE name!=?  $where".
         "   ORDER BY $order DESC";
-    $db = konawiki_getDB();
-    $rows = $db->array_query($sql);
+    $rows = db_get($sql, $params);
     $rows_count = count($rows);
     if ($rows_count == 0) return "";
     $page = konawiki_getPage();

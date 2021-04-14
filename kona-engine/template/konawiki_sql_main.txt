@@ -23,7 +23,7 @@ CREATE TABLE key_values
 /** Wiki Main Log Table */
 CREATE TABLE logs
 (
-    id      INTEGER PRIMARY KEY AUTO_INCREMENT,
+    id      INTEGER PRIMARY KEY,
     name    TEXT,
     body    TEXT DEFAULT '',
     freeze  INTEGER DEFAULT 0, /* 0:none,  1:freeze  */
@@ -34,8 +34,8 @@ CREATE TABLE logs
 
 /* --- */
 
-/* idから名前の逆引きが多いので index を作成 */
-CREATE UNIQUE INDEX logs_name_index ON logs (name(256));
+/* 名前の逆引きが多いので index を作成 */
+CREATE UNIQUE INDEX logs_name_index ON logs (id, name);
 
 /* --- */
 
@@ -51,7 +51,7 @@ CREATE TABLE log_counters
 /** Attachment file Table */
 CREATE TABLE attach
 (
-    id      INTEGER PRIMARY KEY AUTO_INCREMENT,
+    id      INTEGER PRIMARY KEY,
     log_id  INTEGER,
     name    TEXT,
     ext     TEXT,
@@ -64,7 +64,7 @@ CREATE TABLE attach
 /** Attachment file counter */
 CREATE TABLE attach_counters
 (
-    id          INTEGER PRIMARY KEY AUTO_INCREMENT,
+    id          INTEGER PRIMARY KEY,
     view        INTEGER DEFAULT 0,
     download    INTEGER DEFAULT 0
 );
@@ -81,13 +81,13 @@ CREATE TABLE tags
 /* --- */
 
 /* tagの逆引きが多いので index を作成 */
-CREATE UNIQUE INDEX tags_tag_index ON tags (log_id, tag(256));
+CREATE UNIQUE INDEX tags_tag_index ON tags (log_id, tag);
 
 /* --- */
 
 /** Page auth page hash */
 CREATE TABLE log_auth_hash (
-  log_id  INTEGER,
+  log_id  INTEGER PRIMARY KEY,
   hash    TEXT
 );
 

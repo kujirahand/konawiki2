@@ -51,73 +51,57 @@ function plugin_counter_getCount()
     if (!$log_id) {
         echo "(*)"; exit;
     }
-    $db = konawiki_getSubDB();
     // Total : count up
     $now = time();
     $total = 0;
-    $db->exec("begin");
-    $sql = "SELECT * FROM mcounter_total WHERE ".
-        " log_id=$log_id LIMIT 1";
-    $r = @$db->array_query($sql);
-    if (!isset($r[0]["total"])) {
+    db_exec('begin', [], 'sub');
+    $sql = 
+      "SELECT * FROM mcounter_total WHERE ".
+      " log_id=? LIMIT 1";
+    $r = db_get1($sql, [$log_id], 'sub');
+    if (!isset($r["total"])) {
         // first time
-        $total = getOldTypeCounter($db, $log_id);
         $ins_sql = 
             "INSERT INTO mcounter_total ".
             "  ( log_id, total, mtime) VALUES ".
-            "  ($log_id,$total, $now)";
-        $db->exec($ins_sql);
+            "  (      ?,     ?,     ?)";
+        db_exec($ins_sql, [$log_id, 1, $now], 'sub');
+        $total = 1;
     } else {
         // count up
         $up_sql =
             "UPDATE mcounter_total SET ".
-            "  total=total+1, mtime=$now ".
-            "  WHERE log_id=$log_id";
-        $db->exec($up_sql);
-        $total = $r[0]["total"] + 1;
+            "  total=total+1, mtime=? ".
+            "  WHERE log_id=?";
+        db_exec($up_sql, [$now, $log_id], 'sub');
+        $total = $r["total"] + 1;
     }
     // daily : count up
     $value = 0;
     $stime = strtotime(date("Y-m-d", $now));
     $where = "stime=$stime";
-    $sql = "SELECT * FROM mcounter_day WHERE ".
-        " log_id=$log_id AND $where LIMIT 1";
-    $r = @$db->array_query($sql);
-    if (!isset($r[0]["value"])) {
+    $sql = 
+        "SELECT * FROM mcounter_day WHERE ".
+        "  log_id=? AND $where LIMIT 1";
+    $r = db_get1($sql, [$log_id], 'sub');
+    if (!isset($r["value"])) {
         $ins_sql =
             "INSERT INTO mcounter_day ".
             "  ( log_id, stime, value, mtime) VALUES".
-            "  ($log_id,$stime, 1,    $stime)";
-        $db->exec($ins_sql);
+            "  (      ?,     ?,     1,     ?)";
+        db_exec($ins_sql, [$log_id, $stime, $stime], 'sub');
         $value = 1;
     } else {
         $up_sql =
             "UPDATE mcounter_day SET ".
-            " value=value+1, mtime=$stime ".
-            " WHERE log_id=$log_id AND $where";
-        $db->exec($up_sql);
-        $value = $r[0]["value"] + 1;
+            " value=value+1, mtime=? ".
+            " WHERE log_id=? AND $where";
+        db_exec($up_sql, [$stime, $log_id], 'sub');
+        $value = $r["value"] + 1;
     }
-    $db->exec("commit");
+    db_exec('commit', [], 'sub');   
     // show result
     $today = konawiki_lang('Today');
     echo "$total <em class='counter_memo'>($today:$value)</em>";
 }
-
-// old type counter
-function getOldTypeCounter($db, $log_id) {
-    $pname = 'counter';
-    $sql = "SELECT * FROM sublogs WHERE ".
-        " log_id=$log_id AND plug_name='$pname'".
-        " ";
-    $count = 1;
-    $r = @$db->array_query($sql);
-    $mtime = time();
-    if (isset($r[0]["id"])) {
-        return intval($r[0]["ctime"]);
-    }
-    return 1;
-}
-
-
 

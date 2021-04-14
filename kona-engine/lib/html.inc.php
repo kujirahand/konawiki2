@@ -44,7 +44,10 @@ function form_input_submit($caption, $opt_array = null)
       $opt .= "$key='$val' ";
     }
   }
-  return "<input type='submit' value='$caption' $opt />";
+  return 
+    "<input type='submit' ".
+    " class='pure-button pure-button-primary' ".
+    " value='$caption' $opt />";
 }
 
 // --- style tag
