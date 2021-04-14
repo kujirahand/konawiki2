@@ -47,7 +47,6 @@ function action_search_exec()
         exit;
     }
     // search
-    $db = konawiki_getDB();
     $key_ary = explode(' ', $keyword);
     $where_body = array();
     $where_name = array();
@@ -126,7 +125,6 @@ function action_search_tag()
     $keyword = konawiki_getPage();
     $body = "";
     // search
-    $db = konawiki_getDB();
     $key_ary = explode(' ', $keyword);
     $where_tag  = [];
     $params_tag = [];
@@ -176,5 +174,3 @@ function action_search_exec_result($res)
     }
     return $body;
 }
-
-?>

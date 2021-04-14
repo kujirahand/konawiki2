@@ -1,12 +1,11 @@
 <!-- parts_backuplist.begin -->
 <?php
 // show backuplist
-$bk     = konawiki_getBackupDB();
 $log_id = konawiki_getPageId();
 if ($log_id > 0) {
     $page   = konawiki_getPage();
     $sql    = "SELECT id,mtime FROM oldlogs WHERE log_id=$log_id order by mtime DESC limit 10";
-    $res    = $bk->array_query($sql);
+    $res    = db_get($sql, [], 'backup');
     if ($res && count($res) > 0) {
         $baseurl = konawiki_baseurl();
         $url = konawiki_getPageURL();

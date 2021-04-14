@@ -1,5 +1,4 @@
 <?php
-// vim:set expandtab tabstop=4 softtabstop=4 shiftwidth=4:
 /**
  * ---------------------------------------------------------------------
  * konawiki の基本ライブラリ
@@ -261,12 +260,9 @@ function konawiki_page_debug()
     global $konawiki, $public, $private;
     if (!konawiki_is_debug()) return;
     extract($public);
-    //$db = konawiki_getDB();
-    //$db = konawiki_getSubDB();
-    //$db = konawiki_getBackupDB();
     echo '<pre>';
     echo '【テストモードです--ReadMe.txtをご覧ください。】'."\n";
-	print_r($_GET);
+    print_r($_GET);
     //echo "url:"; print_r($_SERVER);
     echo "scriptname:$scriptname\n";
     echo "baseurl:".konawiki_public("baseurl")."\n";
@@ -857,20 +853,19 @@ function konawiki_getLog($page = FALSE)
  */
 function konawiki_getTag($log_id = FALSE)
 {
-	$db = konawiki_getDB();
-	if ($log_id === FALSE) {
-		$log_id = konawiki_getPageId();
-	}
+  if ($log_id === FALSE) {
+    $log_id = konawiki_getPageId();
+  }
   $sql = "SELECT * FROM tags WHERE log_id=?";
   $res = db_get($sql, [$log_id]);
-	if (!$res) {
-		return array();
-	}
-	$ary = array();
-	foreach ($res as $line) {
-		$ary[] = $line['tag'];
-	}
-	return $ary;
+  if (!$res) {
+    return array();
+  }
+  $ary = array();
+  foreach ($res as $line) {
+    $ary[] = $line['tag'];
+  }
+  return $ary;
 }
 
 function konawiki_makeTagLink($tag_str)
@@ -950,11 +945,9 @@ function konawiki_getLogFromId($log_id)
 
 function konawiki_getBackupLog($b_id)
 {
-	$db = konawiki_getBackupDB();
 	$log_id = konawiki_getPageId();
-	$b_id = $db->escape($b_id);
-	$sql = "SELECT * FROM oldlogs WHERE log_id=$log_id AND id=$b_id";
-	$res = $db->array_query($sql);
+	$sql = "SELECT * FROM oldlogs WHERE log_id=? AND id=?";
+	$res = db_get($sql,[$log_id, $b_id], 'backup');
 	if (isset($res[0]['id'])) {
 		return $res[0];
 	} else {

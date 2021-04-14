@@ -60,7 +60,6 @@ function plugin_tag_convert($params)
     }
     if ($PER_PAGE > $PER_PAGE_MAX) $PER_PAGE = $PER_PAGE_MAX; // check max
     // check pager
-    $db = konawiki_getDB();
     $limit = $PER_PAGE + 1;
     $pagername = "pager".bin2hex($pattern);
     $p = konawiki_param($pagername, 0);

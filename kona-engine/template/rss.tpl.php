@@ -1,10 +1,9 @@
 <?php
-$db = konawiki_getDB();
 $sql = "SELECT * FROM logs ".
     " WHERE name<>'FrontPage' AND name<>'MenuBar' AND name<>'SideBar'".
     "       AND name<>'NaviBar'".
     " ORDER BY ctime DESC LIMIT 20";
-$logs = $db->array_query($sql);
+$logs = db_get($sql);
 echo '<?xml version="1.0" encoding="utf-8"?>'."\n";
 ?>
 <rdf:RDF

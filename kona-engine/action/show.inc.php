@@ -45,19 +45,18 @@ function action_show_()
     // Cache function
     $has_cache = FALSE;
     $cachemode = konawiki_private('cache.mode');
-	if ($cachemode == 'cache') {
-	    // clear cache ?
-	    $cache = konawiki_param("cache", false);
-	    if ($cache == "clear") {
-	    	konawiki_clearCacheDB($log_id);
-	    }
-	    else if ($cache == "clearall") {
-	    	konawiki_clearCacheDB_All();
+    if ($cachemode == 'cache') {
+      // clear cache ?
+      $cache = konawiki_param("cache", false);
+      if ($cache == "clear") {
+          konawiki_clearCacheDB($log_id);
+      }
+      else if ($cache == "clearall") {
+          konawiki_clearCacheDB_All();
 	    }
 	    // check CACHE
 	    if ($log_exists) {
 	    	// CHECK CACHE
-	    	// $r = @$back_db->array_query("SELECT * FROM cache_logs WHERE log_id=$log_id LIMIT 1");
         $sql = "SELECT * FROM cache_logs WHERE log_id=? LIMIT 1";
         $r = db_get1($sql, [$log_id], 'backup');
 	    	if ($r) {

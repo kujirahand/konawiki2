@@ -38,7 +38,6 @@ function plugin_ref_convert($params)
     // attachファイルのパスを得る
     // まずはデータベースを確認
     $dir_attach = konawiki_private('dir.attach');
-    $db = konawiki_getDB();
     $sql = "SELECT * FROM attach WHERE log_id=? AND name=? LIMIT 1";
     $res = db_get1($sql, [$page_id, $fname]);
     if (!isset($res['id'])) {

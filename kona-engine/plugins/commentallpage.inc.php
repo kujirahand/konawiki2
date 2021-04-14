@@ -10,15 +10,13 @@ include_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
 
 function plugin_commentallpage_convert($params)
 {
-	konawiki_setPluginDynamic(true);
-		
-	$PERPAGE = 30;
+    konawiki_setPluginDynamic(true);
+    $PERPAGE = 30;
     if (count($params) >= 1) {
         $PERPAGE = intval($params[0]);
         if ($PERPAGE <= 0) { $PERPAGE = 5; }
     }
     // query
-    $db = konawiki_getSubDB();
     $log_id = konawiki_getPageId();
     if (!$log_id) {
         return "";
@@ -30,7 +28,7 @@ function plugin_commentallpage_convert($params)
     $sql =  "SELECT * FROM sublogs WHERE plug_name='comment'".
             " ORDER BY mtime DESC".
             " LIMIT {$limit} OFFSET {$offset}";
-    $r = $db->array_query($sql);
+    $r = db_get($sql, [], 'sub');
     $flag_nextpage = (count($r) > $PERPAGE);
     if ($flag_nextpage) {
         array_pop($r);

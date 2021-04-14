@@ -643,17 +643,13 @@ function konawiki_parser_showPageDescription($page)
     $page = konawiki_parser_checkURL($page);
     $page_htm = htmlspecialchars($page);
     # get page info
-    $db = konawiki_getDB();
-    $page_ = $db->escape($page);
-    $sql = "SELECT * FROM logs WHERE name='{$page_}'";
-    $res = $db->array_query($sql);
-    if (!isset($res[0]['id'])) {
+    $log = db_get1('SELECT * FROM logs WHERE name=? LIMIT 1', [$page]);
+    if (!isset($log['id'])) {
         // page not found
         $url = konawiki_getPageURL($page,"edit");
         $caption = "<a href='$url'>{$page_htm}</a>";
         return "<span class='none'>$caption</span>";
     }
-    $log  = $res[0];
     $url  = konawiki_getPageURL($page);
     # make tag info
     $tags = konawiki_getTag($log["id"]);

@@ -9,8 +9,7 @@
  */
 function plugin_recentcomment_convert($params)
 {
-	konawiki_setPluginDynamic(true);
-	$db = konawiki_getSubDB();
+    konawiki_setPluginDynamic(true);
     $res = "<h5>最新コメント:</h5>";
     # --- params
     $logCount = 10;
@@ -32,7 +31,7 @@ function plugin_recentcomment_convert($params)
         " WHERE plug_name='comment' OR plug_name='article'".
         " ORDER BY mtime DESC LIMIT {$count}";
     $res .= "<ul>";
-    $r = $db->array_query($sql);
+    $r = db_get($sql, [], 'sub');
     if ($r == FALSE) {
         return "";
     }

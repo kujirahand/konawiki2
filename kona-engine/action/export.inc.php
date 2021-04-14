@@ -11,8 +11,7 @@ function action_export_()
     $p = konawiki_param("p", null);
     $f = konawiki_param("f", "json");
     if ($p !== "exe") {
-      $db = konawiki_getDB();
-      $logs   = $db->array_query("select count(*) from logs");
+      $logs = db_get("select count(*) from logs");
       $cnt = $logs[0][0];
       konawiki_showMessage(
         "Export all wiki data($cnt)<br>".
@@ -22,10 +21,9 @@ function action_export_()
     // show text
     header("Content-Type:text/plain; charset=UTF-8");
     header("Content-Disposition: attachment; filename=\"wiki-all.txt\"");
-    $db = konawiki_getDB();
-    $logs   = $db->array_query("select * from logs");
-    $attach = $db->array_query("select * from attach");
-    $tags   = $db->array_query("select * from tags");
+    $logs   = db_get("select * from logs");
+    $attach = db_get("select * from attach");
+    $tags   = db_get("select * from tags");
     // 文字種類によってうまく出力ができないことが多かった
     // ので、本文はBASE64でエスケープして出力する
     $logs2 = array();
@@ -50,8 +48,7 @@ function action_export_()
       }
     }
     // subdb
-    $db = konawiki_getSubDB();
-    $sublogs = $db->array_query("select * from sublogs");
+    $sublogs = db_get("select * from sublogs", [], 'sub');
     $subs = array();
     if ($sublogs) {
       foreach ($sublogs as $sl) {

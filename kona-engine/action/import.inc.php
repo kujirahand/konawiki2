@@ -74,14 +74,13 @@ function action_import_()
     if (!$sublogs)$sublogs = array();
 
     $pages = array();
-    $db = konawiki_getDB();
-    $db->begin();
-    $db->exec("delete from logs");
+    db_begin();
+    db_exec("delete from logs");
     foreach($logs as $r) {
       $id      = intval(aa($r,'id'));
-      $name    = $db->quote(base64_decode(aa($r,'name')));
+      $name    = base64_decode(aa($r,'name'));
       $name_   = htmlspecialchars($name);
-      $body    = $db->quote(base64_decode(aa($r,'body')));
+      $body    = base64_decode(aa($r,'body'));
       $freeze  = intval(aa($r,'freeze'));
       $private = intval(aa($r,'private'));
       $ctime   = intval(aa($r,'ctime'));
@@ -94,10 +93,12 @@ function action_import_()
       $pages[$name] = true;
       //
       $sql = "INSERT INTO logs (id, name, body, freeze, private, ctime, mtime)";
-      $sql.= "VALUES($id,$name,$body,$freeze,$private,$ctime,$mtime);";
-      $r = $db->exec($sql);
-      if (!$r) {
-        $db->rollback();
+      $sql.= "VALUES(?,?,?,?,?,?,?);";
+      try {
+        $r = db_exec($sql,
+          [$id,$name,$body,$freeze,$private,$ctime,$mtime]);
+      } catch (Exception $e) {
+        db_rollback();
         konawiki_error(
           "Failed to import.".
           "<pre>[$id:$name_]".$db->error."</pre>"
@@ -105,19 +106,22 @@ function action_import_()
         exit;
       }
     }
-    $db->exec("delete from attach");
+    // attach
+    db_exec("delete from attach");
     foreach($attach as $r) {
       $id      = intval(aa($r,'id'));
       $log_id  = intval(aa($r,'log_id'));
-      $name    = $db->quote(aa($r,'name'));
-      $ext     = $db->quote(aa($r,'ext'));
+      $name    = aa($r,'name');
+      $ext     = aa($r,'ext');
       $ctime   = intval(aa($r,'ctime'));
       $mtime   = intval(aa($r,'mtime')); 
-      $sql = "INSERT INTO attach(id, log_id, name, ext, ctime, mtime)";
-      $sql.= "VALUES($id,$log_id,$name,$ext,$ctime,$mtime)";
-      $r = $db->exec($sql);
-      if (!$r) {
-        $db->rollback();
+      $sql = 
+        "INSERT INTO attach(id, log_id, name, ext, ctime, mtime)".
+        "VALUES(?,?,?,?,?,?)";
+      try {
+        db_exec($sql, [$id,$log_id,$name,$ext,$ctime,$mtime]);
+      } catch (Exception $e) {
+        db_rollback();
         konawiki_error(
           "Failed to import at attachment data.".
           "<pre>".$db->error."</pre>"
@@ -125,50 +129,35 @@ function action_import_()
         exit;
       }
     }
-    $db->exec("delete from tags");
+    // tags
+    db_exec("delete from tags");
     foreach($tags as $r) {
       $log_id  = intval(aa($r,'log_id'));
-      $tag     = $db->quote(base64_decode(aa($r,'tag')));
+      $tag     = base64_decode(aa($r,'tag'));
       $sql = "INSERT INTO tags(log_id, tag)";
-      $sql.= "VALUES($log_id,$tag)";
-      $r = $db->exec($sql);
-      if (!$r) {
-        $db->rollback();
-        konawiki_error(
-          "Failed to import at Tag data.".
-          "<pre>".$db->error."</pre>"
-        );
-        exit;
-      }
+      $sql.= "VALUES(?,?)";
+      db_exec($sql,[$log_id, $tag]);
     }
     //---
-    $db2 = konawiki_getSubDB();
-    $db2->begin();
-    $db2->exec("delete from sublogs");
+    db_begin('sub');
+    db_exec("delete from sublogs");
     foreach($sublogs as $r) {
       $log_id  = intval(aa($r,'log_id'));
-      $plug_name = $db->quote(aa($r,'plug_name'));
-      $plug_key  = $db->quote(aa($r,'plug_key'));
-      $body    = $db->quote(base64_decode(aa($r,'body')));
+      $plug_name = (aa($r,'plug_name'));
+      $plug_key  = (aa($r,'plug_key'));
+      $body    = base64_decode(aa($r,'body'));
       $ctime   = intval(aa($r,'ctime'));
       $mtime   = intval(aa($r,'mtime')); 
       $sql = "INSERT INTO sublogs (log_id, plug_name, plug_key, body, ctime, mtime)";
-      $sql.= "VALUES($log_id,$plug_name,$plug_key,$body,$ctime,$mtime);";
-      $r = $db2->exec($sql);
-      if (!$r) {
-        $db->rollback();
-        $db2->rollback();
-        konawiki_error(
-          "Failed to import at Sub database.".
-          "<pre>".$db2->error."</pre>"
-        );
-        exit;
-      }
+      $sql.= "VALUES(?,?,?,?,?,?);";
+      $db_exec($sql, 
+        [$log_id,$plug_name,$plug_key,$body,$ctime,$mtime]);
     }
     //---
-    $db2->commit();
-    $db->commit();
-    $r = $db->array_query("select count(*) from logs");
+    db_commit('sub');
+    db_commit();
+    //
+    $r = db_get("select count(*) from logs");
     $cnt = $r[0][0];
     konawiki_showMessage("Success to import. ({$cnt}pages)");
     konawiki_clearCacheDB();
@@ -181,5 +170,3 @@ function aa($r, $key, $def = 0) {
   }
   return $s;
 }
-
-

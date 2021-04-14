@@ -71,10 +71,7 @@ function _freeze($freeze, $id)
   konawiki_clearCache();
   $act = ($freeze == 0) ? 1 : 0;
   $sql = "UPDATE logs SET freeze=$act WHERE id=$id";
-  $db = konawiki_getDB();
-  $db->begin();
-  $db->exec($sql); 
-  $db->commit();  
+  db_exec($sql, []);
 }
 
 
