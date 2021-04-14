@@ -12,8 +12,7 @@ function action_go_()
       header("location: $url");
       exit;
     }
-    $db = konawiki_getDB();
-    $r = $db->array_query("SELECT name FROM logs WHERE id=$no");
+    $r = db_get("SELECT name FROM logs WHERE id=?", [$no]);
     if ($r) {
       $name = $r[0]["name"];
       $url = konawiki_getPageURL($name);
