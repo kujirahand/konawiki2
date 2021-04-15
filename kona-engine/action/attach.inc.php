@@ -3,8 +3,6 @@
 // index.php?(page)&attach&file=(filename)
 // index.php?FrontPage&attach&file=xxx.txt
 
-header('X-Frame-Options: SAMEORIGIN');
-
 function action_attach_()
 {
     // check file parameter
@@ -130,6 +128,7 @@ function action_attach_form()
 <br/>
 _EOS_;
     // include
+    header('X-Frame-Options: SAMEORIGIN');
     include_template("form.tpl.php", array('body'=>$body));
 }
 
@@ -232,6 +231,7 @@ function action_attach_write()
 <h6>さらに追加する場合:</h6>
 {$form}
 __EOS__;
+    header('X-Frame-Options: SAMEORIGIN');
     include_template("form.tpl.php", array('body'=>$body));
 }
 
@@ -263,6 +263,7 @@ function action_attach_already_exists($attach)
 </form>
 </blockquote>
 __EOS__;
+    header('X-Frame-Options: SAMEORIGIN');
     include_template("form.tpl.php", array('body'=>$body));
 }
 
@@ -304,6 +305,7 @@ function action_attach_delete()
     db_commit();
     $body = "<p>(id:{$id})「{$name_html}」を削除しました。</p>".
         "<p><a href='{$backlink}'>→「{$page_htm}」の添付へ戻る</a></p>";
+    header('X-Frame-Options: SAMEORIGIN');
     include_template("form.tpl.php", array('body'=>$body));
 }
 
