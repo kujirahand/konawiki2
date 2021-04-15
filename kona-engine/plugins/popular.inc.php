@@ -80,9 +80,9 @@ function popular_makeRanking($timelimit, $count, $cache_key) {
         $body = json_encode($result);
         $pname = "popular";
         $sql_rm = 
-            "DELETE FROM sublogs WHERE ".
-            " plug_name='$pname' AND plug_key='$cache_key' LIMIT 1";
-        db_exec($sql_rm, [], 'sub');
+            "DELETE FROM sublogs ".
+            "WHERE plug_name=? AND plug_key=?";
+        db_exec($sql_rm, [$pname, $cache_key], 'sub');
         $now = time();
         $sql_ins = 
             "INSERT INTO sublogs ".
