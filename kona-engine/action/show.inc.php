@@ -15,7 +15,7 @@ function action_show_()
     $log_exists = TRUE;
     $konawiki_show_as_dynamic_page = FALSE; // 基本的にプラグインがあれば dynamic となる
     $log = konawiki_getLog($page);
-    if ($log == FALSE) {
+    if ($log == FALSE || !isset($log['body'])) {
         $body = "*** Page List\n".
             "#ls\n";
         $log = array(
