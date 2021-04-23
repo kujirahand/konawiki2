@@ -1,0 +1,25 @@
+{{ e: $edit_url = konawiki_getPageURL(FALSE, 'edit', 'command') }}
+
+<h6>
+  batch:
+  (<a target="new" href="https://kujirahand.com/konawiki/go.php?21">Description</a>)
+</h6>
+
+<form action="{{$edit_url}}" method="post">
+  <input type="hidden" name="command_mode" value="batch" />
+  <table>
+    <tr>
+      <td>Batch:</td>
+      <td><textarea name="batch_ta" rows="10" cols="60"></textarea></td>
+    </tr>
+    <tr>
+      <td>Admin password:</td>
+      <td><input type="password" name="admin" value=""/></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="submit" value="{{'Execute'|lang}}" /></td>
+    </tr>
+  </table>
+</form>
+

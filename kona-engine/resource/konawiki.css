@@ -139,11 +139,13 @@ body {
 }
 #wikiheader h1 .pagename {
     font-weight: normal;
+    font-size: 14px;
+    padding-left: 0.8em;
 }
 #wikiheader h1 .pagename-div {
     background-color: #f0f0f0;
-    padding: 6px;
-    margin: 4px;
+    padding: 4px;
+    margin: 6px;
     border-radius: 3px;
 }
 #wikiheader h1 .pagename-div .pagename a {

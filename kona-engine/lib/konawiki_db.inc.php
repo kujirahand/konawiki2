@@ -8,15 +8,17 @@
 
 function konawiki_initDB()
 {
+    global $private;
     // get info
     $db_dsn = konawiki_private('db.dsn');
     $sub_dsn = konawiki_private('subdb.dsn');
     $backup_dsn = konawiki_private('backupdb.dsn');
 
     // setup database
-    database_set($db_dsn, KONAWIKI_DIR_TEMPLATE.'/konawiki_sql_main.txt', 'main');
-    database_set($sub_dsn, KONAWIKI_DIR_TEMPLATE.'/konawiki_sql_subdb.txt', 'sub');
-    database_set($backup_dsn, KONAWIKI_DIR_TEMPLATE.'/konawiki_sql_backup.txt', 'backup');
+    $sql_dir = konawiki_private('dir.engine').'/sql';
+    database_set($db_dsn, $sql_dir.'/konawiki_sql_main.txt', 'main');
+    database_set($sub_dsn, $sql_dir.'/konawiki_sql_subdb.txt', 'sub');
+    database_set($backup_dsn, $sql_dir.'/konawiki_sql_backup.txt', 'backup');
 }
 
 /**

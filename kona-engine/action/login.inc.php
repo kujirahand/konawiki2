@@ -5,6 +5,7 @@
  */
 function action_login_()
 {
+    global $public;
     // ログイン実行するか？
     $user = konawiki_param("user", false);
     $pass = konawiki_param("pass", false);
@@ -31,7 +32,11 @@ function action_login_()
     }
 
     // ログイン実行
-    konawiki_auth();
+    if (!konawiki_auth()) {
+      $err = konawiki_lang('Failed to login.');
+      konawiki_show_loginForm($err);
+      exit;
+    }
 
     $baseurl = konawiki_public("baseurl");
     $edit_token = konawiki_getEditToken();
@@ -43,22 +48,22 @@ function action_login_()
     $msg_view = konawiki_lang('View');
     if (konawiki_isLogin_write ()) {
         $msg = konawiki_lang("Success to login!");
-        $log['body'] =
+        $body =
             "<p>{$msg}</p>".
              "<p><a href='$url_edit'>$msg_edit</a></p>".
              "<p><a href='$url_look'>$msg_view</a></p>";
     }
     else if (konawiki_isLogin_read()) {
         $msg = konawiki_lang("Success to login! Thank you.");
-        $log['body'] =
+        $body =
             "<p>{$msg}</p>".
              "<p><a href='$url_look'>$msg_view</a></p>";
     } else {
-        $log['body'] = konawiki_lang('Failed to login.');
+        $body = konawiki_lang('Failed to login.');
     }
 
     // 表示
-    include_template("form.tpl.php", $log);
+    konawiki_showMessage($body);
 }
 
 

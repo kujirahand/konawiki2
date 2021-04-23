@@ -6,7 +6,8 @@
  */
 
 // konawiki lib version
-define('KONAWIKI_VERSION', '2.3.1');
+define('KONAWIKI_VERSION', '2.3.2');
+require_once __DIR__.'/konawiki_options.inc.php';
 
 //----------------------------------------------------------------------
 /**
@@ -16,6 +17,11 @@ define('KONAWIKI_VERSION', '2.3.1');
 function konawiki_init()
 {
     global $konawiki, $public, $private;
+
+	// check options (ref) konawiki_options.inc.php
+	$public['KONAWIKI_VERSION'] = KONAWIKI_VERSION;
+	$public['KONAWIKI_CONFIG_VER'] = 1008;
+	konawiki_checkOptions();
     $engineDir = $private['dir.engine'];
 	  // set directory path
     define('KONAWIKI_DIR_LIB',      dirname(__FILE__));
@@ -33,7 +39,21 @@ function konawiki_init()
     define("KONAWIKI_DIR_BASE",     $private['dir.base']);
     define("KONAWIKI_DIR_ATTACH",   $private['dir.attach']);
     define("KONAWIKI_URI_ATTACH",   $private['uri.attach']);
-
+	
+	// for template
+	global $DIR_TEMPLATE_CACHE, $DIR_TEMPLATE, $FW_TEMPLATE_PARAMS;
+	if (empty($private['dir.cache'])) {
+		$private['dir.cache'] = dirname($private['dir.data']).'/cache';
+	}
+	$DIR_TEMPLATE_CACHE = $private['dir.cache'];
+	$DIR_TEMPLATE = $engineDir.'/template';
+	require_once(KONAWIKI_DIR_LIB.'/fw_template_engine.lib.php');
+	if (!is_writable($DIR_TEMPLATE_CACHE)) {
+		echo 'The dir.cache not writable. Please make cache dir.';
+		exit;
+	}
+	
+	// other lib
     require_once(KONAWIKI_DIR_LIB.'/html.inc.php');
     require_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
     require_once(KONAWIKI_DIR_LIB.'/useragent.inc.php');
@@ -50,6 +70,10 @@ function konawiki_init()
     // Initialize Database
     konawiki_auth_read();
     konawiki_initDB(); // @see ./konawiki_db.inc.php
+
+	// set public info
+	konawiki_set_public_info();
+	// action
     konawiki_execute_action();
 }
 
@@ -96,17 +120,7 @@ function konawiki_parseURI()
 	$_GET['page'] = $page;
 	$_GET['action'] = $action;
 	$_GET['stat'] = $stat;
-    
-    // baseuri
-	$host = $_SERVER['HTTP_HOST'];
-	$uri = $_SERVER['REQUEST_URI'];
-	$flag = '?';
-	$scriptname = $_SERVER['SCRIPT_NAME'];
-    $protocol = (empty($_SERVER["HTTPS"]) ? "http://" : "https://");
-    $baseurl  = "{$protocol}{$host}{$scriptname}{$flag}"; // BASE URI
-    konawiki_addPublic('baseurl', $baseurl);
-    konawiki_addPublic('scriptname', $scriptname);
-    
+        
 	// Check Action pattern
 	if (!preg_match('#^[a-zA-Z0-9_]+$#', $action)) {
 		$_GET['action'] = '__INVALID__';
@@ -221,6 +235,111 @@ function konawiki_header_addStr($code)
     konawiki_addPrivate("html.head.include", $list);
 }
 
+function konawiki_set_public_info() {
+	global $public;
+
+	// log_id
+	$log_id     = konawiki_getPageId();
+	$protocol   = empty($_SERVER["HTTPS"]) ? "http://" : "https://";
+	$public['baseuri'] = $protocol.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+	$public['short_url'] = konawiki_getPageURL($log_id, "go");
+
+	 // check skin & theme
+	$skin_css  = 'skin.css';
+	$theme     = konawiki_public("skin.theme", false);
+	$theme_css = false;
+	if ($theme) { $theme_css = getThemeURL("{$theme}.css"); }
+	$public['theme.css'] = $theme_css;
+	
+	// logo & favicon.ico
+	$logo    = getResourceURL(konawiki_public("logo", "logo.png"));
+	$favicon = getResourceURL(konawiki_public("favicon", "favicon.ico"));
+	$public['logo'] = $logo;
+	$public['favicon'] = $favicon;
+	
+	// navibar
+	$navibar_log = konawiki_getLog('NaviBar');
+	if (isset($navibar_log["body"])) {
+		$navibar = konawiki_parser_convert($navibar_log["body"], false);
+	} else {
+		$navibar = false;
+	}
+	$public['navibar'] = $navibar;
+
+	// GlobBar
+	$globbar_log = konawiki_getLog('GlobBar');
+	if (isset($globbar_log["body"])) {
+		$globbar = konawiki_parser_convert($globbar_log["body"], false);
+	} else {
+		$globbar = false;
+	}
+	$public['GlobBar'] = $globbar;
+
+	//----------------------------------------------------------------------
+	// check title
+	$page = konawiki_getPage();
+	$title = $public['title'];
+	// for search page
+	$action = konawiki_public('action');
+	if ($action == "search") { // no page link
+	  $page = 'search';
+	  $pagelink = 'search';
+	}
+	//
+	$pagetitle = "$page - $title";
+	if ($page == konawiki_public("FrontPage", "FrontPage")) {
+	  $pagetitle = $title;
+	}
+	$public['pagetitle'] = $pagetitle;
+	
+	// og:image
+	$ogtype = konawiki_public("og:type", "website");
+	$ogimage = getResourceURL(konawiki_public('ogimage','logo-large.png'));
+	$ogdesc = $pagetitle;
+	$public['ogtype'] = $ogtype;
+	$public['ogimage'] = $ogimage;
+	$public['ogdesc'] = $ogdesc;
+	
+	//----------------------------------------------------------------------
+	// addtional JS/CSS
+	$include_js_css = "";
+	$include_list = konawiki_private("html.head.include", false);
+	if ($include_list) {
+	  foreach ($include_list as $line) {
+		  $include_js_css .= "    " . $line . "\n";
+	  }
+	}
+	$public['include_js_css'] = $include_js_css;
+	
+	// CSS and JavaScript code
+	$type_css = 1; $type_jss = 2;
+	$css_list = [
+		[$type_css, 'pure-min.css', FALSE],
+		[$type_css, 'grids-responsive-min.css', FALSE],
+		[$type_css, 'konawiki.css', TRUE],
+		[$type_css, $skin_css, TRUE],
+		[$type_css, $theme_css, TRUE],
+		[$type_jss, 'jquery-3.4.1.min.js', FALSE],
+		[$type_css, 'drawer.css', TRUE],
+		[$type_jss, 'drawer.js', TRUE],
+	];
+	$css_js = '';
+	foreach ($css_list as $f) {
+		$type  = $f[0]; $name  = $f[1]; $mtime = $f[2];
+		if (!$name) continue;
+		$path = getResourceURL($name, $mtime);
+		if ($type == $type_css) {
+			$css_js .= '<link rel="stylesheet" type="text/css" href="'.$path.'" />'."\n";
+		} else {
+			$css_js .= '<script src="'.$path.'"></script>'."\n";
+		}
+	}
+	$public['css_js'] = $css_js;
+	
+	// keywords
+	$public['head_keywords'] = konawiki_getKeywords($page);
+}
+
 /**
  * KonaWiki のヘッダにJavaScriptのインクルードを追加する
  * @param string $url
@@ -264,7 +383,6 @@ function konawiki_page_debug()
     echo '【テストモードです--ReadMe.txtをご覧ください。】'."\n";
     print_r($_GET);
     //echo "url:"; print_r($_SERVER);
-    echo "scriptname:$scriptname\n";
     echo "baseurl:".konawiki_public("baseurl")."\n";
     echo "page  :$page\n";
     echo "action:$action\n";
@@ -400,7 +518,7 @@ function konawiki_getPageHTML()
 function konawiki_getPageURL($page = FALSE, $action = FALSE, $stat = FALSE, $param_str = FALSE, $shortpath = FALSE)
 {
 	if ($page === FALSE) {
-		$page = konawiki_param("page");
+		$page = konawiki_public("page", 'FrontPage');
 	}
 	// remove "javascript:" protocol
 	$page = preg_replace('/^javascript\:/', '', $page);
@@ -413,26 +531,22 @@ function konawiki_getPageURL($page = FALSE, $action = FALSE, $stat = FALSE, $par
 	// page
 	if ($shortpath) {
 		$name = basename($baseurl);
-		$url = "{$name}{$page_enc}";
+		$url = "{$name}?{$page_enc}";
 	} else {
-		$url = "{$baseurl}{$page_enc}";
+		$url = "{$baseurl}?{$page_enc}";
 	}
 	// action & stat
 	if ($action || $stat) {
 		if ($action == FALSE) { $action = "show"; }
-		$url .= "&amp;$action";
+		$url .= "&$action";
 	}
 	if ($stat) {
 		$stat = urlencode($stat);
-		$url .= "&amp;$stat";
+		$url .= "&$stat";
 	}
 	// param_str
   	if ($param_str) {
-    	// escape
-    	if (strpos($param_str, '&amp;') === FALSE) {
-      		$param_str = str_replace('&', '&amp;', $param_str);
-    	}
-		$url .= "&amp;$param_str";
+		$url .= "&$param_str";
 	}
 	return $url;
 }
@@ -444,19 +558,16 @@ function konawiki_getPageURL2($page = FALSE, $action = FALSE, $stat = FALSE, $pa
 
 function konawiki_getPageLink($page = FALSE, $mode = "normal", $caption = FALSE, $paramstr = FALSE)
 {
+	// get page
 	if ($page === FALSE) {
 		$page = konawiki_param("page");
 	}
 
-	$page_ = htmlspecialchars($page);
 	if ($mode == "normal") {
-		if ($caption == FALSE) {
-			$caption = $page_;
-		} else {
-			$caption = htmlspecialchars($caption);
-		}
-		$url = konawiki_getPageURL($page,false, false, $paramstr);
-		$html = "<a href='{$url}{$paramstr}'>{$caption}</a>";
+		if ($caption == FALSE) {$caption = $page;}
+		$caption = htmlspecialchars($caption, ENT_QUOTES);
+		$url = htmlspecialchars(konawiki_getPageURL($page,false, false, $paramstr), ENT_QUOTES);
+		$html = "<a href=\"{$url}\">{$caption}</a>";
 	}
 	else if ($mode == "dir") {
 		$dirs = explode("/", $page);
@@ -469,8 +580,8 @@ function konawiki_getPageLink($page = FALSE, $mode = "normal", $caption = FALSE,
 			}
 			$dir = join("/", $d);
 			$url = konawiki_getPageURL($dir, false, false, $paramstr);
-			$last_ = htmlspecialchars($last);
-			$links[] = "<a href='{$url}{$paramstr}'>$last_</a>";
+			$last_ = htmlspecialchars($last, ENT_QUOTES);
+			$links[] = "<a href='{$url}'>$last_</a>";
 		}
 		$html = join("/",$links);
 	}
@@ -543,7 +654,13 @@ function konawiki_resourceurl()
 
 function include_template($fname, $vars = FALSE)
 {
-	global $public;
+	global $public, $FW_TEMPLATE_PARAMS;
+	if (preg_match('#\.html$#', $fname)) {
+		$FW_TEMPLATE_PARAMS = $public;
+		template_render($fname, $vars);
+		return;
+	}
+	// --- old template ---
 	// check skin
 	$skin = $public['skin'];
 	$path = KONAWIKI_DIR_SKIN."/{$skin}/{$fname}";
@@ -551,7 +668,11 @@ function include_template($fname, $vars = FALSE)
 		$skin = "default";
 		$path = KONAWIKI_DIR_SKIN."/{$skin}/{$fname}";
 		if (!file_exists($path)) {
-			$path = KONAWIKI_DIR_TEMPLATE . '/' . $fname;
+      $path = KONAWIKI_DIR_TEMPLATE.'/'.$fname;
+      if (!file_exists($path)) {
+        echo "<pre>";
+        throw new Error('template not found.');
+      }
 		}
 	}
 	// extract variable
@@ -571,7 +692,7 @@ function getSkinPath($fname)
 		$skin = "default";
 		$path = KONAWIKI_DIR_SKIN."/{$skin}/{$fname}";
 		if (!file_exists($path)) {
-			$path = KONAWIKI_DIR_TEMPLATE . '/' . $fname;
+			$path = KONAWIKI_DIR_TEMPLATE.'/'.$fname;
 		}
 	}
 	return $path;
@@ -814,24 +935,20 @@ function konawiki_datetime_html($value, $mode='normal')
 	return "<span class='date'>{$target}</span>{$opt}";
 }
 
-function konawiki_error($msg)
-{
-  $msg = konawiki_lang($msg);
-	// show debug info
-	$is_debug = konawiki_is_debug();
-	if ($is_debug) {
-		echo "<div id='wikimessage'><p>[Debug log]</p>";
-		echo "</div>";
-	}
-	// show template
-	$r = array('body'=>$msg);
-	include_template("error.tpl.php", $r);
+function konawiki_error($msg, $title = 'Error') {
+	$msg = konawiki_lang($msg);
+	$title = konawiki_lang($title);
+	$r = array(
+		'title' => $title,
+		'body' => $msg
+	);
+	include_template("error.html", $r);
 }
 
 function konawiki_showMessage($msg)
 {
 	$r = array('body'=>$msg);
-	include_template("form.tpl.php", $r);
+	include_template("form.html", $r);
 }
 /**
  * @param	{string} page    PageName (Raw Name)
@@ -929,15 +1046,16 @@ function konawiki_getLogFromId($log_id)
 	}
 	//
 	$sql = "SELECT * FROM logs WHERE id=? LIMIT 1";
-  $res = db_get1($sql, [$log_id]);
-	if (!isset($res['id'])) {
-		return FALSE;
-  }
-  // 大きすぎるログはキャッシュしない
-  $logsize = 1024 * 30; // 30kb
-  if (strlen($res['body']) < $logsize) {
-    $konawiki_log_cache[$log_id] = $log = $res;
-  }
+	$res = db_get1($sql, [$log_id]);
+		if (!isset($res['id'])) {
+			return FALSE;
+	}
+
+	// 大きすぎるログはキャッシュしない
+	$logsize = 1024 * 30; // 30kb
+	if (strlen($res['body']) < $logsize) {
+		$konawiki_log_cache[$log_id] = $log = $res;
+	}
 	// get tag
 	$log['tag'] = join(",", konawiki_getTag($log_id));
 	return $log;
@@ -1318,15 +1436,6 @@ function konawiki_swapRawText($pattern, $ins_str, $swapmode = TRUE, $pid = 1)
 	}
 	$res = rtrim($res);
 	return $res;
-}
-
-/**
- * テンプレートファイルを返す
- */
-function konawiki_template($filename)
-{
-	$f = KONAWIKI_DIR_TEMPLATE . "/" . $filename;
-	return $f;
 }
 
 function konawiki_clearCache()

@@ -2,8 +2,8 @@
 
 function action_search_()
 {
-    $log['body'] = _action_search_getForm();
-    include_template("form.tpl.php", $log);
+    $body = _action_search_getForm();
+    konawiki_showMessage($body);
 }
 
 function _action_search_getForm()
@@ -97,8 +97,8 @@ function action_search_exec()
     $body .= "<h5>Body = [$keyword_]</h5>";
     $body .= action_search_exec_result($res);
     //
-    $log["body"] = _action_search_getForm() . $body;
-    include_template("form.tpl.php", $log);
+    $log_body = _action_search_getForm() . $body;
+    konawiki_showMessage($log_body);
 }
 
 function action_search_backlink()
@@ -116,8 +116,8 @@ function action_search_backlink()
     $body .= "<h5>Backlink = [$keyword_]</h5>";
     $body .= action_search_exec_result($res);
     //
-    $log["body"] = $body;
-    include_template("form.tpl.php", $log);
+    $log_body = $body;
+    konawiki_showMessage($log_body);
 }
 
 function action_search_tag()

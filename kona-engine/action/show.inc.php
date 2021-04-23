@@ -9,7 +9,7 @@ include_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
 function action_show_()
 {
     // check dynamic plugins
-    global $konawiki_show_as_dynamic_page;
+    global $konawiki_show_as_dynamic_page, $public;
     // show template
     $page = konawiki_getPage();
     $log_exists = TRUE;
@@ -36,7 +36,11 @@ function action_show_()
     $log['edit_menu'] = konawiki_getEditMenu($log);
     $log['ctime_html'] = konawiki_date_html(intval($log['ctime']), 'normal');
     $log['mtime_html'] = konawiki_date_html(intval($log['mtime']), 'normal');
-    $log['rawtag'] = htmlspecialchars($log['tag']);
+    // tag 
+    if (isset($log['rawtag'])) {
+        $public['head_keywords'] .= ','.$log['rawtag'];
+    }
+    $log['tag'] = isset($log['rawtag']) ? $log['rawtag'] : '';
     $log['tag'] = _konawiki_show_tag($log['tag'], $log['id']);
     $log['flag_dynamic'] = FALSE;
     $log_id = intval($log['id']);
@@ -117,7 +121,7 @@ function action_show_()
 {$wikibody_footer}
 __EOS__;
 
-    include_template('show.tpl.php', $log);
+    include_template('show.html', $log);
 }
 
 function _konawiki_show_plugins(&$log)

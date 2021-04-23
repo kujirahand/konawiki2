@@ -1,0 +1,27 @@
+{{ include parts_header.html }}
+
+<div id="wikimessage"><div class="bodypad">
+<div class="message">
+<h4>新規</h4>
+
+<form action="{{ $baseurl }}" class="pure-form">
+<p>
+  <input type="text" name="page" value="{{ $page }}" size="40" id="title_txt"/>
+  <input type="hidden" name="action" value="edit" />
+  <input type="submit" value="編集" class="pure-button pure-button-primary" />
+</p>
+</form>
+
+<div class="contents">
+<ul>
+{{ for $link as $i }}
+  <p><a class='pure-button' href='{{$i.url}}'>{{$i.label}}</a></p>
+{{endfor}}
+</ul>
+</div>
+
+</div><!-- message -->
+</div></div>
+<p class="clear"></p>
+
+{{ include parts_footer.html }}

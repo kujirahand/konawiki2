@@ -129,7 +129,7 @@ function action_attach_form()
 _EOS_;
     // include
     header('X-Frame-Options: SAMEORIGIN');
-    include_template("form.tpl.php", array('body'=>$body));
+    konawiki_showMessage($body);
 }
 
 function action_attach_write()
@@ -232,7 +232,7 @@ function action_attach_write()
 {$form}
 __EOS__;
     header('X-Frame-Options: SAMEORIGIN');
-    include_template("form.tpl.php", array('body'=>$body));
+    konawiki_showMessage($body);
 }
 
 function action_attach_already_exists($attach)
@@ -264,7 +264,7 @@ function action_attach_already_exists($attach)
 </blockquote>
 __EOS__;
     header('X-Frame-Options: SAMEORIGIN');
-    include_template("form.tpl.php", array('body'=>$body));
+    konawiki_showMessage($body);
 }
 
 function action_attach_delete()
@@ -306,7 +306,7 @@ function action_attach_delete()
     $body = "<p>(id:{$id})「{$name_html}」を削除しました。</p>".
         "<p><a href='{$backlink}'>→「{$page_htm}」の添付へ戻る</a></p>";
     header('X-Frame-Options: SAMEORIGIN');
-    include_template("form.tpl.php", array('body'=>$body));
+    konawiki_showMessage($body);
 }
 
 function konawiki_getContentType($filename)

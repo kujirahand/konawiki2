@@ -76,7 +76,7 @@ function t_number_format($v) {
 }
 // lang
 function t_lang($msg) {
-  return lang($msg);
+  return konawiki_lang($msg);
 }
 // boolstr
 function t_boolstr($v) {

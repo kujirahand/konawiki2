@@ -18,7 +18,8 @@ if ($log_id > 0) {
             $id    = $r['id'];
             $mtime = intval($r['mtime']);
             $s1    = konawiki_datetime_html($mtime,'easy');
-            echo "<li><a href='{$url}/edit/log?id=$id'>$s1</a></li>\n";
+            $url = konawiki_getPageURL($page, 'edit', 'log', "id=$id");
+            echo "<li><a href='{$url}'>$s1</a></li>\n";
         }
         echo "</ul>";
         echo "<form action='{$baseurl}' method='post'>".

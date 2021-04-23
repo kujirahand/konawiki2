@@ -1,0 +1,33 @@
+{{ include parts_header.html }}
+
+<div id="wikicontent"><div class="contentpad">
+  <div id="wikimessage"><div class="bodypad">
+    <div class="message">
+
+<h4>{{"Please login." | lang}}</h4>
+{{ if $msg }}
+  <div class="error">{{ $msg }}</div>
+{{ endif }}
+<div class="loginform">
+<form action="{{$action}}" method="post" class="pure-form pure-form-stacked">
+  <fieldset>
+    <label for="user">{{"Username" | lang}}:</label>
+    <input type="text" id="user" name="user"/>
+
+    <label for="pw">{{"Password" | lang}}:</label>
+    <input type="password" id="pw" name="pw" />
+
+    <input type="hidden" id="edit_token" name="edit_token" value="{{ $edit_token }}" />
+    <input type="submit" value="{{'Login.button'|lang}}" class="pure-button pure-button-primary" />
+  </fieldset>
+</form>
+</div>
+
+
+
+    </div>
+  </div></div>
+</div></div>
+<p class="clear"></p>
+
+{{ include parts_footer.html }}

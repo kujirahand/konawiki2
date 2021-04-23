@@ -1,0 +1,26 @@
+{{ include parts_header.html }}
+<div class="clear"></div>
+
+<div id="wikicontent" class="pure-g">
+
+  <div id="wikibody" class="pure-u-1 pure-u-md-18-24">
+    {{$body_all | raw}}
+  </div><!-- end of #wikibody -->
+    
+  <div id="wikinavi" class="pure-u-1 pure-u-md-6-24">
+    <div id="menubar" class="menubar">
+      <nav>{{e: echo konawiki_getContents("MenuBar"); }}</nav>
+    </div><!-- end of .menubar -->
+  </div><!-- end of #wikinavi -->
+  
+</div><!-- end of #wikicontent -->
+
+
+<div class="clear"></div>
+
+{{ include parts_footer.html }}
+
+
+
+
+

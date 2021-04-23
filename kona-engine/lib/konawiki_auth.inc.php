@@ -48,12 +48,7 @@ function konawiki_auth()
     }
     // check password
     $result = false;
-    $authtype = konawiki_private("auth.type");
-    if ($authtype === "basic") {
-        $result = _konawiki_auth_basic();
-    } else {
-        $result = _konawiki_auth_form();
-    }
+    $result = _konawiki_auth_form();
     if ($result == false) return false;
     // check permission
     $perm = $_SESSION["login.user.perm"];
@@ -70,7 +65,7 @@ function _konawiki_auth_check_password($user, $pass)
     $result = false;
 
     // check users
-    $users = konawiki_private('auth.users');
+    $users = konawiki_private('authusers');
     if (isset($users[$user])) {
         $a_pass = $users[$user];
         if (!preg_match('#\{(.+)\}(.*)$#', $a_pass, $m)) {
@@ -95,15 +90,6 @@ function _konawiki_auth_check_password($user, $pass)
 }
 
 /**
- * BASIC認証のための関数(konawiki_authから呼ばれる)
- */
-function _konawiki_auth_basic()
-{
-    konawiki_error("Sorry, now we do not support BASIC-AUTH.");
-    exit;
-}
-
-/**
  * 名前付きでセッションを開始する
  * @return unknown_type
  */
@@ -123,8 +109,8 @@ function _konawiki_auth_form()
 {
     global $konawiki_auth_user;
     $konawiki_auth_user = '';
-    $err = array();
     konawiki_start_session();
+    $err = '';
 
     // ログイン時間は有効期限内か？
     if (!isset($_SESSION["login.time"])) {
@@ -147,7 +133,7 @@ function _konawiki_auth_form()
     if ($user !== false && $pw !== false) {
         if (_konawiki_auth_check_password($user, $pw)) {
             // Check Permission
-            $perm_list = konawiki_private('auth.users.perm');
+            $perm_list = konawiki_private('users_perm');
             $perm = $_SESSION['login.user.perm'] = 
               isset($perm_list[$user]) 
               ? $perm_list[$user] 
@@ -161,45 +147,10 @@ function _konawiki_auth_form()
     }
     // ログイン失敗～フォームを表示
     if ($user !== false) {
-        $err[] = konawiki_lang('Invalid username or password.');
+        $err = konawiki_lang('Invalid username or password.');
     }
-    $msg = "<span class='error'>".
-        implode('<br>', $err).
-        '</span>';
-    konawiki_show_loginForm($msg);
+    konawiki_show_loginForm($err);
     exit;
-}
-
-function konawiki_show_loginForm($msg = "") {
-    // ログインフォームを表示
-
-    $msg_login_title = konawiki_lang('Please login.');
-    $msg_username = konawiki_lang('Username');
-    $msg_password = konawiki_lang('Password');
-    $msg_login    = konawiki_lang('Login.button', 'Login');
-
-    $page = konawiki_getPage();
-    $action = konawiki_getPageURL($page, "login");
-    $edit_token = konawiki_getEditToken(TRUE);
-    $log['body'] = <<< EOS__
-<h4>{$msg_login_title}</h4>
-{$msg}
-<div class="loginform">
-<form action="$action" method="post" class="pure-form pure-form-stacked">
-  <fieldset>
-    <label for="user">$msg_username : </label>
-    <input type="text" id="user" name="user"/>
-
-    <label for="pw">$msg_password : </label>
-    <input type="password" id="pw" name="pw" />
-
-    <input type="hidden" id="edit_token" name="edit_token" value="$edit_token" />
-    <input type="submit" value="{$msg_login}" class="pure-button pure-button-primary" />
-  </fieldset>
-</form>
-</div>
-EOS__;
-    include_template("form.tpl.php", $log);
 }
 
 function konawiki_logout()
@@ -228,16 +179,23 @@ function konawiki_auth_read()
     // check auth type
     $result = false;
     $authtype = konawiki_private("auth.type");
-    if ($authtype == "basic") {
-            $result = _konawiki_auth_basic();
-    }
-    else {
-            $result = _konawiki_auth_form();
-    }
+    $result = _konawiki_auth_form();
     if (!$result) return false;
     $perm = $_SESSION["login.user.perm"];
     if (!$perm["read"]) return false;
     return true;
+}
+
+function konawiki_show_loginForm($msg = '') {
+    // ログインフォームを表示
+    $msg_login    = konawiki_lang('Login.button', 'Login');
+
+    include_template('login.html', [
+      'page' => konawiki_getPage(),
+      'action' => konawiki_getPageURL(FALSE, "login"),
+      'edit_token' => konawiki_getEditToken(TRUE),
+      'msg' => $msg,
+    ]);
 }
 
 #vim:set ts=4 sts=4 sw=4 tw=0

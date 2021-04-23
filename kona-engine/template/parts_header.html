@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ $pagetitle }}</title>
+
+{{if $norobot }}
+<!-- norobot -->
+<meta name="Keywords" content="norobot" />
+<meta name="Robots" content="noindex,nofollow" />
+{{ else }}
+<!-- meta info -->
+<meta name="keywords" content="{{$head_keywords}}" />
+<meta name="description" content="{{$description}}" />
+<link rel="canonical" href="{{$baseuri}}"/>
+<meta property="og:title" content="{{$pagetitle}}" />
+<meta property="og:type" content="{{$ogtype}}"/>
+<meta property="og:url" content="{{$baseuri}}" />
+<meta property="og:image" content="{{$ogimage}}" />
+<meta property="og:description" content="{{$ogdesc}}" />
+<meta property="og:site_name" content="{{ $title }}" />
+{{ endif }}
+
+<!-- CSS_JS -->
+{{ $css_js | raw }}
+{{ $include_js_css | raw }}
+
+<!-- favicon.ico -->
+<link rel="shortcut icon" href="{{ $favicon }}" />
+</head>
+<body>
+
+<header>
+  <div id="wikiheader">
+    <div class="headerpad">
+      <!-- logo -->
+      <h1>
+        <a class="title" href="{{$baseurl}}">
+          <img id="wiki-main-logo" src="{{$logo}}" alt="{{$pagetitle}}" />
+          {{ if (konawiki_public('header.title.visible', TRUE)) }}
+          <!-- title -->
+          {{ $title }}
+          {{ endif }}
+        </a>
+
+        {{ if $page != konawiki_public("FrontPage") }}
+        <div class="pagename-div">
+          <span class="pagename">{{ $pagelink|raw }}</span>
+        </div>
+        {{ endif }}
+      </h1>
+
+      {{ if $navibar }}
+      <!-- navibar -->
+      <div id="navibar"><div class="navibar">
+        {{$navibar | raw}}
+        <div class="clear"></div>
+      </div></div>
+      {{ endif }}  
+    </div><!-- /.headerpad -->
+  </div><!-- /#wikiheader -->
+  <div class="clear"></div>
+</header>
+
+{{ if $GlobBar }}
+<!-- drawer.begin -->
+<div id="drawer_wrapper">
+  <!-- ハンバーガーメニュー -->
+  <div id="hamburger_icon">
+        <span class="yum"></span>
+        <span class="yum"></span>
+        <span class="yum"></span>
+    <!-- 飛び出すメニュー -->
+    <nav class="menuitems">
+      {{ $GlobBar | raw}}
+    </nav>
+  </div>
+  <!-- 透明な背景ウィンドウ(閉じる専用) -->
+  <div id="drawer_background"></div>
+</div>
+{{ endif }}
+

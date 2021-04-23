@@ -1,0 +1,17 @@
+{{ include parts_header.html }}
+<div id="wikicontent"><div class="contentpad">
+
+  <div id="wikimessage"><div class="bodypad">
+    <div class="message">
+        <h3 class="error">{{ $title }}</h3>
+        <div class="errormessage">
+            {{$body | raw}}
+        </div>
+    </div>
+  </div></div>
+</div></div>
+
+<p class="clear"></p>
+
+{{ include parts_footer.html }}
+

@@ -56,7 +56,22 @@ function action_edit_()
   konawiki_setAuthHash($id, $login_auth_hash);
   // show editor
   $log["login_auth_hash"] = $login_auth_hash;
-  include_template("edit.tpl.php", $log);
+  _checkParam($log);
+  include_template("edit.html", $log);
+}
+
+function _checkParam(&$log) {
+    if (empty($log['id'])) $log['id'] = "";
+    if (empty($log['body'])) $log['body'] = "";
+    if (empty($log['tag'])) $log['tag'] = "";
+    if (empty($log['mtime'])) $log['mtime'] = time();
+    if (empty($log['error_message'])) $log['error_message'] = "";
+    if (empty($log['conflict_body'])) $log['conflict_body'] = "";
+    if (empty($log['hash'])) $log['hash'] = "";
+    if (empty($log['login_auth_hash'])) $log['login_auth_hash'] = "";
+    if (empty($log['private'])) $log['private'] = 0;
+    $log['private_chk'] = ($log['private']) ? "checked" : "";
+    $log['url_page_edit_js'] = getResourceURL('konawiki_page_edit.js', TRUE);
 }
 
 function _err($msg)
@@ -112,7 +127,8 @@ function action_edit_update()
           "<div class='desc'>".konawiki_lang('Old writing with diff').":</div>";
     }
     $log["body"] = $body_;
-    include_template("edit.tpl.php", $log);
+    _checkParam($log);
+    include_template("edit.html", $log);
     return;
   }
   $pageurl = konawiki_getPageURL($page);
@@ -180,11 +196,11 @@ function action_edit_delete()
   }
   //
   $page_ = htmlspecialchars($page);
-  $r["body"] =
+  $body =
       konawiki_lang('Success to remove.').
       " : [$page_]<br/>".
       sprintf(konawiki_lang('Deleted %d attachment files.'), $del_files)."<br/>";
-  include_template("form.tpl.php", $r);
+  konawiki_showMessage($body);
 }
 
 function action_edit_api__write()
@@ -243,7 +259,8 @@ function action_edit_log()
     if (konawiki_diff_checkConflict($chk, $clog["body"],"diffonly")) {
         $blog["conflict_body"] = konawiki_parser_convert($chk);
     }
-    include_template("edit.tpl.php", $blog);
+    _checkParam($blog);
+    include_template("edit.html", $blog);
 }
 
 function action_edit_removebackup()
@@ -634,7 +651,7 @@ function action_edit_preview()
       konawiki_lang('Sorry, You do not have permission.'));
   }
   $log["body"] = konawiki_param("body");
-  include_template("preview.tpl.php", $log);
+  include_template("preview.html", $log);
 }
 
 

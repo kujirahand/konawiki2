@@ -3,9 +3,9 @@
 <?php
     include_once(KONAWIKI_DIR_ACTION.'/attach.inc.php');
     $p = konawiki_getPage();
-    $page_ = konawiki_getPageURL();
+    $page_ = konawiki_getPageURL($page, 'attach');
     $baseurl = konawiki_public("baseurl");
-    echo "<a href='{$page_}/attach'>".konawiki_lang('Attachment files').":</a><br/>\n";
+    echo "<a href='{$page_}'>".konawiki_lang('Attachment files').":</a><br/>\n";
     $links = konawiki_getAttachList($p);
     $msg_etu = konawiki_lang('Show file', 'Show');
     if ($links) {
@@ -13,7 +13,7 @@
         foreach ($links as $s) {
             $w = '#ref('.htmlspecialchars($s['name'], ENT_QUOTES).')';
             $name_ = urlencode($s['name']);
-            $u = "{$page_}/attach?file=".$name_;
+            $u = "{$page_}&file=".$name_;
             $x = "<a href='$u'>($msg_etu)</a>";
             $z = "<input type='text' size='18' value='$w'".
                 "onclick='this.select()'/>{$x}";
