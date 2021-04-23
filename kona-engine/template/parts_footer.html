@@ -1,8 +1,9 @@
 <!-- footer.begin -->
 <footer>
-<div id="wikifooter"><div class="wikifooterpad">
-<div class="menu">{{ $description }}</div>
-<div class="menu">{{e: echo  konawiki_getEditMenu() }}</div>
+<div id="wikifooter">
+  <div class="wikifooterpad">
+    <div class="menu">{{ $description }}</div>
+    <div class="menu">{{e: echo  konawiki_getEditMenu() }}</div>
 {{ if (isset($ctime_html)) }}
   <div class="pageinfo">
   {{ if ($ctime_html != $mtime_html) }}
@@ -15,11 +16,11 @@
   {{ endif }}
   </div>
 {{ endif }}
-<div class="menu">
-  <p><a href="{{ $short_url }}">{{ $short_url }}</a></p>
-  <p><span style='background-color:#ffffcc;color:gray;'>
-  <a href='{{$long_url}}'>{{$page}}</a></span></p>
-</div><!-- menu -->
+  <div class="menu">
+    <p><a href="{{ $short_url }}">{{ $short_url }}</a></p>
+    <p><span style='background-color:#ffffcc;color:gray;'>
+    <a href="{{ $long_url }}">{{ $page }}</a></span></p>
+  </div><!-- menu -->
 
 <div>{{ $title }} by {{ $author }} {{ $rsslink }}</div>
 <div><a href="https://kujirahand.com/konawiki">konawiki {{ $KONAWIKI_VERSION }}</a></div>

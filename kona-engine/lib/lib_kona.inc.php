@@ -243,6 +243,7 @@ function konawiki_set_public_info() {
   $protocol   = empty($_SERVER["HTTPS"]) ? "http://" : "https://";
   $public['baseuri'] = $protocol.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
   $public['short_url'] = konawiki_getPageURL($log_id, "go");
+  $public['long_url'] = konawiki_getPageURL();
 
    // check skin & theme
   $skin_css  = 'skin.css';

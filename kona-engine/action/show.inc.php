@@ -36,6 +36,8 @@ function action_show_()
     $log['edit_menu'] = konawiki_getEditMenu($log);
     $log['ctime_html'] = konawiki_date_html(intval($log['ctime']), 'normal');
     $log['mtime_html'] = konawiki_date_html(intval($log['mtime']), 'normal');
+    $public['ctime_html'] = $log['ctime_html'];
+    $public['mtime_html'] = $log['mtime_html'];
     // tag 
     if (isset($log['rawtag'])) {
         $public['head_keywords'] .= ','.$log['rawtag'];
