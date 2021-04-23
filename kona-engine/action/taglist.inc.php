@@ -53,6 +53,6 @@ function action_taglist_()
 {$wikibody_footer}
 __EOS__;
 
-    include_template('show.tpl.php', $log);
+    include_template('show.html', $log);
 }
 

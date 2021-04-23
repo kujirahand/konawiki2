@@ -7,7 +7,7 @@
 <script>
 $(function(){
     // editor init
-    konawiki_page_edit_init("{$baseurl}", "{$page}", "{$id}");
+    konawiki_page_edit_init("{{$baseurl}}", "{{$page}}", "{{$id}}");
     // textarea resize
     var txt = document.getElementById("body_txt");
 });
@@ -29,7 +29,7 @@ function closeTitleList() {
 {{ $conflict_body }}
 
 <!-- form.begin -->
-<form id="main_frm" method="post" action="{$baseurl}">
+<form id="main_frm" method="post" action="{{ $baseurl }}">
 <div>
 <textarea id="body_txt" name="body" rows="16" cols="70" class="maintext">{{ $body }}</textarea>
 </div>
@@ -46,7 +46,7 @@ function closeTitleList() {
            </span>
   <p style="padding: 8px;">
     <span class="hint">Tag:</span>
-    <input type="text" id="tag_txt" name="tag" size="20" value="{{$tag}}"/>
+    <input type="text" id="tag_txt" name="tag" size="20" value="{{$tag}}" />
     <span class="hint">({{'Comma is delimiter.'|lang}})</span>
   </p>
   <input type="hidden"    name="page"    value="{{$page_raw}}" />

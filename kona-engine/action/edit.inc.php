@@ -63,7 +63,6 @@ function action_edit_()
 function _checkParam(&$log) {
     if (empty($log['id'])) $log['id'] = "";
     if (empty($log['body'])) $log['body'] = "";
-    if (empty($log['tag'])) $log['tag'] = "";
     if (empty($log['mtime'])) $log['mtime'] = time();
     if (empty($log['error_message'])) $log['error_message'] = "";
     if (empty($log['conflict_body'])) $log['conflict_body'] = "";
@@ -72,6 +71,7 @@ function _checkParam(&$log) {
     if (empty($log['private'])) $log['private'] = 0;
     $log['private_chk'] = ($log['private']) ? "checked" : "";
     $log['url_page_edit_js'] = getResourceURL('konawiki_page_edit.js', TRUE);
+    if (empty($log['tag'])) $log['tag'] = "";
 }
 
 function _err($msg)
@@ -650,7 +650,7 @@ function action_edit_preview()
     konawiki_error(
       konawiki_lang('Sorry, You do not have permission.'));
   }
-  $log["body"] = konawiki_param("body");
+  $log["body"] = konawiki_parser_convert(konawiki_param("body"));
   include_template("preview.html", $log);
 }
 
