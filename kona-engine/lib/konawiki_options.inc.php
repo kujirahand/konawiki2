@@ -66,6 +66,7 @@ function konawiki_checkOptions() {
     kona_check_private('auth.read.enabled', TRUE);
     kona_check_private('caauthche.write.enabled', TRUE);
     kona_check_private('attach.enabled', TRUE);
+    kona_check_public('max_upload_size', 1024 * 1024 * 5); // 5MB
     kona_check_private('login.time.limit', 60 * 60 * 24 * 90);
     // # login users
     kona_check_private('auth.users', []);

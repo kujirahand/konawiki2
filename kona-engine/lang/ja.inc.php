@@ -78,11 +78,13 @@ $ko_lang['Save'] = '保存';
 $ko_lang['Save and Show'] = '保存して表示';
 $ko_lang['Preview'] = 'プレビュー';
 $ko_lang['Delete if blank.'] = '空白なら削除';
+$ko_lang['Delete'] = '削除';
 $ko_lang['Private'] = '非公開';
 $ko_lang['Updated time'] = '更新日時';
 $ko_lang['Created time'] = '作成日時';
 
 $ko_lang['Attachment files'] = '添付ファイル';
+$ko_lang['Upload file'] = 'アップロード';
 $ko_lang['Show file'] = '閲';
 $ko_lang['Remove backup'] = '履歴を削除';
 $ko_lang['Execute'] = '実行';

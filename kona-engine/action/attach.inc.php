@@ -47,89 +47,15 @@ function action_attach_()
     readfile($fname);
 }
 
-function action_attach_form_parts()
-{
-    $page       = konawiki_getPage();
-    $page_link  = konawiki_getPageLink($page);
-    $baseurl    = konawiki_public("baseurl");
-    $enabled    = konawiki_private('attach.enabled');
-
-    $res = "<!-- attach form -->\n";
-
-    if (!$enabled) {
-        $res .= "<div class='error'>添付ファイルの機能は利用できない設定になっています。</div>";
-        return $res;
-    }
-    $res .= <<<EOS__
-<h4>「{$page_link}」にファイルの添付</h4>
-<p>「{$page_link}」にファイルを添付します。</p>
-<form
-    enctype="multipart/form-data"
-    action="{$baseurl}"
-    method="POST">
-<p>
-  <input type="file" name="userfile" size=40
-    style="border:solid 1px black;padding:8px;margin:4px;"/>
-  <input type="submit" value="ファイルを添付">
-  <input type="hidden" name="page" value="{$page}"/>
-  <input type="hidden" name="action" value="attach"/>
-  <input type="hidden" name="stat" value="write"/>
-</p>
-</form>
-EOS__;
-    return $res;
-}
-
 function action_attach_form()
 {
-    // show form
-    $baseurl    = konawiki_public("baseurl");
-    $page       = konawiki_getPageHTML();
-    $page_link  = konawiki_getPageLink();
-    $page_enc   = konawiki_getPageURL($page);
-    $list = konawiki_getAttachList($page);
-    if ($list) {
-        $dlink = "<table border=1 cellpadding=4>\n".
-            "<tr><td>直リンク</td><td>日付</td><td>削除</td>".
-            "<td>Wikiに貼る時</td></tr>\n";
-        foreach ($list as $line) {
-            $id     = $line['id'];
-            $name   = $line['name'];
-            $name_  = rawurlencode($name);
-            $ext    = $line['ext'];
-            $link   = konawiki_getPageURL($page, 'attach', '', "file=$name_");
-            $name_h = htmlspecialchars($name);
-            $con    = "<a href='$link'>$name_h</a>";
-            $link_delete = konawiki_getPageURL($page, 'attach', 'delete');
-            $button = "<form action='$link_delete' method='post'>".
-                "<input type='hidden' name='id' value='$id'/>".
-                "<input type='submit' value='削除'/></form>";
-            $date   = konawiki_date($line['mtime']);
-            $ref1   = "<input type='text' size=20 value='#ref($name_h,w=300,*{$name_h})'onclick='this.select()'/>";
-            $dlink .=
-                "<tr><td>$con</td>".
-                    "<td>$date</td>".
-                    "<td>$button</td>".
-                    "<td>$ref1</td>".
-                "</tr>";
-        }
-        $dlink .= "</table>";
-    }
-    else {
-        $dlink = '<p>ありません</p>';
-    }
-    $form = action_attach_form_parts();
-    $body = <<<_EOS_
-{$form}
-<br/>
-<!-- attach list -->
-<h4>「{$page_link}」のファイル一覧</h4>
-{$dlink}
-<br/>
-_EOS_;
-    // include
+    
     header('X-Frame-Options: SAMEORIGIN');
-    konawiki_showMessage($body);
+    $page = konawiki_getPage();
+    
+    include_template('attach_form.html', [
+      'list' => konawiki_getAttachList($page),
+    ]);
 }
 
 function action_attach_write()
@@ -155,8 +81,24 @@ function action_attach_write()
     if (preg_match('/(\.\w+)$/', $name, $m)) {
       $name_ext = $m[1];
     }
+    // check error
+    $err = isset($_FILES['userfile']['error']) ? $_FILES['userfile']['error'] : 0;
+    if ($err) {
+      $err = intval($err);
+      if ($err == 1 || $err == 2) {
+        konawiki_error(
+          "ファイルのアップロードエラー: エラー番号($err) ファイルが大きすぎます。");
+      } else if ($err == 7) {
+        konawiki_error(
+          "ファイルのアップロードエラー: エラー番号($err) ディスク書き込みエラー。");
+      } else {
+        konawiki_error(
+          "ファイルのアップロードエラー: エラー番号($err)");
+      }
+      exit;
+    }
     // check dir
-    $uploaddir = KONAWIKI_DIR_ATTACH;
+    $uploaddir = konawiki_private('dir.attach');
     if (!is_writable($uploaddir)) {
       konawiki_error(
         "アップロードフォルダが正しく設定されていません。<br>".
@@ -181,8 +123,8 @@ function action_attach_write()
     $res = db_get1($sql, [$name, $log_id]);
     if (isset($res["id"])) {
       // check password
-      $db_rollback();
-      action_attach_already_exists($res[0]);
+      db_rollback();
+      action_attach_already_exists($res);
       return;
     } else {
       // insert into db
@@ -199,6 +141,8 @@ function action_attach_write()
     $uploadfile = $uploaddir . "/{$id}{$name_ext}";
     if (!move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
       db_rollback();
+      print_r($_FILES);
+      echo "@@@$uploadfile";
       konawiki_error("添付に失敗。アップロードエラー。");
       return;
     }
@@ -214,7 +158,6 @@ function action_attach_write()
     $attach_link = "<a href='{$attach_}'>$name_htm</a>";
     $back_link = konawiki_getPageURL($page, "attach");
     // message
-    $form = action_attach_form_parts();
     $body = <<<__EOS__
 <h4>添付成功</h4>
 <blockquote>
@@ -228,8 +171,6 @@ function action_attach_write()
 </table>
 <p>[<a href="{$back_link}">→一覧を確認する</a>]</p>
 </blockquote>
-<h6>さらに追加する場合:</h6>
-{$form}
 __EOS__;
     header('X-Frame-Options: SAMEORIGIN');
     konawiki_showMessage($body);
