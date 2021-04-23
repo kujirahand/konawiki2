@@ -44,11 +44,10 @@ function konawiki_checkOptions() {
     // # dir & uri
     $engine_dir = dirname(__DIR__);
     $root_dir = dirname($engine_dir);
-    $data_dir = $root_dir.'/data';
     kona_check_private('dir.base', $root_dir);
     kona_check_private('dir.engine', $engine_dir);
     kona_check_private('dir.skin', $root_dir.'/skin');
-    kona_check_private('dir.data', $data_dir);
+    kona_check_private('dir.data', $root_dir.'/data');
     kona_check_private('dir.attach', $root_dir.'/attach');
     kona_check_private('dir.cache', $root_dir.'/cache');
     // URI
@@ -59,6 +58,7 @@ function konawiki_checkOptions() {
     kona_check_private('uri.skin', $root_uri.'/skin');
     kona_check_public('baseurl', $base_uri);
     // # DB setting
+    $data_dir = konawiki_private('dir.data');
     kona_check_private('db.dsn', "sqlite://$data_dir/konawiki.db");
     kona_check_private('subdb.dsn', "sqlite://$data_dir/konawiki_sub.db");
     kona_check_private('backupdb.dsn', "sqlite://$data_dir/konawiki_backup.db");
