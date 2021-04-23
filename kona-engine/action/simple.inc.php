@@ -52,7 +52,7 @@ function action_simple_()
 <!-- end of body -->
 __EOS__;
 
-    include_template('simple.tpl.php', $log);
+    include_template('simple.html', $log);
 }
 
 function _konawiki_show_plugins(&$log)

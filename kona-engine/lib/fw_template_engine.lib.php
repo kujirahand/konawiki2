@@ -12,6 +12,7 @@ function template_render($tpl_filename, $tpl_params) {
    * {{$name}} で変数埋め込み
    * {{e code}} でeval
    * {{eval code}} でeval
+   * {{echo code}} でevalしたコードを表示する
    * {{$name | filter}} で template_plugins.lib.php の t_filter($name) を実行
    * {{$name | safe }} でHTMLをそのまま表示
    * {{$name.k1.k2}}だと$name["k1"]["k2"]と展開される
@@ -64,6 +65,11 @@ function template_render($tpl_filename, $tpl_params) {
     '#\{\{\s*(eval|e)[\s\:]+(.+?)}}#is' => function ($m) {
       $code = $m[2];
       return "<?php $code;?>";
+    },
+    // {{ echo code }} {{echo:code}}
+    '#\{\{\s*(echo)[\s\:]+(.+?)}}#is' => function ($m) {
+      $code = $m[2];
+      return "<?php echo $code;?>";
     },
     // {{ include filename }} 
     '#\{\{\s*include\s+[\'\"]?(.+?)[\'\"]?\s*}}#is' => function ($m) use ($tpl_params) {
