@@ -1,7 +1,7 @@
 <?php
 //----------------------------------------------------------------------
 // KonaWiki (User Config File)
-// Please rename this file to "konawiki.ini.php"
+// Please rename this file to "data/konawiki.ini.php"
 //----------------------------------------------------------------------
 // Basic setting
 //----------------------------------------------------------------------
@@ -10,8 +10,14 @@ $public['author']       = 'kujirahand';
 $public['description']  = 'KonaWiki - Wiki Clone Application';
 $public['keywords']     = 'konawiki,wiki';
 
-// language --- (ex) ja:Japanese, en:English
-// $public['lang'] = konawiki_getUserLang();
+// PATH setting
+$root = dirname(__DIR__);
+$private['dir.base'] = $root;
+$private['dir.data'] = __DIR__;
+$private['dir.engine'] = $root.'/kona-engine';
+$private['dir.skin'] = $root.'/skin';
+$private['dir.attach'] = $root.'/attach';
+$private['dir.cache'] = $root.'/cache';
 
 // timezone --- (ex) 'Asia/Kuala_Lumpur' 'Asia/Seou' 'Asia/Taipei'
 $public['timezone'] = 'Asia/Tokyo'; // (see PHP timezone manual)
