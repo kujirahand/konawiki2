@@ -128,6 +128,7 @@ function plugin_nako3_convert($params)
     <button style="display:none" id="post_button_{$pid}" onclick="nako3_post({$pid})">公開</button>
   </span>
   <span class='nako3ver'>&nbsp;&nbsp;&nbsp;v{$ver}</span>
+  <span id="cur_pos_{$pid}" class='nako3ver'>---</span>
 </div><!-- end of #nako3_editor_controlls_{$pid} -->
 <!-- LOAD AREA -->
 <div id="nako3start_files_{$pid}" class="nako3files" style="display:none"></div>
@@ -250,20 +251,23 @@ function plugin_nako3_gen_js_code($baseurl, $use_canvas) {
 var nako3_info_id = 0
 var baseurl = "{$baseurl}"
 var use_canvas = $s_use_canvas
+function qs(query) {
+  return document.querySelector(query)
+}
 var nako3_get_resultbox = function () {
-  return document.getElementById("nako3result_div_" + nako3_info_id)
+  return qs("#nako3result_div_" + nako3_info_id)
 }
 var nako3_get_info = function () {
-  return document.getElementById("nako3_info_" + nako3_info_id)
+  return qs("#nako3_info_" + nako3_info_id)
 }
 var nako3_get_error = function () {
-  return document.getElementById("nako3_error_" + nako3_info_id)
+  return qs("#nako3_error_" + nako3_info_id)
 }
 var nako3_get_canvas = function () {
-  return document.getElementById("nako3_canvas_" + nako3_info_id)
+  return qs("#nako3_canvas_" + nako3_info_id)
 }
 var nako3_get_div = function () {
-  return document.getElementById("nako3_div_" + nako3_info_id)
+  return qs("#nako3_div_" + nako3_info_id)
 }
 // 表示
 var nako3_print = function (s) {
@@ -334,7 +338,7 @@ function nako3_run(id, use_canvas) {
     alert('現在ライブラリを読み込み中です。しばらくお待ちください。')
     return
   }
-  var code_e = document.getElementById("nako3_code_" + id)
+  var code_e = qs("#nako3_code_" + id)
   if (!code_e) return
   var code = code_e.value
   var canvas_name = "#nako3_canvas_" + id
@@ -366,21 +370,19 @@ const nako3_save_key = 'nako3start::'
 const nako3_save_key_files = 'nako3start::__files__'
 var nako3_save_name = 'テスト.nako3'
 
-function _id(eid) {
-  return document.getElementById(eid)
-}
-
 function nako3_init_edit_area(pid, can_save) {
-  // 保存ボタン
-  _id('post_span_' +pid).style.visibility = can_save ? "visible" : "hidden";
+  // テキストエリアにイベントを設定
+  nako3set_textarea(qs('#nako3_code_' + pid), qs('#cur_pos_' + pid))
+  // 保存ボタンの表示設定
+  qs('#post_span_' +pid).style.visibility = can_save ? "visible" : "hidden";
   if (!can_save) {return}
-  // 開くボタン
+  // 開くボタンの確認
   nako3_check_load_button(pid)
 }
 
 function nako3_post(pid) {
-  const post_form = _id('nako3codeform_' + pid)
-  const ta = _id('nako3_code_' + pid)
+  const post_form = qs('#nako3codeform_' + pid)
+  const ta = qs('#nako3_code_' + pid)
   if (ta.value != '') {post_form.submit()}
 }
 
@@ -417,7 +419,7 @@ function nako3_save_storage(pid) {
 }
 
 function nako3_check_load_button(pid) {
-  const btn = _id('load_button_' + pid)
+  const btn = qs('#load_button_' + pid)
   if (!localStorage[nako3_save_key_files]) {
     btn.style.display = 'none'
     return
@@ -447,7 +449,7 @@ function nako3_load_click(pid) {
   files_div.innerHTML = html
 }
 function nako3_cancel_files(pid) {
-  const files_div = _id('nako3start_files_' + pid)
+  const files_div = qs('#nako3start_files_' + pid)
   files_div.style.display = 'none'
 }
 function nako3_clear_files(pid) {
@@ -475,6 +477,33 @@ function nako3start_loadfile(pid, no) {
   ta.value = localStorage[fkey]
   ta.focus()
   files_div.style.display = 'none'
+}
+// エディタのカーソル位置を表示するように
+function nako3set_textarea(edt, lbl) {
+  edt.addEventListener('keyup', (e) => {
+    if (e.isComposing) return // 漢字の変換中なら抜ける
+    if (e.key == 'ArrowUp' || e.key == 'Enter' || e.key == 'ArrowDown' ||
+        e.key == 'ArrowLeft' || e.key == 'ArrowRight' || e.key == 'Backspace' || 
+        e.key == 'Meta') {
+      // カーソルをカウント
+      const pos = edt.selectionEnd
+      const text = edt.value
+      const a = text.split("\\n")
+      var row = 1, col = 0, total = 0
+      for (let i = 0; i < a.length; i++) {
+        const len = a[i].length
+        total += len + 1
+        if (pos < total) {
+          col = pos - total + len + 1
+          break
+        }
+        row++
+      }
+      lbl.innerHTML = '(' + row + '行' + col + '列目)'
+    } else {
+      console.log(e.key)
+    }
+  })
 }
 </script>
 EOS;
