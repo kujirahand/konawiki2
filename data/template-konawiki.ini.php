@@ -70,6 +70,10 @@ $public['ogimage'] = 'logo-large.png'; // for facebook image
 //----------------------------------------------------------------------
 // Can login users upload attachment files?
 $private['attach.enabled'] = 1; 
+$private['plugins.disable'] = [
+  'html'=>TRUE, 
+  'htmlshow'=>TRUE
+];
 
 //----------------------------------------------------------------------
 // Footer option
