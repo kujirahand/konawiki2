@@ -1,0 +1,65 @@
+{{ include parts_header.html }}
+
+<div id="wikicontent"><div class="contentpad">
+  <div id="wikimessage"><div class="bodypad">
+    <div class="message">
+<!-- attach_form -->
+{{ if konawiki_private('attach.enabled') }}
+<h4>「{{ $page }}」にファイルの添付</h4>
+<p>「{{ $page }}」にファイルを添付します。</p>
+<form
+    enctype="multipart/form-data"
+    action="{{ $baseurl }}"
+    method="POST">
+<p>
+  <input type="hidden" name="MAX_FILE_SIZE" value="{{ $max_upload_size }}" />
+  <input type="file" name="userfile" size=40
+    style="border:solid 1px black;padding:8px;margin:4px;"/>
+  <input type="submit" value="{{'Upload file'|lang}}">
+  <input type="hidden" name="page" value="{{$page}}"/>
+  <input type="hidden" name="action" value="attach"/>
+  <input type="hidden" name="stat" value="write"/>
+</p>
+</form>
+{{ else }}
+<h4>設定により添付機能は使えません。</h4>
+{{ endif }}
+
+{{ if !$list }}
+  <h4>「{{ $page }}」に添付ファイルはありません</h4>
+{{ else }}
+  <h4>「{{ $page }}」の添付ファイル</h4>
+  <table border=1 cellpadding=4>
+    <tr>
+      <td>直リンク</td><td>日付</td><td>削除</td><td>Wikiに貼る時</td>
+    </tr>
+  {{ for $list as $i }}
+    {{e: $name = $i['name']; $name_u = rawurlencode($name); }}
+    {{e: $id = $i['id'] }}
+    {{e: $link = konawiki_getPageURL($page, 'attach', '', "file=$name_u") }}
+    {{e: $link_del = konawiki_getPageURL($page, 'attach', 'delete', "id=$id"); }} 
+    <tr>
+      <td><a href="{{$link}}">{{$name}}</a></td>
+      <td>{{$i.mtime | date}}</td>
+      <td><a href="#" onclick="checkDelete('{{$link_del}}')" class="pure-button">{{'Delete'|lang}}</a></td>
+      <td><input type='text' size=20 value='#ref({{$name}},*{{$name}})' onclick='this.select()'/></td>
+    </tr>
+  {{ endfor }}
+  </table>
+{{ endif }}
+<script>
+  // 削除の確認
+  function checkDelete(url) {
+    var b = confirm('本当に削除しますか？')
+    if (!b) return
+    location.href = url
+  }
+</script>
+
+<!-- attach_form -->
+    </div>
+  </div></div>
+</div></div>
+<p class="clear"></p>
+
+{{ include parts_footer.html }}
