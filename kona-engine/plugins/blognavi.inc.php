@@ -93,7 +93,11 @@ function plugin_blognavi_convert($params)
     $name = konawiki_getPage();
     $log = konawiki_getLog($name);
     $name_ = konawiki_getPageLink($name, "dir");
-    $date = konawiki_date($log['ctime']);
+    if (isset($log['ctime']) && is_int($log['ctime'])) {
+      $date = konawiki_date($log['ctime']);
+    } else {
+      $date = ''; 
+    }
     // bookmark
     $name_u = urlencode($name);
     $url_   = urlencode($url);
