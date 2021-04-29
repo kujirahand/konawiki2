@@ -117,7 +117,6 @@ function plugin_nako3_convert($params)
 <input type="hidden" name="version" value="{$ver}" />
 </form>
 </div><!-- end of #nako3_editor_main_{$pid} -->
-
 <div id="nako3_editor_controlls_{$pid}" class="nako3row" style="padding-bottom:4px;">
   <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行 </button>
   <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
@@ -127,8 +126,10 @@ function plugin_nako3_convert($params)
     &nbsp;
     <button style="display:none" id="post_button_{$pid}" onclick="nako3_post({$pid})">公開</button>
   </span>
-  <span class='nako3ver'>&nbsp;&nbsp;&nbsp;v{$ver}</span>
-  <span id="cur_pos_{$pid}" class='nako3ver'>---</span>
+  <span>
+    <span class='nako3cur' id="cur_pos_{$pid}">1行目</span>
+    <span class='nako3ver'>&nbsp;&nbsp;&nbsp;v{$ver}</span>
+  </span>
 </div><!-- end of #nako3_editor_controlls_{$pid} -->
 <!-- LOAD AREA -->
 <div id="nako3start_files_{$pid}" class="nako3files" style="display:none"></div>
@@ -152,7 +153,7 @@ function plugin_nako3_convert($params)
 </div><!-- end of #nako3 -->
 
 <!-- dynamic js code -->
-<script>nako3_init_edit_area({$pid},{$can_save})</script>
+<script>nako3_init_edit_area({$pid},{$can_save},{$j_use_canvas})</script>
 
 <!-- /nako3 plugin -->
 EOS;
@@ -195,7 +196,11 @@ function plugin_nako3_gen_style_code() {
   background-color: #fff0f0; padding:8px; color: #904040;
   font-size:1em; border:1px solid #a0a0ff; margin:4px;
 }
-.nako3ver { font-size:0.7em; color:gray; }
+.nako3ver { font-size:0.6em; color:gray; }
+.nako3cur {
+  margin:0; padding: 2px; font-size: 0.6em;
+  color:#505050; background-color: #f0f0f0;
+}
 .nako3info_html {
   border: 1px solid #a0a0a0;
   padding: 4px; margin: 4px;
@@ -370,9 +375,12 @@ const nako3_save_key = 'nako3start::'
 const nako3_save_key_files = 'nako3start::__files__'
 var nako3_save_name = 'テスト.nako3'
 
-function nako3_init_edit_area(pid, can_save) {
+function nako3_init_edit_area(pid, can_save, use_canvas) {
   // テキストエリアにイベントを設定
-  nako3set_textarea(qs('#nako3_code_' + pid), qs('#cur_pos_' + pid))
+  nako3set_textarea(
+    qs('#nako3_code_' + pid), 
+    qs('#cur_pos_' + pid),
+    pid, use_canvas)
   // 保存ボタンの表示設定
   qs('#post_span_' +pid).style.visibility = can_save ? "visible" : "hidden";
   if (!can_save) {return}
@@ -479,29 +487,41 @@ function nako3start_loadfile(pid, no) {
   files_div.style.display = 'none'
 }
 // エディタのカーソル位置を表示するように
-function nako3set_textarea(edt, lbl) {
+function nako3set_textarea(edt, lbl, pid, use_canvas) {
+  const showCursor = function () {
+    // カーソルをカウント
+    const pos = edt.selectionEnd
+    const text = edt.value
+    const a = text.split("\\n")
+    var row = 1, col = 0, total = 0
+    for (let i = 0; i < a.length; i++) {
+      const len = a[i].length
+      total += len + 1
+      if (pos < total) {
+        col = pos - total + len + 1
+        break
+      }
+      row++
+    }
+    lbl.innerHTML = '' + row + '行目' // + col + '列目'
+  }
+  edt.addEventListener('mouseup', (e) => {
+    showCursor()
+  })
   edt.addEventListener('keyup', (e) => {
     if (e.isComposing) return // 漢字の変換中なら抜ける
-    if (e.key == 'ArrowUp' || e.key == 'Enter' || e.key == 'ArrowDown' ||
-        e.key == 'ArrowLeft' || e.key == 'ArrowRight' || e.key == 'Backspace' || 
+    // ショートカット
+    if (e.key == 'F9' || e.key == 'F5') {
+      e.preventDefault() // skip default event
+      nako3_run(pid, use_canvas)
+      return
+    }
+    // カーソルの移動
+    if (e.key == 'ArrowUp' || e.key == 'Enter' || 
+        e.key == 'ArrowDown' || e.key == 'ArrowLeft' || 
+        e.key == 'ArrowRight' || e.key == 'Backspace' || 
         e.key == 'Meta') {
-      // カーソルをカウント
-      const pos = edt.selectionEnd
-      const text = edt.value
-      const a = text.split("\\n")
-      var row = 1, col = 0, total = 0
-      for (let i = 0; i < a.length; i++) {
-        const len = a[i].length
-        total += len + 1
-        if (pos < total) {
-          col = pos - total + len + 1
-          break
-        }
-        row++
-      }
-      lbl.innerHTML = '(' + row + '行' + col + '列目)'
-    } else {
-      console.log(e.key)
+        showCursor()
     }
   })
 }
