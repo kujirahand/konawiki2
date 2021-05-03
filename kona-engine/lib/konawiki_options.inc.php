@@ -84,8 +84,8 @@ function konawiki_checkOptions() {
     kona_check_private('h4_mark1', '▼');
     kona_check_private('h4_mark2', '▽');
     kona_check_private('header_level_from', 1);
-    kona_check_private('header_level_from', '<pre class="code">');
-    kona_check_private('header_level_from', '</pre>');
+    kona_check_private('source_tag_begin', '<pre class="code">');
+    kona_check_private('source_tag_end', '</pre>');
     kona_check_private('source_tag_hr', "<p class='clear'/><div class='underline'>&nbsp;</div>\n");
     kona_check_private('entry_begin', '<article class="entry">');
     kona_check_private('entry_end', '</article><!-- end of entry -->');
