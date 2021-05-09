@@ -15,8 +15,13 @@ function action_show_()
     $log_exists = TRUE;
     $konawiki_show_as_dynamic_page = FALSE; // 基本的にプラグインがあれば dynamic となる
     $log = konawiki_getLog($page);
+    // 404 Page Not Found?
     if ($log == FALSE || !isset($log['body'])) {
-        $body = "*** Page List\n".
+        $FrontPage = konawiki_public('FrontPage', 'FrontPage');
+        $body = 
+            "* ページが見当たりません。\n".
+            "- [[トップページへ戻る:$FrontPage]]\n".
+            "** Page List\n".
             "#ls\n";
         $log = array(
             'id'            => 0,
