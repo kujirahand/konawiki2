@@ -337,6 +337,14 @@ function konawiki_set_public_info() {
     }
   }
   $public['css_js'] = $css_js;
+
+  // meta info
+  $meta = [];
+  $m1 = konawiki_private('header.meta', '');
+  if ($m1) { $meta[] = $m1; }
+  $m2 = konawiki_private('header.analytics', '');
+  if ($m2) { $meta[] = $m2; }
+  $public['header_meta'] = implode("\n", $meta)."\n";
   
   // keywords
   $public['head_keywords'] = konawiki_getKeywords($page);

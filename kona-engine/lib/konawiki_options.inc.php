@@ -25,12 +25,14 @@ function konawiki_checkOptions() {
     kona_check_public('og:type', 'website');
     
     // wiki setting
-    kona_check_public('FrontPage', 'FrontPage'); // FrontPage' name ... トップページの名前
+    kona_check_public('FrontPage', 'FrontPage'); // FrontPage name ... トップページの名前
     kona_check_public('login.link.visible', TRUE);
     kona_check_public('noanchor', FALSE);
     kona_check_public('header.title.visible', TRUE);
     kona_check_private('session.name', 'kona2');
-    kona_check_private('footer.analytics', '');
+    kona_check_private('header.meta', ''); // meta info in head tag
+    kona_check_private('header.analytics', ''); // analytics in head tag
+    kona_check_private('footer.analytics', ''); // analytics in page footer
     kona_check_private('para_enabled_br', TRUE); // 改行と同時に強制的に<br>を挿入する
     // plugins
     kona_check_private('plugins.disable', ['html'=>TRUE, 'htmlshow'=>TRUE]);

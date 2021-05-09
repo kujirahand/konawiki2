@@ -76,10 +76,16 @@ $private['plugins.disable'] = [
 ];
 
 //----------------------------------------------------------------------
-// Footer option
+// Option
 //----------------------------------------------------------------------
+$private['header.meta'] = <<<EOS
+<!-- code here -->
+EOS;
+$private['header.analytics'] = <<<EOS
+<!-- code here -->
+EOS;
 $private['footer.analytics'] = <<<EOS
-<!-- analytics code here -->
+<!-- code here -->
 EOS;
 
 //----------------------------------------------------------------------
