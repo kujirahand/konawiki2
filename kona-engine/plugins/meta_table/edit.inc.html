@@ -1,0 +1,80 @@
+<style>
+.metabox {
+  border: 1px border silver;
+  padding: 8px;
+}
+.info {
+  padding: 8px;
+  color: #707090;
+  font-size: 0.8em;
+}
+.input_pad {
+  padding:0.8em;
+}
+.warnbox {
+  border: 1px border #c0c0c0;
+  padding: 8px;
+  margin:1em;
+  background-color: #fff0f0;
+}
+#meta_table_warn h4 {
+  margin: 8px;
+  border-bottom: 1px solid silver;
+  background-color: white;
+}
+</style>
+<div class="error">{{$error_msg}}</div>
+<div class="metabox">
+  <h1>『<a href="{{$show_link}}" target="new">{{$pagename}}</a>』の基本編集</h1>
+  <div class="info">
+    最初に以下の基本情報を入力してください。
+  </div>
+  <div class="input_pad">
+    <form action="{{$action}}" method="post"
+                               class="pure-form">
+      {{$inputs | raw}}
+      
+      <p><label>
+        <input type="submit" value="情報を保存"
+         class="pure-button pure-button-primary">
+      </label></p>
+      
+      <!-- hidden -->
+      <input type="hidden" name="page" value="{{$edit_page_name}}">
+      <input type="hidden" name="mname" value="{{$mname}}">
+      <input type="hidden" name="meta_pagename" value="{{$pagename}}">
+      <input type="hidden" name="edit_token" value="{{$edit_token}}">
+    </form>
+  </div>
+  
+  <h1>画像の追加</h1>
+  <div class="input_pad">
+    <a target="new" class="pure-button" href="{{$attach_link}}">
+      画像追加と編集
+    </a>
+  </div>
+  
+  <div style="border-top:1px solid silver; margin-top:12px; padding:8px;">
+    <a target="_new" href="{{$show_link}}">
+      →ページを開く
+    </a>
+  </div>
+</div>
+
+<div class="warnbox" id="meta_table_warn">
+  <h4>『{{$pagename}}』に対する操作:</h4>
+  <div class="input_pad">
+    <form action="{{$action_delete}}" method="post">
+      <!-- hidden info -->
+      <input type="hidden" name="mname" value="{{$mname}}">
+      <input type="hidden" name="meta_pagename" value="{{$pagename}}">
+      <input type="hidden" name="edit_token" value="{{$edit_token}}">
+      <!-- checkbox -->
+      <p><label><input type="checkbox" name="confirm" value="delete">
+        削除する
+      </label></p>
+      <input type="submit" value="実行" class="pure-button">
+    </form>
+  </div>
+</div>
+

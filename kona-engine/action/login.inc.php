@@ -62,6 +62,13 @@ function action_login_()
         $body = konawiki_lang('Failed to login.');
     }
 
+    // has backlink?
+    $backlink = konawiki_auth_getBackLink();
+    if ($backlink) {
+      header("location: $backlink");
+      echo "<a href='$backlink'>$backlink</a>";
+      exit;
+    }
     // 表示
     konawiki_showMessage($body);
 }

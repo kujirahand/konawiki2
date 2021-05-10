@@ -5,7 +5,7 @@
     <div class="message">
 <!-- attach_form -->
 {{ if konawiki_private('attach.enabled') }}
-<h4>「{{ $page }}」にファイルの添付</h4>
+<h4>「<a href="{{$page_url}}">{{ $page }}</a>」にファイルの添付</h4>
 <p>「{{ $page }}」にファイルを添付します。</p>
 <form
     enctype="multipart/form-data"
@@ -28,7 +28,7 @@
 {{ if !$list }}
   <h4>「{{ $page }}」に添付ファイルはありません</h4>
 {{ else }}
-  <h4>「{{ $page }}」の添付ファイル</h4>
+  <h4>「<a href="{{$page_url}}">{{ $page }}</a>」の添付ファイル</h4>
   <table border=1 cellpadding=4>
     <tr>
       <td>直リンク</td><td>日付</td><td>削除</td><td>Wikiに貼る時</td>

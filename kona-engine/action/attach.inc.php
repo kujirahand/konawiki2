@@ -55,6 +55,7 @@ function action_attach_form()
     
     include_template('attach_form.html', [
       'list' => konawiki_getAttachList($page),
+      'page_url' => konawiki_getPageURL($page),
     ]);
 }
 
@@ -141,8 +142,6 @@ function action_attach_write()
     $uploadfile = $uploaddir . "/{$id}{$name_ext}";
     if (!move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
       db_rollback();
-      print_r($_FILES);
-      echo "@@@$uploadfile";
       konawiki_error("添付に失敗。アップロードエラー。");
       return;
     }
@@ -162,13 +161,6 @@ function action_attach_write()
 <h4>添付成功</h4>
 <blockquote>
 <p>[{$page_link}] に [{$attach_link}] を 添付しました。</p>
-<p>Wiki 貼り付けコード:</p>
-<table>
-  <tr><td>ノーマル(小)</td><td><input type="text" value="#ref($name_htm,w=300,*ここに画像タイトル)" size=40 onclick="this.select()"/></td></tr>
-  <tr><td>ノーマル(中)</td><td><input type="text" value="#ref($name_htm,w=500,*ここに画像タイトル)" size=40 onclick="this.select()"/></td></tr>
-  <tr><td>ノーマル(原寸)</td><td><input type="text" value="#ref($name_htm,*ここに画像タイトル)" size=40 onclick="this.select()"/></td></tr>
-  <tr><td>インライン</td><td><input type="text" value="&ref($name_htm);" size=40 onclick="this.select()"/></td></tr>
-</table>
 <p>[<a href="{$back_link}">→一覧を確認する</a>]</p>
 </blockquote>
 __EOS__;

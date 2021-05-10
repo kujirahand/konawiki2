@@ -34,6 +34,8 @@ function konawiki_checkOptions() {
     kona_check_private('header.analytics', ''); // analytics in head tag
     kona_check_private('footer.analytics', ''); // analytics in page footer
     kona_check_private('para_enabled_br', TRUE); // 改行と同時に強制的に<br>を挿入する
+    kona_check_private('footer.hide.konawiki', FALSE); // フッタにあるKonawikiロゴ
+    kona_check_private('system.pages', 'MenuBar,SideBar,NaviBar,GlobalBar'); // システムで利用するので列挙しないページをカンマで区切って指定
     // plugins
     kona_check_private('plugins.disable', ['html'=>TRUE, 'htmlshow'=>TRUE]);
     kona_check_private('show.plugins',[]);

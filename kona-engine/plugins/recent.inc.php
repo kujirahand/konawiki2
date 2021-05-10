@@ -17,7 +17,7 @@ function plugin_recent_convert($params)
     $count = intval($params[0]);
     if ($count < 1) $count = 10;
     $sql = 
-        "SELECT name, mtime FROM logs ".
+        "SELECT name, mtime, private FROM logs ".
         "  ORDER BY mtime DESC LIMIT ?";
     $r = db_get($sql, [$count]);
     if ($r == FALSE) {
@@ -30,7 +30,7 @@ function plugin_recent_convert($params)
         if ($name == 'SideBar' || $name == 'MenuBar' || 
             $name == 'FrontPage' || $name == 'NaviBar' || 
             $name == 'GlobBar') { continue; }
-
+        if ($e['private']) { continue; }
         $mtime = intval($e['mtime']);
         $mtime_ = konawiki_date_html($mtime);
         $nameurl = konawiki_getPageURL2($name);

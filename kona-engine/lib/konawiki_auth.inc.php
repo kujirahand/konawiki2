@@ -37,6 +37,10 @@ function konawiki_isLogin_write() {
     return ($perm["write"] === true);
 }
 
+function konawiki_isLogin() {
+    return konawiki_isLogin_write();
+}
+
 /**
  * auth to write (認証を使う場合)
  */
@@ -173,7 +177,7 @@ function konawiki_auth_read()
 {
     // auth enabled?
     if (!konawiki_private('auth.read.enabled')) {
-            return TRUE;
+        return TRUE;
     }
 
     // check auth type
@@ -197,6 +201,15 @@ function konawiki_show_loginForm($msg = '') {
       'msg' => $msg,
     ]);
 }
+
+// backlink method
+function konawiki_auth_setBackLink($link) {
+  $_SESSION['login.backlink'] = $link;
+}
+function konawiki_auth_getBackLink() {
+  return isset($_SESSION['login.backlink']) ? $_SESSION['login.backlink'] : '';
+}
+
 
 #vim:set ts=4 sts=4 sw=4 tw=0
 

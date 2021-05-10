@@ -34,9 +34,13 @@ function plugin_popular_convert($params)
     $baseurl = konawiki_public("baseurl");
     foreach ($r as $e) {
         $log_id = $e['log_id'];
-        $name  = konawiki_getPageNameFromId($log_id);
-        if ($name == "") continue;
-        if ($name == "FrontPage" || $name == "MenuBar") continue;
+        $log = konawiki_getPageInfoById($log_id);
+        if (!$log) { continue; } // error
+        if ($log['private']) { continue; }
+        $name = $log['name'];
+        if ($name == "") { continue; }
+        if ($name == "FrontPage") { continue; }
+        if (konawiki_isSystemPage($name)) { continue; }
         $nameurl = konawiki_getPageURL2($name);
         $name_ = htmlspecialchars($name);
         $c = isset($e["total"]) ? $e["total"] : 0;

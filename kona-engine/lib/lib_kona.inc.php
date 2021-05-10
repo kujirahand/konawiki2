@@ -636,25 +636,30 @@ function konawiki_getPageId($page = FALSE)
   return $log_id;
 }
 
-function konawiki_getPageNameFromId($log_id)
+function konawiki_getPageInfoById($log_id)
 {
   global $konawiki_pagename_cache;
 
   if (empty($konawiki_pagename_cache)) {
-    $konawiki_pagename_cache = array();
+    $konawiki_pagename_cache = [];
   }
   if (isset($konawiki_pagename_cache[$log_id])) {
     return $konawiki_pagename_cache[$log_id];
   }
 
-  $sql = "SELECT name FROM logs WHERE id=? LIMIT 1";
+  $sql = "SELECT name,freeze,private,ctime,mtime FROM logs WHERE id=? LIMIT 1";
   $log = db_get1($sql, [$log_id]);
   if (!isset($log['name'])) {
     return FALSE;
   }
-  $name = $log['name'];
-  $konawiki_pagename_cache[$log_id] = $name;
-  return $name;
+  $konawiki_pagename_cache[$log_id] = $log;
+  return $log;
+}
+
+function konawiki_getPageNameFromId($log_id)
+{
+  $log = konawiki_getPageInfoById($log_id);
+  return $log['name'];
 }
 
 function konawiki_resourceurl()
@@ -1563,3 +1568,26 @@ function konawiki_getKeywords($page, $rawtag = "") {
   if ($rawtag) $a[] = $rawtag;
   return implode(",", $a);
 }
+
+function konawiki_isSystemPage($page) {
+  $pages = konawiki_private('system.pages.array', []);  
+  if (!$pages) {
+    // convert to array
+    $s = konawiki_private('system.pages', '');
+    $sa = explode(',', $s);
+    foreach ($sa as $name) {
+      $name = trim($name);
+      $pages[$name] = TRUE; 
+    }
+    konawiki_addPrivate('system.pages.array', $pages);
+  }
+  if (isset($pages[$page])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
+
+
+

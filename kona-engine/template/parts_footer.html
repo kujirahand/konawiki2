@@ -23,7 +23,9 @@
   </div><!-- menu -->
 
 <div>{{ $title }} by {{ $author }} {{ $rsslink }}</div>
+{{ if !konawiki_private('footer.hide.konawiki') }}
 <div><a href="https://kujirahand.com/konawiki">konawiki {{ $KONAWIKI_VERSION }}</a></div>
+{{ endif }}
 </div></div>
 {{ e: echo konawiki_private("footer.analytics"); }}
 <!-- footer.end -->
