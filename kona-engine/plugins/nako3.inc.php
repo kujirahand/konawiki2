@@ -81,7 +81,7 @@ function plugin_nako3_convert($params)
       $baseurl."release/plugin_webworker.js",
       $baseurl."release/plugin_caniuse.js",
       // chart.js
-      'https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js'
+      'https://cdn.jsdelivr.net/npm/chart.js@3.2.1/dist/chart.min.js'
     );
     foreach ($jslist as $js) {
       $include_js .= "<script defer src='$js'></script>";

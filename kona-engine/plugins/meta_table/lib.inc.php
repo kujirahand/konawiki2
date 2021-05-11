@@ -21,7 +21,7 @@ function plugin_meta_table_checkLogin() {
 function plugin_meta_table_check_json($json, &$params) {
   // decode
   $params = json_decode($json, TRUE);
-  if (!$json) { return "([meta_table error] json data broken])"; }
+  if (!$params) { return "([meta_table error] json data broken])"; }
   // check keys  
   $name = isset($params['name']) ? $params['name'] : '';
   if (!$name) {
@@ -30,6 +30,10 @@ function plugin_meta_table_check_json($json, &$params) {
   $fields = isset($params['fields']) ? $params['fields'] : '';
   if (!$fields) {
     return '([meta_table error] no fields)';
+  }
+  // select is option
+  if (!isset($params['select'])) {
+    $params['select'] = [];
   }
   return FALSE;
 }

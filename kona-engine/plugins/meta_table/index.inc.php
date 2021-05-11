@@ -38,9 +38,10 @@ function plugin_meta_table_list($json, $msg = '') {
   $offset = empty($_GET['offset']) ? 0 : intval($_GET['offset']);
   $sql = 'SELECT * FROM logs WHERE name LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?';
   $rows = db_get($sql, [$name."/%", KONA_META_LIMIT, $offset]);
-  
+
+  $name_h = htmlspecialchars($name, ENT_QUOTES);
   $html = plugin_meta_table_menu($json);
-  $html .= '<h3>アイテムの一覧</h3>';
+  $html .= "<h3>{$name_h}の一覧</h3>\n";
   if ($msg) {
     $html .= "<p class='error'>$msg</p>";
   }
@@ -170,6 +171,8 @@ function plugin_meta_table_edit($json, $msg = '') {
     }
 
   }
+  // select
+  $select = $json['select'];
   // fields
   $inputs = '';
   foreach ($fields as $f) {
@@ -177,9 +180,22 @@ function plugin_meta_table_edit($json, $msg = '') {
     $name_f = 'meta_'.bin2hex($f);
     $val = isset($meta_obj[$f]) ? $meta_obj[$f] : '';
     $html_val = htmlspecialchars($val, ENT_QUOTES);
-    $inputs .= "<p><label>{$html_f}<br>";
-    $inputs .= "<input type='text' name='$name_f' value='$val'>";
-    $inputs .= "</label></p>";
+    if (isset($select[$f])) {
+      $options = $select[$f];
+      // select box
+      $inputs .= "<label for='$name_f'>{$html_f}</label>\n";
+      $inputs .= "<select name='$name_f' id='$name_f'>\n";
+      foreach ($options as $opt) {
+        $opt_h = htmlspecialchars($opt, ENT_QUOTES);
+        $selected = ($opt == $val) ? "selected" : "";
+        $inputs .= "<option value='$opt_h' $selected>$opt_h</option>\n";
+      }
+      $inputs .= "</select>\n";
+    } else {
+      // normal text box
+      $inputs .= "<label for='$name_f'>{$html_f}<label>";
+      $inputs .= "<input type='text' id='$name_f' name='$name_f' value='$val'>";
+    }
   }
   //
   $html = plugin_meta_table_menu($json);

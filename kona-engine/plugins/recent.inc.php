@@ -30,6 +30,7 @@ function plugin_recent_convert($params)
         if ($name == 'SideBar' || $name == 'MenuBar' || 
             $name == 'FrontPage' || $name == 'NaviBar' || 
             $name == 'GlobBar') { continue; }
+        if (konawiki_isSystemPage($name)) {continue;}
         if ($e['private']) { continue; }
         $mtime = intval($e['mtime']);
         $mtime_ = konawiki_date_html($mtime);

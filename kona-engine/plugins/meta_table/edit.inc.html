@@ -3,6 +3,9 @@
   border: 1px border silver;
   padding: 8px;
 }
+.metabox select {
+  height: 2.8em;
+}
 .info {
   padding: 8px;
   color: #707090;
@@ -31,7 +34,7 @@
   </div>
   <div class="input_pad">
     <form action="{{$action}}" method="post"
-                               class="pure-form">
+          class="pure-form pure-form-stacked">
       {{$inputs | raw}}
       
       <p><label>
