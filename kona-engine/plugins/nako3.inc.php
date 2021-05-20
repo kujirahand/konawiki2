@@ -36,7 +36,7 @@ function plugin_nako3_convert($params)
   $use_canvas = false;
   $baseurl = "";
   $editable = false;
-  $post_url = "https://nadesi.com/v3/storage/index.php?page=0&action=presave";
+  $post_url = "https://n3s.nadesi.com/index.php?page=0&action=presave";
   foreach ($params as $s) {
     if ($s == "edit" || $s == "editable") {
       $editable = true;
@@ -68,11 +68,11 @@ function plugin_nako3_convert($params)
   if ($pid == 1) {
     if ($baseurl == "") {
       $pc = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
-      $baseurl = "https://nadesi.com/v3/cdn.php?v=$ver&f=";
+      $baseurl = "https://n3s.nadesi.com/cdn.php?v=$ver&f=";
     }
     $jslist = array(
       // nadesiko
-      $baseurl."release/wnako3.js?v=$ver",
+      $baseurl."release/wnako3.js",
       $baseurl."release/plugin_csv.js",
       $baseurl."release/plugin_datetime.js",
       $baseurl."release/plugin_markup.js",
@@ -80,8 +80,7 @@ function plugin_nako3_convert($params)
       $baseurl."release/plugin_turtle.js",
       $baseurl."release/plugin_webworker.js",
       $baseurl."release/plugin_caniuse.js",
-      // chart.js
-      'https://cdn.jsdelivr.net/npm/chart.js@3.2.1/dist/chart.min.js'
+      $baseurl."demo/js/chart.js@3.2.1/chart.min.js",
     );
     foreach ($jslist as $js) {
       $include_js .= "<script defer src='$js'></script>";
