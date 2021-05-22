@@ -166,7 +166,7 @@ function action_attach_write()
 <h4>添付成功</h4>
 <blockquote>
 <p>[{$page_link}] に [{$attach_link}] を 添付しました。</p>
-<p>[<a href="{$back_link}">→一覧を確認する</a>]</p>
+<p>[<a href="{$back_link}">→一覧を確認する/→他のファイルを添付</a>]</p>
 </blockquote>
 __EOS__;
     header('X-Frame-Options: SAMEORIGIN');
