@@ -248,9 +248,13 @@ function plugin_meta_table_update($json) {
       $meta_obj[$f] = '';
     }
   }
+  // update contents
   $meta_json = json_encode($meta_obj);
   db_exec('UPDATE sublogs SET body=?,mtime=? WHERE log_id=? AND plug_name=?',
     [$meta_json, time(), $log_id, 'meta_table'], 'sub');
+  // update logs mtime
+  db_exec('UPDATE logs SET mtime=? WHERE id=?',
+    [time(), $log_id]);
 
   $mname_enc = urlencode($mname);
   $url = konawiki_getPageURL(FALSE, 'show', '', "m=edit&mname=$mname_enc&m2=edit");

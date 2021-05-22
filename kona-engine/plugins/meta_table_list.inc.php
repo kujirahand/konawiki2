@@ -23,7 +23,7 @@ function plugin_meta_table_list_convert($params) {
   $sql = 
     'SELECT * FROM logs '.
     'WHERE (name LIKE ?)AND(private=0) '.
-    'ORDER BY id DESC LIMIT ? OFFSET ?';
+    'ORDER BY mtime DESC LIMIT ? OFFSET ?';
   $rows = db_get($sql, [$main_key."/%", KONA_META_LIMIT, $offset]);
   //
   $html = '';
