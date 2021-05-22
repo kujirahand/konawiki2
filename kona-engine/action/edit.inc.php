@@ -160,6 +160,7 @@ function action_edit_delete()
   }
   // execute
   $log_id = $id = $log['id'];
+  db_begin();
   // get attach files
   $sql = "SELECT * FROM attach WHERE log_id=?";
   $attach_ary = db_get($sql, [$log_id]);
