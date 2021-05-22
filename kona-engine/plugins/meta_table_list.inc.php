@@ -47,19 +47,22 @@ function plugin_meta_table_list_convert($params) {
         if (!isset($meta_body[$cond_key])) { continue; }
         if ($meta_body[$cond_key] != $cond_val) { continue; }
       }
-      $mb = "<table>\n";
-      foreach ($meta_body as $key => $val) {
-        if ($val == '') {continue;}
-        $key_h = htmlspecialchars($key, ENT_QUOTES);
-        $val_h = htmlspecialchars($val, ENT_QUOTES);
-        $mb .= "<tr>";
-        $mb .= "<th><span class='key'>$key_h</span></th>";
-        $mb .= "<td><span class='val'>".
-               "<a href='$pagelink'>$val_h</a>".
-               "</span></td>";
-        $mb .= "</tr>\n";
+      $mb = '';
+      if ($meta_body) {
+        $mb = "<table>\n";
+        foreach ($meta_body as $key => $val) {
+          if ($val == '') {continue;}
+          $key_h = htmlspecialchars($key, ENT_QUOTES);
+          $val_h = htmlspecialchars($val, ENT_QUOTES);
+          $mb .= "<tr>";
+          $mb .= "<th><span class='key'>$key_h</span></th>";
+          $mb .= "<td><span class='val'>".
+                 "<a href='$pagelink'>$val_h</a>".
+                 "</span></td>";
+          $mb .= "</tr>\n";
+        }
+        $mb .= "</table>\n";
       }
-      $mb .= "</table>\n";
       $mname = substr($pagename, strlen($main_key)+1);
       $html .= meta_table_template('list_item.inc.html', [
         'pagename' => $pagename,
