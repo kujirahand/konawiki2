@@ -1136,16 +1136,21 @@ pre.code span.rem     { color: #909; }
 #uptime_div { padding: 4px; }
 
 .box {
-    border: 1px solid silver;
-    padding: 8px;
-    margin: 8px;
+  border: 1px solid silver;
+  padding: 8px;
+  margin: 8px;
 }
 
-.loginform
-{
-    padding-left: 3em;
-    line-height: 3em;
-    border-left: 1em solid #e0f0ff;
+.loginform {
+  padding-left: 3em;
+  line-height: 3em;
+  border-left: 1em solid #e0f0ff;
+}
+
+#dropzone {
+  border: 3px dotted orange;
+  padding: 8px;
+  background-color: #f0f7ff;
 }
 
 /* vim:set expandtab ts=4 : */

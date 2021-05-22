@@ -77,10 +77,15 @@ function action_attach_write()
     }
     $log_id = $log["id"];
     // check attach file
+    $filename = trim(isset($_POST['filename']) ? $_POST['filename'] : '');
     $name = basename($_FILES['userfile']['name']);
+    if ($filename == '') { $filename = $name; }
     $name_ext = "";
     if (preg_match('/(\.\w+)$/', $name, $m)) {
       $name_ext = $m[1];
+    }
+    if ($name_ext == $filename) {
+      $filename = date('Ymd_His').$name_ext;
     }
     // check error
     $err = isset($_FILES['userfile']['error']) ? $_FILES['userfile']['error'] : 0;
@@ -133,7 +138,7 @@ function action_attach_write()
         "INSERT INTO attach (log_id,name,ext,ctime,mtime)".
         "             VALUES(     ?,   ?,  ?,    ?,    ?)";
       $id = db_insert($sql, [
-          $log_id, $name, $ext, $mtime, $mtime
+          $log_id, $filename, $ext, $mtime, $mtime
       ]);
       $sql = "INSERT INTO attach_counters (id) VALUES (?)";
       db_exec($sql, [$id]);
@@ -148,8 +153,8 @@ function action_attach_write()
     db_commit();
     // include
     $page_link = konawiki_getPageLink();
-    $name_htm = htmlspecialchars($name);
-    $name_enc = rawurlencode($name);
+    $name_htm = htmlspecialchars($filename);
+    $name_enc = rawurlencode($filename);
     $baseurl = konawiki_public("baseurl");
     $page_ = konawiki_getPageURL();
     $attach_ = "{$baseurl}{$page_}/attach?file={$name_htm}";

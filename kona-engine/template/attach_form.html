@@ -6,24 +6,40 @@
 <!-- attach_form -->
 {{ if konawiki_private('attach.enabled') }}
 <h4>「<a href="{{$page_url}}">{{ $page }}</a>」にファイルの添付</h4>
-<p>「{{ $page }}」にファイルを添付します。</p>
+<p>
+  「{{ $page }}」にファイルを添付します。
+  PCではファイルのドラッグも可能です。
+</p>
 <form
     enctype="multipart/form-data"
     action="{{ $baseurl }}"
     method="POST">
-<p>
-  <input type="hidden" name="MAX_FILE_SIZE" value="{{ $max_upload_size }}" />
-  <input type="file" name="userfile" size=40
-    style="border:solid 1px black;padding:8px;margin:4px;"/>
-  <input type="submit" value="{{'Upload file'|lang}}">
-  <input type="hidden" name="page" value="{{$page}}"/>
-  <input type="hidden" name="action" value="attach"/>
-  <input type="hidden" name="stat" value="write"/>
+  <div id="dropzone">
+    <p>ファイル名: <input type="text" id="filename" name="filename" value=""></p>
+    <p>
+      <input type="hidden" name="MAX_FILE_SIZE" value="{{ $max_upload_size }}" />
+      <input type="file" id="userfile" name="userfile" size=40
+        style="border:solid 1px black;padding:8px;margin:4px;"/>
+      <input type="submit" value="{{'Upload file'|lang}}">
+    </p>
+    <input type="hidden" name="page" value="{{$page}}"/>
+    <input type="hidden" name="action" value="attach"/>
+    <input type="hidden" name="stat" value="write"/>
+    <div style="font-size:0.8em; color: #444488;">
+      <div id="preview">
+        <div style="width:99%;height:200px;">&nbsp;</div>
+      </div>
+      <div id="info"></div>
+    </div>
+  </div>
 </p>
 </form>
 {{ else }}
 <h4>設定により添付機能は使えません。</h4>
 {{ endif }}
+
+
+<!-- *** 添付ファイルの一覧 *** --->
 
 {{ if !$list }}
   <h4>「{{ $page }}」に添付ファイルはありません</h4>
@@ -61,5 +77,56 @@
   </div></div>
 </div></div>
 <p class="clear"></p>
+
+<script>
+
+  // drag & drop file
+  const dropzone = document.getElementById('dropzone')
+  const preview = document.getElementById('preview')
+  const userfile = document.getElementById('userfile')
+  const filename = document.getElementById('filename')
+
+  dropzone.addEventListener('dragover', function (e) {
+    e.stopPropagation()
+    e.preventDefault()
+    this.style.background = '#fff7f0'
+  }, false);
+  dropzone.addEventListener('dragleave', function (e) {
+    e.stopPropagation()
+    e.preventDefault()
+    this.style.background = 'white'
+  }, false);
+  userfile.addEventListener('change', function (e) {
+    showFile(this.files[0]);
+  });
+  dropzone.addEventListener('drop', function (e) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.style.background = '#ffffff'; //背景色を白に戻す
+    const files = e.dataTransfer.files; //ドロップしたファイルを取得
+    if (files.length > 1) {return alert('アップロードできるファイルは1つだけです。');}
+    userfile.files = files; //inputのvalueをドラッグしたファイルに置き換える。
+    showFile(files[0]);
+  }, false);
+  function showFile(file) {
+    preview.innerHTML = ''
+    if (!window.FileReader) { return; }
+    if (!file.name) { return; }
+    filename.value = file.name
+    // image ?
+    const fname = file.name;
+    if (fname.match(/\.(png|jpg|jpeg|gif)$/)) {
+    } else { return; }
+    var fr = new FileReader();
+    fr.readAsDataURL(file)
+    fr.onload = function () {
+      var img = document.createElement('img')
+      img.src = fr.result
+      img.style.width = '400px'
+      preview.appendChild(img)
+      document.getElementById('info').innerHTML = '確認したら「アップロード」を押してください。'
+    };
+  }
+</script>
 
 {{ include parts_footer.html }}
