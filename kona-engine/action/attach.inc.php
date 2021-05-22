@@ -7,10 +7,13 @@ function action_attach_()
 {
     // check file parameter
     $file = konawiki_param("file", FALSE);
+
+    // 特定のファイルの指定でなければフォームを表示する
     if ($file === FALSE) { // show form
         action_attach_form();
         return;
     }
+
     // output attach file
     $page = konawiki_getPage();
     $log_id = konawiki_getPageId($page);
@@ -49,13 +52,13 @@ function action_attach_()
 
 function action_attach_form()
 {
-    
     header('X-Frame-Options: SAMEORIGIN');
     $page = konawiki_getPage();
     
     include_template('attach_form.html', [
       'list' => konawiki_getAttachList($page),
       'page_url' => konawiki_getPageURL($page),
+      'edit_token' => konawiki_getEditToken(),
     ]);
 }
 
@@ -205,8 +208,44 @@ __EOS__;
     konawiki_showMessage($body);
 }
 
+function action_attach_up()
+{
+    if (!konawiki_checkEditToken()) {
+        konawiki_error("編集エラー。ページを戻って画面を更新してください。");
+        return;
+    }
+    if (!konawiki_auth()) return;
+    $baseurl = konawiki_public("baseurl");
+    $id = konawiki_param('id', 0);
+    if (!is_numeric($id)) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    $id = intval($id);
+    $sql = "SELECT * FROM attach WHERE id=?";
+    $info = db_get1($sql, [$id]);
+    if (!isset($info['id'])) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    $name = $info["name"];
+    $name_html = htmlspecialchars($name);
+    // 更新実行
+    $sql = "UPDATE attach SET mtime=? WHERE id=?";
+    db_exec($sql, [time(), $id]);
+    $p = konawiki_getPageInfoById($info['log_id']);
+    $page = $p['name'];
+    $url = konawiki_getPageURL($page, 'attach');
+    $body = "<p class='box'><a href='$url'>日付を更新しました</a></p>";
+    konawiki_showMessage($body);
+}
+
 function action_attach_delete()
 {
+    if (!konawiki_checkEditToken()) {
+        konawiki_error("削除エラー。ページを戻って画面を更新してください。");
+        return;
+    }
     if (!konawiki_auth()) return;
     $baseurl = konawiki_public("baseurl");
     $id = konawiki_param('id', 0);
@@ -260,7 +299,7 @@ function konawiki_getAttachList($page)
     if ($log_id == FALSE) {
         return FALSE;
     }
-    $sql = "SELECT * FROM attach WHERE log_id=?";
+    $sql = "SELECT * FROM attach WHERE log_id=? ORDER BY mtime ASC";
     $res = db_get($sql, [$log_id]);
     return $res;
 }

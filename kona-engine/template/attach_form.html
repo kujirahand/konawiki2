@@ -47,18 +47,29 @@
   <h4>「<a href="{{$page_url}}">{{ $page }}</a>」の添付ファイル</h4>
   <table border=1 cellpadding=4>
     <tr>
-      <td>直リンク</td><td>日付</td><td>削除</td><td>Wikiに貼る時</td>
+      <td>直リンク</td>
+      <td>日付</td>
+      <td>削除</td>
+      <td>Wikiに貼る時</td>
     </tr>
   {{ for $list as $i }}
     {{e: $name = $i['name']; $name_u = rawurlencode($name); }}
     {{e: $id = $i['id'] }}
     {{e: $link = konawiki_getPageURL($page, 'attach', '', "file=$name_u") }}
-    {{e: $link_del = konawiki_getPageURL($page, 'attach', 'delete', "id=$id"); }} 
+    {{e: $link_del = konawiki_getPageURL(
+            $page, 'attach', 'delete', 
+            "id=$id&edit_token=$edit_token"); }} 
+    {{e: $link_up = konawiki_getPageURL(
+            $page, 'attach', 'up',
+            "id=$id&edit_token=$edit_token"); }} 
     <tr>
       <td><a href="{{$link}}">{{$name}}</a></td>
-      <td>{{$i.mtime | date}}</td>
+      <td>
+        {{$i.mtime | datetime}}
+        <a href="{{$link_up}}" class="pure-button">更新</a> 
+      </td>
       <td><a href="#" onclick="checkDelete('{{$link_del}}')" class="pure-button">{{'Delete'|lang}}</a></td>
-      <td><input type='text' size=20 value='#ref({{$name}},*{{$name}})' onclick='this.select()'/></td>
+      <td><input type='text' size=10 value='#ref({{$name}},*{{$name}})' onclick='this.select()'/></td>
     </tr>
   {{ endfor }}
   </table>

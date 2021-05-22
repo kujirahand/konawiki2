@@ -24,7 +24,7 @@ function plugin_attachfiles_convert($params)
   $html .= "<div id='attachfiles'>";
   $sql = 
     "SELECT * FROM attach WHERE ".
-    "  log_id=?";
+    "  log_id=? ORDER BY mtime ASC";
   $rows = db_get($sql, [$log_id]);
   if ($rows) {
     foreach ($rows as $res) {

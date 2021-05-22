@@ -52,9 +52,10 @@ function plugin_meta_table_list($json, $msg = '') {
     $active = [];
     $inactive = [];
     foreach ($rows as $i) {
+      $log_id = $i['id'];
       $private = $i['private']; // 1 is private
       $pagename = $i['name'];
-      $html_pagename = htmlspecialchars($pagename, ENT_QUOTES);
+      $html_pagename = htmlspecialchars($pagename.$body, ENT_QUOTES);
       $mname = substr($i['name'], strlen($name.'/'));
       $url_mname = urlencode($mname);
       $html_mname = htmlspecialchars($mname, ENT_QUOTES);
@@ -62,7 +63,7 @@ function plugin_meta_table_list($json, $msg = '') {
       $link = konawiki_getPageURL(FALSE, 'show', '', "m=edit&mname=$url_mname&m2=edit");
       $r = '';
       $r .= "<li>";
-      $r .= "<a href='$link' class='pure-button'>編集</a> ";
+      $r .= "<a href='$link' class='pure-button'>📝</a> ";
       $r .= "<a href='$link'>$html_pagename</a>";
       $r .= "</li>";
       if ($private) {
@@ -71,12 +72,24 @@ function plugin_meta_table_list($json, $msg = '') {
         $active[] = $r;
       }
     }
-    $html .= "<ul>";
+    // make html
+    $html .= <<<EOS
+<style>
+.mt_list {
+  padding: 6px;
+}
+.mt_list li {
+  border-bottom: 1px solid silver;
+  padding: 6px;
+}
+</style>
+EOS;
+    $html .= "<ul class='mt_list'>";
     $html .= implode("\n", $active);
     $html .= "</ul>";
     if ($inactive) {
-      $html .= "<h4>非表示になっているアイテム</h4>";
-      $html .= "<ul>";
+      $html .= "<h4>非表示になっている{$name_h}一覧</h4>";
+      $html .= "<ul class='mt_list'>";
       $html .= implode("\n", $inactive);
       $html .= "</ul>";
     }
@@ -260,9 +273,12 @@ function plugin_meta_table_update($json) {
   $url = konawiki_getPageURL(FALSE, 'show', '', "m=edit&mname=$mname_enc&m2=edit");
   $url_attach = konawiki_getPageURL($pagename, 'attach'); 
   $html = plugin_meta_table_menu($json);
-  $html .= "<p>正しく保存しました。</p>";
+  $html .= "<br>";
+  $html .= "<div class='menubox'>";
+  $html .= "<div style='padding:1em;'>正しく保存しました。</div>";
   $html .= "<p><a href='$url' class='pure-button'>確認する</a><p>";
   $html .= "<p><a href='$url_attach' class='pure-button'>ファイルを添付</a><p>";
+  $html .= "</div>\n";
   return $html;
 }
 
