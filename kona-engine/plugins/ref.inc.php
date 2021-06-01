@@ -108,6 +108,10 @@ function plugin_ref_convert($params)
         $style .= "float:right; margin:8px";
       }
     }
+    // check size
+    if (empty($attr['width']) && empty($attr['height'])) {
+        $attr['width'] = '99%';
+    }
     // make tag
     $attr_s = "";
     foreach ($attr as $key => $val) {
