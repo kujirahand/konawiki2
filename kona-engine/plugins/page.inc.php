@@ -22,7 +22,11 @@ function plugin_page_convert($params)
     $page = $params[0];
     $page_ = htmlspecialchars($page);
     if (isset($pagestack[$page])) {
-        return "[({$page_})は既に表示中です。]";
+        if (konawiki_isLogin_write()) {
+          return "<span style='color:silver;'>[({$page_})は既に表示中です。]</span>";
+        } else {
+          return "<!-- #page 既に表示中 -->";
+        }
     }
     $log = konawiki_getLog($page);
     if (isset($log['body'])) {
