@@ -2,7 +2,6 @@
 /** konawiki plugins -- メタテーブルプラグイン 
  */
 
-
 // include lib
 require_once __DIR__.'/template.inc.php';
 require_once __DIR__.'/lib.inc.php';
@@ -25,10 +24,8 @@ function plugin_meta_table_convert($params) {
   case 'edit':  return plugin_meta_table_edit($json);
   case 'update':return plugin_meta_table_update($json);
   case 'delete':return plugin_meta_table_delete($json);
-  default:
-    return plugin_meta_table_list($json);
   }
-  return "hoge";
+  return plugin_meta_table_list($json);
 }
 
 function plugin_meta_table_list($json, $msg = '') {
@@ -225,6 +222,7 @@ function plugin_meta_table_edit($json, $msg = '') {
     "action_delete" => konawiki_getPageURL(FALSE, 'show', '', 'm=delete'),
     "error_msg" => $msg,
     "edit_token" => konawiki_getEditToken(),
+    "edit_mode" => $m2,
   ]);
   return $html;
 }

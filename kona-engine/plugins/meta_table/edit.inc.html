@@ -38,7 +38,7 @@
       {{$inputs | raw}}
       
       <p><label>
-        <input type="submit" value="情報を保存"
+        <input type="submit" value="情報を保存" id="save_btn"
          class="pure-button pure-button-primary">
       </label></p>
       
@@ -50,18 +50,20 @@
     </form>
   </div>
   
-  <h1>画像の追加</h1>
-  <div class="input_pad">
-    <a target="new" class="pure-button" href="{{$attach_link}}">
-      画像追加と編集
-    </a>
-  </div>
-  
-  <div style="border-top:1px solid silver; margin-top:12px; padding:8px;">
-    <a target="_new" href="{{$show_link}}">
-      →ページを開く
-    </a>
-  </div>
+  <div id="add_attach_area">
+    <h1>画像の追加</h1>
+    <div class="input_pad">
+      <a target="new" class="pure-button" href="{{$attach_link}}">
+        追加と編集
+      </a>
+    </div>
+    
+    <div style="border-top:1px solid silver; margin-top:12px; padding:8px;">
+      <a target="_new" href="{{$show_link}}">
+        →ページを開く
+      </a>
+    </div>
+  </div><!-- #add_attach_area -->
 </div>
 
 <div class="warnbox" id="meta_table_warn">
@@ -80,4 +82,16 @@
     </form>
   </div>
 </div>
+
+<script>
+const editMode = '{{$edit_mode}}';
+const qs = (id) => document.querySelector(id);
+if (editMode === 'new') {
+  qs('#meta_table_warn').style.display = 'none';
+  qs('#add_attach_area').style.display = 'none';
+} else {
+  qs('#save_btn').value = '情報を編集';
+}
+</script>
+
 
