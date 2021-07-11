@@ -696,9 +696,14 @@ function konawiki_parser_makeWikiLink($name)
     }
     else {
         // [[xxx:xxx]]
-        preg_match('|^(.*?)\:(.*)$|', $name, $e);
-        $caption = $e[1];
-        $link    = $e[2];
+        if (preg_match('|^(.*?)\:(.*)$|', $name, $e)) {
+          $caption = $e[1];
+          $link    = $e[2];
+        } else {
+          // マッチしないとき
+          $caption = $name;
+          $link    = konawiki_getPageURL2($name);
+        }
         // protocol ?
         // [[https://xxx]]
         if ($caption == 'http' || $caption == 'https' || $caption == 'ftp' || $caption == 'mailto') {
