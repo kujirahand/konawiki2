@@ -81,7 +81,7 @@ function plugin_nako3_convert($params)
       $baseurl."release/plugin_webworker.js",
       $baseurl."release/plugin_caniuse.js",
       $baseurl."release/nako_gen_async.js", // 「!非同期モード」を使うとき
-      $baseurl."demo/js/chart.js@3.2.1/chart.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.1/chart.min.js",
     );
     foreach ($jslist as $js) {
       $include_js .= "<script defer src='$js'></script>";
