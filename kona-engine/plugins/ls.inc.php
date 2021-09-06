@@ -197,7 +197,7 @@ function plugin_ls_convert__dir(&$r)
     $desc = array();
     foreach ($r as $line) {
         extract($line);
-        $dirs = explode('/', $name);
+        $dirs = mb_split('/', $name);
         $desc[$name] = $body;
         $p = &$tree;
         $tmp = array();
