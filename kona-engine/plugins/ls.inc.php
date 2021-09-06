@@ -89,7 +89,7 @@ function plugin_ls_convert($params)
     $res = "";
     // enum pattern
     $query = 
-      "SELECT id,name,body FROM logs WHERE name LIKE ?".
+      "SELECT id,name,body FROM logs WHERE name LIKE ? AND private = 0".
       "  ORDER BY {$sort_field} {$sort_type}".
       "  LIMIT ? OFFSET ?";
     $r = db_get($query, [$pattern, $limit, $offset]);
@@ -97,9 +97,15 @@ function plugin_ls_convert($params)
         return "なし";
     }
     // trim body data
+    $count_r = 0;
     foreach ($r as $idx => $value) {
         $id   = $value["id"];
         $body = $value["body"];
+        if (!$body) { continue; }
+        $count_r++;
+        // body に #plugin があれば削除
+        $body = preg_replace('/\#[a-zA-Z0-9_]+(\(.+?\))?/', '', $body);
+        $body = preg_replace('#\s{2,}#', ' ', $body);
         if ($body != "" && $onlyname == FALSE) {
             $body_ary = explode("\n", $body, 2);
             $body = $body_ary[0];
@@ -126,7 +132,6 @@ function plugin_ls_convert($params)
         }
         $r[$idx]["body"] = $hbody;
     }
-    $count_r = count($r);
     
     // pager
     $pager = "";
