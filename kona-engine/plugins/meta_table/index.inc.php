@@ -145,9 +145,11 @@ function plugin_meta_table_edit($json, $msg = '') {
   $meta_obj = [];
   // check new page
   $m2 = isset($_GET['m2']) ? $_GET['m2'] : 'new';
-  if ($m2 == 'new') { // 既存ページがあったら警告する
+  // new or update
+  if ($m2 == 'new') {
+    // 既存ページがあったら警告する
     if ($log) {
-      return plugin_meta_table_add($json, '既に同じ名前の物件があります');
+      return plugin_meta_table_add($json, '既に同じ名前の物件があります。違う名前にしてください。');
     }
     // insert new page data
     $body = 
@@ -166,6 +168,7 @@ function plugin_meta_table_edit($json, $msg = '') {
       'VALUES(?, ?, ?, ?)',
       [$id, 'meta_table', $ctime, $ctime], 'sub');
   } else {
+    // update info
     $id = $log['id'];
     // meta info load
     $meta = db_get1(
@@ -179,8 +182,10 @@ function plugin_meta_table_edit($json, $msg = '') {
     } else {
       $meta_obj = json_decode($meta['body'], TRUE);
     }
-
   }
+  // get page info
+  $log = db_get1('SELECT * FROM logs WHERE id=? LIMIT 1', [$id]);
+  if (!$log) { echo '[ERROR] System could not get Wiki page...'; exit; }
   // select
   $select = $json['select'];
   // fields
@@ -193,20 +198,27 @@ function plugin_meta_table_edit($json, $msg = '') {
     if (isset($select[$f])) {
       $options = $select[$f];
       // select box
-      $inputs .= "<label for='$name_f'>{$html_f}</label>\n";
+      $inputs .= "<label for='$name_f'>{$html_f} :<br>\n";
       $inputs .= "<select name='$name_f' id='$name_f'>\n";
       foreach ($options as $opt) {
         $opt_h = htmlspecialchars($opt, ENT_QUOTES);
         $selected = ($opt == $val) ? "selected" : "";
         $inputs .= "<option value='$opt_h' $selected>$opt_h</option>\n";
       }
-      $inputs .= "</select>\n";
+      $inputs .= "</select></label>\n";
     } else {
       // normal text box
-      $inputs .= "<label for='$name_f'>{$html_f}<label>";
+      $inputs .= "<label for='$name_f'>{$html_f} : <br/>";
       $inputs .= "<input type='text' id='$name_f' name='$name_f' value='$val'>";
+      $inputs .= "</label>";
     }
   }
+  // ページの表示・非表示を切り替える
+  $checked_private = (intval($log['private']) > 0) ? 'checked' : '';
+  $inputs .= "<div style='padding-top:0.5em; padding-bottom:0.5em'>";
+  $inputs .= "<label for='tmp_hidden'>オプション :<br>";
+  $inputs .= "　<input type='checkbox' id='tmp_hidden' name='tmp_hidden' value='1' $checked_private> ページを表示しない";
+  $inputs .= "</label></div>";
   //
   $html = plugin_meta_table_menu($json);
   $html .= meta_table_template("edit.inc.html", [
@@ -260,12 +272,21 @@ function plugin_meta_table_update($json) {
     }
   }
   // update contents
+  $msg = "正しく保存しました。";
   $meta_json = json_encode($meta_obj);
   db_exec('UPDATE sublogs SET body=?,mtime=? WHERE log_id=? AND plug_name=?',
     [$meta_json, time(), $log_id, 'meta_table'], 'sub');
   // update logs mtime
   db_exec('UPDATE logs SET mtime=? WHERE id=?',
     [time(), $log_id]);
+  // update tmp_hidden / log[private]
+  $private = isset($_POST['tmp_hidden']) ? intval($_POST['tmp_hidden']) : FALSE;
+  if ($private) {
+    db_exec('UPDATE logs SET private=1 WHERE id=?', [$log_id]);
+    $msg .= "ただし、ページは非表示の状態になりました。";
+  } else {
+    db_exec('UPDATE logs SET private=0 WHERE id=?', [$log_id]);
+  }
 
   $mname_enc = urlencode($mname);
   $url = konawiki_getPageURL(FALSE, 'show', '', "m=edit&mname=$mname_enc&m2=edit");
@@ -273,7 +294,7 @@ function plugin_meta_table_update($json) {
   $html = plugin_meta_table_menu($json);
   $html .= "<br>";
   $html .= "<div class='menubox'>";
-  $html .= "<div style='padding:1em;'>正しく保存しました。</div>";
+  $html .= "<div style='padding:1em;'>$msg</div>";
   $html .= "<p><a href='$url' class='pure-button'>確認する</a><p>";
   $html .= "<p><a href='$url_attach' class='pure-button'>ファイルを添付</a><p>";
   $html .= "</div>\n";
