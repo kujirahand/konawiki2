@@ -33,7 +33,7 @@ function plugin_meta_table_list($json, $msg = '') {
   $name = $json['name'];
   $fields = $json['fields'];
   $offset = empty($_GET['offset']) ? 0 : intval($_GET['offset']);
-  $sql = 'SELECT * FROM logs WHERE name LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?';
+  $sql = 'SELECT * FROM logs WHERE name LIKE ? ORDER BY mtime DESC LIMIT ? OFFSET ?';
   $rows = db_get($sql, [$name."/%", KONA_META_LIMIT, $offset]);
 
   $name_h = htmlspecialchars($name, ENT_QUOTES);
@@ -54,6 +54,8 @@ function plugin_meta_table_list($json, $msg = '') {
       $pagename = $i['name'];
       $html_pagename = htmlspecialchars($pagename.$body, ENT_QUOTES);
       $mname = substr($i['name'], strlen($name.'/'));
+      $mtime = $i['mtime'];
+      $mtime_s = '<span style="font-size:0.7em; color:silver;">('.date("Y/m/d", $mtime).')</span>';
       $url_mname = urlencode($mname);
       $html_mname = htmlspecialchars($mname, ENT_QUOTES);
       $linkshow = konawiki_getPageURL($pagename);
@@ -61,7 +63,7 @@ function plugin_meta_table_list($json, $msg = '') {
       $r = '';
       $r .= "<li>";
       $r .= "<a href='$link' class='pure-button'>📝</a> ";
-      $r .= "<a href='$link'>$html_pagename</a>";
+      $r .= "<a href='$link'>$html_pagename</a> $mtime_s";
       $r .= "</li>";
       if ($private) {
         $inactive[] = $r;
@@ -282,10 +284,10 @@ function plugin_meta_table_update($json) {
   // update tmp_hidden / log[private]
   $private = isset($_POST['tmp_hidden']) ? intval($_POST['tmp_hidden']) : FALSE;
   if ($private) {
-    db_exec('UPDATE logs SET private=1 WHERE id=?', [$log_id]);
+    db_exec('UPDATE logs SET private=1, mtime=? WHERE id=?', [$log_id, time()]);
     $msg .= "ただし、ページは非表示の状態になりました。";
   } else {
-    db_exec('UPDATE logs SET private=0 WHERE id=?', [$log_id]);
+    db_exec('UPDATE logs SET private=0, mtime=? WHERE id=?', [$log_id. time()]);
   }
 
   $mname_enc = urlencode($mname);
