@@ -389,24 +389,39 @@ function konawiki_page_debug()
     global $konawiki, $public, $private;
     if (!konawiki_is_debug()) return;
     extract($public);
-    echo '<pre>';
-    echo '【テストモードです--ReadMe.txtをご覧ください。】'."\n";
-    print_r($_GET);
-    //echo "url:"; print_r($_SERVER);
-    echo "baseurl:".konawiki_public("baseurl")."\n";
-    echo "page  :$page\n";
-    echo "action:$action\n";
-    echo "stat  :$stat\n";
-    echo "sesseion: ";
-    $s = print_r($_SESSION, true);
-    echo htmlspecialchars($s);
-    echo "* konawiki: \n";
-    echo htmlspecialchars(var_dump($konawiki));
-    echo "* public: \n";
-    echo htmlspecialchars(var_dump($public));
-    echo "* private: \n";
-    echo htmlspecialchars(var_dump($private));
-    //print_r($_SERVER);
+    echo '<hr style="margin-top: 2em;margin-bottom: 2em;">';
+    echo '<h2>【DEBUG MODE】</h2>'."\n";
+    konawiki2_debug_params('basic info', [
+      "baseurl" => konawiki_public("baseurl"),
+      "page" => $page,
+      "action" => $action,
+      "stat" => $stat,
+    ]);
+    konawiki2_debug_params('$_GET', $_GET);
+    konawiki2_debug_params('$_SESSION', $_SESSION);
+    konawiki2_debug_params('$_SERVER', $_SERVER);
+    konawiki2_debug_params('$public', $public);
+}
+
+function konawiki2_debug_params($name, $params) 
+{
+  $name_h = htmlspecialchars($name, ENT_QUOTES);
+  echo "<div style='border: 1px solid silver; padding: 1em; background-color: #f0f0f0;'>\n";
+  echo "<h3 style='background-color: #f0f;'>$name_h</h3>\n";
+  echo "<div style='padding-left:2em;'>\n";
+  foreach ($params as $k => $v) {
+    echo "<span style='background-color: yellow;'>".htmlspecialchars($k, ENT_QUOTES)."</span>";
+    echo " =&gt; ";
+    if (is_array($v)) {
+      echo "<pre style='border:1px gray solid; background-color: #eee;'><code>";
+      print_r($v);
+      echo "</code></pre>";
+    } else {
+      echo htmlspecialchars($v, ENT_QUOTES);
+    }
+    echo "<br>";
+  }
+  echo "</div></div>\n\n";
 }
 
 
