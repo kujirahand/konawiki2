@@ -74,7 +74,7 @@ function plugin_nako3_convert($params)
       // nadesiko
       $baseurl."release/wnako3.js",
       $baseurl."release/plugin_csv.js",
-      $baseurl."release/plugin_datetime.js",
+      // $baseurl."release/plugin_datetime.js", // v3.2.31で省略可能に
       $baseurl."release/plugin_markup.js",
       $baseurl."release/plugin_kansuji.js",
       $baseurl."release/plugin_turtle.js",
