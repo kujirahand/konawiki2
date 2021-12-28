@@ -144,10 +144,10 @@ function plugin_nako3_convert($params)
   <div id="nako3_info_html_$pid" class="nako3info_html" style="display:none"></div>
 </div><!-- end of #nako3_error_{$pid} -->
 
-<!-- CANVAS -->
-{$canvas_code}
 <!-- USER FORM - FREE DOM AREA -->
 <div id="nako3_div_{$pid}" class="nako3_div"></div>
+<!-- CANVAS -->
+{$canvas_code}
 
 {$js_code}
 </div><!-- end of #nako3 -->
