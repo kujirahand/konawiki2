@@ -117,7 +117,7 @@ function plugin_nako3_convert($params)
 <input type="hidden" name="version" value="{$ver}" />
 </form>
 </div><!-- end of #nako3_editor_main_{$pid} -->
-<div id="nako3_editor_controlls_{$pid}" class="nako3row" style="padding-bottom:4px;">
+<div id="nako3_editor_controlls_{$pid}" class="nako3row nako3ctrl" style="padding-bottom:4px;">
   <button onclick="nako3_run($pid, $j_use_canvas)">▶ 実行 </button>
   <button onclick="nako3_clear($pid, $j_use_canvas)">クリア</button>
   <span id="post_span_{$pid}" class="post_span">
@@ -144,10 +144,10 @@ function plugin_nako3_convert($params)
   <div id="nako3_info_html_$pid" class="nako3info_html" style="display:none"></div>
 </div><!-- end of #nako3_error_{$pid} -->
 
-<!-- FREE DOM AREA -->
-<div id="nako3_div_{$pid}" class="nako3_div"></div>
-
+<!-- CANVAS -->
 {$canvas_code}
+<!-- USER FORM - FREE DOM AREA -->
+<div id="nako3_div_{$pid}" class="nako3_div"></div>
 
 {$js_code}
 </div><!-- end of #nako3 -->
@@ -168,8 +168,11 @@ function plugin_nako3_gen_style_code() {
 <style>
 .nako3 { border: 1px solid #a0a0ff; padding:4px; margin:2px; }
 .nako3row { margin:0; padding: 0; }
+.nako3ctrl {
+    border-bottom: 1px dotted silver;
+}
 .nako3txt {
-  margin:0; padding: 4px; font-size:1em; line-height:1.2em;
+  margin:0; padding: 4px; font-size:1em; line-height:1.4em;
   width: 98%;
 }
 .nako3row  > button, 
@@ -213,7 +216,8 @@ function plugin_nako3_gen_style_code() {
 }
 .nako3_div {
   font-size: 1em;
-  line-height: 1.1em;
+  line-height: 1.4em;
+  padding: 18px;
 }
 .nako3_div button {
   margin: 4px;
