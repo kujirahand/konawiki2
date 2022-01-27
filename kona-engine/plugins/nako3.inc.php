@@ -279,7 +279,9 @@ var nako3_get_div = function () {
   return qs("#nako3_div_" + nako3_info_id)
 }
 // 表示
-var nako3_print = function (s) {
+var nako3_print = function (s, sys) {
+  s = sys.__printPool + s
+  sys.__printPool = ''
   console.log("[表示] " + s)
   var info = nako3_get_info()
   if (!info) return
