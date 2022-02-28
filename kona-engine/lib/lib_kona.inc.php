@@ -68,12 +68,14 @@ function konawiki_init()
     konawiki_start_session();
     konawiki_parseURI();
     // Initialize Database
-    konawiki_auth_read();
     konawiki_initDB(); // @see ./konawiki_db.inc.php
 
     // set public info
     konawiki_set_public_info();
     // action
+    if ($public['action'] != 'file') {
+        konawiki_auth_read(); // @see ./konawiki_auth.inc.php
+    }
     konawiki_execute_action();
 }
 

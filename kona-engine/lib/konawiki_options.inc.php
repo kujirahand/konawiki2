@@ -23,7 +23,7 @@ function konawiki_checkOptions() {
     kona_check_public('favicon', 'favicon.ico');
     kona_check_public('ogimage', 'logo-large.png');
     kona_check_public('og:type', 'website');
-    
+
     // wiki setting
     kona_check_public('FrontPage', 'FrontPage'); // FrontPage name ... トップページの名前
     kona_check_public('login.link.visible', TRUE);
@@ -55,8 +55,9 @@ function konawiki_checkOptions() {
     kona_check_private('dir.attach', $root_dir.'/attach');
     kona_check_private('dir.cache', $root_dir.'/cache');
     // URI
-    $base_uri = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'';
-    $root_uri = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
+    $scheme = empty($_SEVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME'];
+    $base_uri = $scheme.'://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'';
+    $root_uri = $scheme.'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
     kona_check_private('uri.base', $base_uri);
     kona_check_private('uri.attach', $root_uri.'/attach');
     kona_check_private('uri.skin', $root_uri.'/skin');
@@ -75,7 +76,7 @@ function konawiki_checkOptions() {
     // # login users
     kona_check_private('auth.users', []);
     kona_check_private('auth.users.perm', []);
-    
+
     // wiki parser setting
     kona_check_private('ul_mark1', '・');
     kona_check_private('ul_mark2', '≫');
@@ -93,7 +94,7 @@ function konawiki_checkOptions() {
     kona_check_private('source_tag_hr', "<p class='clear'/><div class='underline'>&nbsp;</div>\n");
     kona_check_private('entry_begin', '<article class="entry">');
     kona_check_private('entry_end', '</article><!-- end of entry -->');
-    
+
     // [cache]
     // cache => cache or nocache
     kona_check_private('cache.mode', FALSE);
@@ -113,9 +114,9 @@ function kona_check_public($name, $def_value) {
 
 function konawiki_getBrowserLang() {
     $accept = isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
-      ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
+        ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
     $lang = explode(',', $accept);
     $lang = preg_replace('#^(\w+)\-.*$#', '\1', $lang);
     return $lang[0];
-  }
-  
+}
+
