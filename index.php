@@ -64,5 +64,7 @@ if (!file_exists($engineDir)) {
 include_once $engineDir.'/lib/lib_kona.inc.php';
 // initialize
 konawiki_init();
-//--------------------------------------------------------------------
-// function
+
+
+
+
