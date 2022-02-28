@@ -55,7 +55,8 @@ function konawiki_checkOptions() {
     kona_check_private('dir.attach', $root_dir.'/attach');
     kona_check_private('dir.cache', $root_dir.'/cache');
     // URI
-    $scheme = empty($_SEVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME'];
+    $scheme = 'http';
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') { $scheme = 'https'; }
     $base_uri = $scheme.'://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'';
     $root_uri = $scheme.'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
     kona_check_private('uri.base', $base_uri);
