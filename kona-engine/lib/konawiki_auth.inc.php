@@ -206,6 +206,7 @@ function konawiki_show_loginForm($msg = '') {
 function konawiki_auth_setBackLink($link) {
   $_SESSION['login.backlink'] = $link;
 }
+
 function konawiki_auth_getBackLink() {
   return isset($_SESSION['login.backlink']) ? $_SESSION['login.backlink'] : '';
 }
