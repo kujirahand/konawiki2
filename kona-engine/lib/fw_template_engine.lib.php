@@ -113,12 +113,12 @@ function template_render($tpl_filename, $tpl_params) {
     '#\{\{\s*\$([a-zA-Z0-9_.]+)\s*\|\s*([a-zA-Z0-9_]+)\s*}}#is' => function ($m) {
       $key = template_var_name($m[1]);
       $filter = $m[2];
-      return "<?php echo t_{$filter}(\$$key);?>";
+      return "<?php echo t_{$filter}(isset(\$$key) ? \$$key : '');?>";
     },
     // varname only
     '#\{\{\s*\$([a-zA-Z0-9_.]+)\s*}}#is' => function ($m) {
       $key = template_var_name($m[1]);
-      return "<?php echo t_echo(\$$key);?>";
+      return "<?php echo t_echo(isset(\$$key) ? \$$key : '');?>";
     },
     // string with filter {{ "..." | filter }}
     '#\{\{\s*(\".*?\"|\'.*?\')\s*\|\s*([a-zA-Z0-9_]+)\s*}}#is' => function ($m) {
