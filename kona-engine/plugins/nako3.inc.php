@@ -280,6 +280,9 @@ var nako3_get_div = function () {
 }
 // 表示
 var nako3_print = function (s, sys) {
+  if (typeof(sys.__printPool) === 'undefined') {
+    sys.__printPool = '';
+  }
   s = sys.__printPool + s
   sys.__printPool = ''
   console.log("[表示] " + s)
