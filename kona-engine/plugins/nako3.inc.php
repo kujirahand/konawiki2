@@ -288,6 +288,7 @@ var nako3_print = function (s, sys) {
   }
   s = sys.__printPool + s
   sys.__printPool = ''
+  sys.__v0['表示ログ'] += (s + '\\n')
   console.log("[表示] " + s)
   var info = nako3_get_info()
   if (!info) return
