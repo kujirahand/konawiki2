@@ -280,29 +280,27 @@ var nako3_get_div = function () {
 }
 // 表示
 var nako3_print = function (s, sys) {
-  if (!sys) {
-    sys = {}
-  }
-  if (typeof(sys['__printPool']) === 'undefined') {
-    sys.__printPool = '';
-  }
-  s = sys.__printPool + s
-  sys.__printPool = ''
-  sys.__v0['表示ログ'] += (s + '\\n')
-  console.log("[表示] " + s)
   var info = nako3_get_info()
   if (!info) return
   var box = nako3_get_resultbox()
   box.style.display = 'block'
   s = "" + s // 文字列に変換
-  // エラーだった場合
   if (s.substr(0, 9) == "==ERROR==") {
+    // エラーだった場合
     s = s.substr(9)
     var err = nako3_get_error()
     err.innerHTML = s
     err.style.display = 'block'
     return
   } else {
+    // エラー以外の場合
+    if (!sys) { sys = {} }
+    if (typeof(sys['__printPool']) === 'undefined') { sys.__printPool = '' }
+    s = sys.__printPool + s
+    sys.__printPool = ''
+    sys.__v0['表示ログ'] += (s + '\\n')
+    console.log("[表示] " + s)
+    // 表示  
     info.innerHTML += to_html(s) + "\\n"
     info.style.display = 'block'
   }
