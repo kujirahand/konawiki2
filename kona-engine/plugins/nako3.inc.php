@@ -139,15 +139,13 @@ function plugin_nako3_convert($params)
 
 <!-- RESULT -->
 <div id="nako3result_div_$pid" class="nako3row" style="display:none;">
-  <textarea class="nako3row nako3info" readonly
-            id="nako3_info_$pid" rows="5" style="display:none"></textarea>
-  <div id="nako3_info_html_$pid" class="nako3info_html" style="display:none"></div>
+  <textarea class="nako3row nako3info" readonly id="nako3_info_$pid" rows="5"></textarea>
+  <div id="nako3_info_html_$pid" class="nako3info_html"></div>
+  <!-- USER FORM - FREE DOM AREA -->
+  <div id="nako3_div_{$pid}" class="nako3_div"></div>
+  <!-- CANVAS -->
+  {$canvas_code}
 </div><!-- end of #nako3_error_{$pid} -->
-
-<!-- USER FORM - FREE DOM AREA -->
-<div id="nako3_div_{$pid}" class="nako3_div"></div>
-<!-- CANVAS -->
-{$canvas_code}
 
 {$js_code}
 </div><!-- end of #nako3 -->
@@ -354,12 +352,15 @@ async function nako3_run(id, use_canvas) {
     alert('現在ライブラリを読み込み中です。しばらくお待ちください。')
     return
   }
-  var code_e = qs("#nako3_code_" + id)
+  // set id
+  nako3_info_id = id
+  // get textarea
+  const code_e = qs("#nako3_code_" + id)
   if (!code_e) return
-  var code = code_e.value
-  var canvas_name = "#nako3_canvas_" + id
-  var div_name = "#nako3_div_" + id
-  var addon =
+  const code = code_e.value
+  const canvas_name = "#nako3_canvas_" + id
+  const div_name = "#nako3_div_" + id
+  let addon =
     "「" + div_name + "」へDOM親要素設定;" +
     "「" + div_name + "」に「」をHTML設定;"
   if (use_canvas) {
@@ -368,9 +369,10 @@ async function nako3_run(id, use_canvas) {
       "カメ描画先=「" + canvas_name + "」;"
   }
   addon += "\\n" // 重要(インデント構文対策)
+  const box = nako3_get_resultbox(id)
+  box.style.display = 'block'
   try {
     const nako3 = navigator.nako3
-    nako3_info_id = id
     nako3_clear()
     await nako3.loadDependencies(addon + code, 'main.nako3', addon)
     nako3.run(addon + code, 'main.nako3', addon)
