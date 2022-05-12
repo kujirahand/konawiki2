@@ -349,7 +349,7 @@ function to_html(s) {
 //------------------------------------
 // なでしこのプログラムを実行する関数
 //------------------------------------
-function nako3_run(id, use_canvas) {
+async function nako3_run(id, use_canvas) {
   if (typeof(navigator.nako3) === 'undefined') {
     alert('現在ライブラリを読み込み中です。しばらくお待ちください。')
     return
@@ -369,9 +369,11 @@ function nako3_run(id, use_canvas) {
   }
   addon += "\\n" // 重要(インデント構文対策)
   try {
+    const nako3 = navigator.nako3
     nako3_info_id = id
     nako3_clear()
-    navigator.nako3.runReset(addon + code, '', addon)
+    await nako3.loadDependencies(addon + code, 'main.nako3', addon)
+    nako3.run(addon + code, 'main.nako3', addon)
     console.log("DONE")
   } catch (e) {
     nako3_print("==ERROR==" + e.message + "")
