@@ -13,6 +13,7 @@ function action_edit_()
   if (isset($log['body'])) {
     $log["hash"] = md5($log["body"]);
   } else {
+    $log = [];
     $log["hash"] = "";
   }
 
