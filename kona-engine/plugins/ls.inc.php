@@ -83,7 +83,7 @@ function plugin_ls_convert($params)
     // check pager
     $limit = $PER_PAGE + 1;
     $pagername = "pager".bin2hex($pattern);
-    $p = konawiki_param($pagername, 0);
+    $p = intval(konawiki_param($pagername, 0));
     if ($p < 0) $p = 0;
     $offset = $p * $PER_PAGE;
     $res = "";
