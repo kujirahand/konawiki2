@@ -1,8 +1,10 @@
 <?php
 /** konawiki plugins -- ピコサクラMML
- * - [書式] {{{#sakuramml データ }}}
+ * - [書式] {{{#sakuramml(rows=8) データ }}}
  * - [引数]
- * -- データ  .. 再生したいデータ
+ * -- rows=n ... エディタの行数
+ * -- ver=x.x.x ... サクラのバージョン指定
+ * -- データ  ... 再生したいデータ
  * - [使用例]
 {{{
 _{{{#sakuramml
@@ -11,18 +13,37 @@ _}}}
 }}}
  * - [公開設定] 公開
  */
+define("SAKURAMML_VERSION", "0.1.10");
 
 function plugin_sakuramml_convert($params)
 {
     $pid = konawiki_getPluginInfo("sakuramml", "pid", 1);
     konawiki_setPluginInfo("sakuramml", "pid", $pid+1);
     
-    $mml  = trim(array_shift($params));
+    $sakura_version = SAKURAMML_VERSION;
+    $mml = "";
+    $rows = 8;
+    foreach ($params as $line) {
+        $line = trim($line);
+        if (preg_match('#^rows\=(\d+)#', $line, $m)) {
+            $rows = intval($m[1]);
+            continue;
+        }
+        if (preg_match('#^ver\=(\d+)#', $line, $m)) {
+            $sakura_version = intval($m[1]);
+            continue;
+        }
+        if ($mml == "") {
+            $mml = $line;
+        }
+    }
     
     $html = "";
     $args = [
-        "mml" => htmlspecialchars($mml),
+        "sakura_version" => $sakura_version,
         "pid" => $pid,
+        "mml" => htmlspecialchars($mml),
+        "rows" => $rows,
     ];
     if ($pid == 1) { // 初回のみヘッダを表示
         $html .= getTemplateHeader($args);
@@ -37,7 +58,7 @@ function getTemplate($args) {
 <!-- #sakuramml.parts.pid{$pid}-->
 <div class="sakuramml_block" id="sakuramml_bock{$pid}">
   <div>
-    <textarea id="sakuramml_txt{$pid}" cols="60" rows="8" style="width:97%;padding:8px;background-color:#fffff0;">{$mml}</textarea>
+    <textarea id="sakuramml_txt{$pid}" cols="60" rows="{$rows}" style="width:97%;padding:8px;background-color:#fffff0;">{$mml}</textarea>
   </div>
   <div id="player{$pid}" class="sakuramml_player_buttons" style="display:none;">
     <button id="btnPlay{$pid}" style="padding:8px;">▶ ピコ再生</button>
@@ -88,7 +109,7 @@ function getTemplateHeader($args) {
 
 <script type="module">
   // WebAssemblyを読み込む --- (*1)
-  import init, {compile,get_version} from 'https://cdn.jsdelivr.net/npm/sakuramml@0.1.10/sakuramml.js';
+  import init, {compile,get_version} from 'https://cdn.jsdelivr.net/npm/sakuramml@{$sakura_version}/sakuramml.js';
 
   // Promiseの仕組みでライブラリを読み込む
   init().then(() => {
