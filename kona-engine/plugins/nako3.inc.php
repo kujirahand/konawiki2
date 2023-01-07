@@ -74,13 +74,13 @@ function plugin_nako3_convert($params)
       // nadesiko
       $baseurl."release/wnako3.js",
       $baseurl."release/plugin_csv.js",
-      // $baseurl."release/plugin_datetime.js", // v3.2.31で省略可能に
       $baseurl."release/plugin_markup.js",
       $baseurl."release/plugin_kansuji.js",
       $baseurl."release/plugin_turtle.js",
       $baseurl."release/plugin_webworker.js",
       $baseurl."release/plugin_caniuse.js",
-      $baseurl."release/nako_gen_async.js", // 「!非同期モード」を使うとき
+      // $baseurl."release/plugin_datetime.js", // v3.2.31で省略可能に
+      // $baseurl."release/nako_gen_async.js", // 「!非同期モード」は非サポートに
       "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.1/chart.min.js",
     );
     foreach ($jslist as $js) {
@@ -104,7 +104,7 @@ function plugin_nako3_convert($params)
   $j_use_canvas = ($use_canvas) ? 1 : 0;
   $readonly = ($editable) ? "" : "readonly='1' style='background-color:#f0f0f0;'";
   $can_save = ($editable) ? 'true' : 'false';
-	$html = trim(htmlspecialchars($code));
+  $html = trim(htmlspecialchars($code));
   return <<< EOS
 <!-- nako3 plugin -->
 {$include_js}{$style_code}
@@ -203,7 +203,7 @@ function plugin_nako3_gen_style_code() {
   color:#505050; background-color: #f0f0f0;
 }
 .nako3info_html {
-  border: 1px solid #a0a0a0;
+  border: none;
   padding: 4px; margin: 4px;
 }
 .nako3_conv_html_link {
@@ -258,66 +258,48 @@ function plugin_nako3_gen_js_code($baseurl, $use_canvas) {
 var nako3_info_id = 0
 var baseurl = "{$baseurl}"
 var use_canvas = $s_use_canvas
+var nako3_isDebug = false
 function qs(query) {
   return document.querySelector(query)
 }
-var nako3_get_resultbox = function () {
+const nako3_get_resultbox = function () {
   return qs("#nako3result_div_" + nako3_info_id)
 }
-var nako3_get_info = function () {
+const nako3_get_info = function () {
   return qs("#nako3_info_" + nako3_info_id)
 }
-var nako3_get_error = function () {
+const nako3_get_error = function () {
   return qs("#nako3_error_" + nako3_info_id)
 }
-var nako3_get_canvas = function () {
+const nako3_get_canvas = function () {
   return qs("#nako3_canvas_" + nako3_info_id)
 }
-var nako3_get_div = function () {
+const nako3_get_div = function () {
   return qs("#nako3_div_" + nako3_info_id)
 }
-// 表示
-var nako3_print = function (s, sys) {
-  var info = nako3_get_info()
-  if (!info) return
-  var box = nako3_get_resultbox()
-  box.style.display = 'block'
-  s = "" + s // 文字列に変換
-  if (s.substr(0, 9) == "==ERROR==") {
-    // エラーだった場合
-    s = s.substr(9)
-    var err = nako3_get_error()
-    err.innerHTML = s
-    err.style.display = 'block'
-    return
-  } else {
-    // エラー以外の場合
-    if (!sys) { sys = {} }
-    if (typeof(sys['__printPool']) === 'undefined') { sys.__printPool = '' }
-    s = sys.__printPool + s
-    sys.__printPool = ''
-    sys.__v0['表示ログ'] += (s + '\\n')
-    console.log("[表示] " + s)
-    // 表示  
-    info.innerHTML += to_html(s) + "\\n"
-    info.style.display = 'block'
-  }
+function to_html(s) {
+  s = '' + s
+  return s.replace(/\&/g, '&amp;')
+          .replace(/\</g, '&lt;')
+          .replace(/\>/g, '&gt;')
 }
-//---------------------------------
-var nako3_clear = function (s, use_canvas) {
+// ---------------------------------------------------------
+// 「表示ログクリア」命令の定義
+// ---------------------------------------------------------
+const nako3_clear = function (s, use_canvas) {
   var info = nako3_get_info()
   if (!info) return
   info.innerHTML = ''
   info.style.display = 'none'
-  var err = nako3_get_error()
+  const err = nako3_get_error()
   err.innerHTML = ''
   err.style.display = 'none'
-  var div = nako3_get_div()
+  const div = nako3_get_div()
   if (div) div.innerHTML = ''
   if (use_canvas) {
-    var canvas = nako3_get_canvas()
+    const canvas = nako3_get_canvas()
     if (canvas) {
-      var ctx = canvas.getContext('2d')
+      const ctx = canvas.getContext('2d')
       ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
   }
@@ -325,39 +307,69 @@ var nako3_clear = function (s, use_canvas) {
     navigator.nako3.clearPlugins()
   }
 }
-
+function nako3_funcLog(s, sys) {
+  console.log(s)
+}
+function nako3_setDebugMode(s, sys) {
+  nako3_isDebug = true
+  console.log(sys)
+}
+// ---------------------------------------------------------
 // 独自関数の登録
-var nako3_add_func = function () {
-  navigator.nako3.setFunc("表示", [['の', 'を', 'と']], nako3_print, true)
-  navigator.nako3.setFunc("表示ログクリア", [], nako3_clear, true)
-}
-var nako3_init_timer = setInterval(function(){
-  if (typeof(navigator.nako3) === 'undefined') return
+// ---------------------------------------------------------
+// タイマーで読み込み状況を監視して命令を追加する
+const nako3_init_timer = setInterval(function (){
+  if (typeof(navigator.nako3) === 'undefined') { return }
+  const nako3 = navigator.nako3
   clearInterval(nako3_init_timer)
-  nako3_add_func()
-}, 500)
-
-function to_html(s) {
-  s = '' + s
-  return s.replace(/\&/g, '&amp;')
-          .replace(/\</g, '&lt;')
-          .replace(/\>/g, '&gt;')
+  nako3_addFunctionForKonaWiki2(nako3)
+  nako3_setLogger(nako3)
+}, 300)
+function nako3_addFunctionForKonaWiki2 (nako3) {
+  nako3.setFunc("表示ログクリア", [], nako3_clear, true)
+  nako3.setFunc("__LOG", [['を', 'と', 'に']], nako3_funcLog, true)
+  nako3.setFunc("__DEBUG", [], nako3_setDebugMode, true)
+}
+function nako3_setLogger (nako3) {
+  const logger = nako3.getLogger()
+  logger.addListener('trace', (e) => {
+    if (e.level == 'trace' && nako3_isDebug) {
+      console.log(e.noColor)
+    }
+    if (e.level === 'stdout') {
+      const info = nako3_get_info()
+      info.value = e.noColor
+      info.style.display = 'block'
+      return
+    }
+    if (e.level === 'warn' || e.level === 'error') {
+      console.log(...e.browserConsole)
+      const err = nako3_get_error()
+      err.innerHTML = e.html
+      err.style.display = 'block'
+    }
+  })
 }
 
-//------------------------------------
+// ---------------------------------------------------------
 // なでしこのプログラムを実行する関数
-//------------------------------------
+// ---------------------------------------------------------
 async function nako3_run(id, use_canvas) {
   if (typeof(navigator.nako3) === 'undefined') {
     alert('現在ライブラリを読み込み中です。しばらくお待ちください。')
     return
-  }
-  // set id
+  }  
+  // 編集中のエディタIDをセット。複数のエディタが存在する場合を考慮している。
   nako3_info_id = id
-  // get textarea
+  // ソースコードを取得
   const code_e = qs("#nako3_code_" + id)
-  if (!code_e) return
+  if (!code_e) {
+      alert('ソースコードを取得できません。HTML内に id=nako3_code_'+id+' が見当たりません。')
+      return
+  }
   const code = code_e.value
+  if (code.indexOf('__DEBUG') >= 0) { nako3_isDebug = true }
+  // 描画用のCanvasを取得
   const canvas_name = "#nako3_canvas_" + id
   const div_name = "#nako3_div_" + id
   let addon =
@@ -375,17 +387,23 @@ async function nako3_run(id, use_canvas) {
     const nako3 = navigator.nako3
     nako3_clear()
     await nako3.loadDependencies(addon + code, 'main.nako3', addon)
-    nako3.run(addon + code, 'main.nako3', addon)
-    console.log("DONE")
+    const env = await nako3.run(addon + code, 'main.nako3', addon)
+    if (nako3_isDebug) {
+      console.log('__DEBUG')
+      console.log(env)
+    } else {
+      console.log('[DONE] 必要に応じてなでしこのコードに __DEBUG と記述してください。')
+    }
   } catch (e) {
-    nako3_print("==ERROR==" + e.message + "")
-    console.log(e)
+    // コンソールにエラーを出力
+    // (memo) 編集画面への出力は nako3_setLogger にて処理
+    console.error(e)
   }
 }
 
-//------------------------------------
+// ---------------------------------------------------------
 // 投稿などエディタの機能
-//------------------------------------
+// ---------------------------------------------------------
 const nako3_save_key = 'nako3start::'
 const nako3_save_key_files = 'nako3start::__files__'
 var nako3_save_name = 'テスト.nako3'
@@ -543,6 +561,8 @@ function nako3set_textarea(edt, lbl, pid, use_canvas) {
 </script>
 EOS;
 }
+// ---------------------------------------------------------
+// #nako3
 // ---------------------------------------------------------
 
 
