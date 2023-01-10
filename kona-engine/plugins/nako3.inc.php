@@ -289,6 +289,7 @@ function to_html(s) {
 const nako3_clear = function (s, use_canvas) {
   var info = nako3_get_info()
   if (!info) return
+  info.value = ''
   info.innerHTML = ''
   info.style.display = 'none'
   const err = nako3_get_error()
@@ -338,7 +339,7 @@ function nako3_setLogger (nako3) {
     }
     if (e.level === 'stdout') {
       const info = nako3_get_info()
-      info.value = e.noColor
+      info.value += e.noColor + '\\n'
       info.style.display = 'block'
       return
     }
