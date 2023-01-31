@@ -304,8 +304,8 @@ const nako3_clear = function (s, use_canvas) {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
   }
-  if (navigator.nako3) {
-    navigator.nako3.clearPlugins()
+  if (navigator.nako3) { // リセット処理
+    navigator.nako3.reset()
   }
 }
 function nako3_funcLog(s, sys) {
