@@ -19,7 +19,7 @@
 function plugin_ref_convert($params)
 {
   konawiki_setPluginDynamic(false);
-	if (count($params) == 0) { return "[usage - #ref(attachname)]"; }
+  if (count($params) == 0) { return "[usage - #ref(attachname)]"; }
   $page    = konawiki_getPage();
   $page_id = konawiki_getPageId();
   $fname = $params[0];
@@ -67,7 +67,7 @@ function plugin_ref_convert($params)
   $link_url = $file_url;
   // image file ?
   $caption = "";
-  if (preg_match("#(\.jpg|\.jpeg|\.png|\.gif|\.ico)$#i", $fname)) {
+  if (preg_match("#(\.jpg|\.jpeg|\.png|\.svg|\.gif|\.ico)$#i", $fname)) {
     // check parameter
     $attr = array('alt'=>htmlspecialchars($fname, ENT_QUOTES));
     $style = "";
