@@ -6,7 +6,7 @@
  */
 
 // konawiki lib version
-define('KONAWIKI_VERSION', '2.3.3');
+define('KONAWIKI_VERSION', '2.3.4');
 require_once __DIR__.'/konawiki_options.inc.php';
 
 //----------------------------------------------------------------------
@@ -30,6 +30,7 @@ function konawiki_init()
     define("KONAWIKI_DIR_DEF_RES",  $engineDir."/resource");
     define("KONAWIKI_DIR_PLUGINS",  $engineDir."/plugins");
     define("KONAWIKI_DIR_HELP",     $engineDir."/help");
+    define("KONAWIKI_DIR_FW_SIMPLE", $engineDir."/fw_simple");
     // public area
     define("KONAWIKI_DIR_SKIN",     $private['dir.skin']);
     define("KONAWIKI_URI_SKIN",     $private['uri.skin']);
@@ -47,7 +48,7 @@ function konawiki_init()
     }
     $DIR_TEMPLATE_CACHE = $private['dir.cache'];
     $DIR_TEMPLATE = $engineDir.'/template';
-    require_once(KONAWIKI_DIR_LIB.'/fw_template_engine.lib.php');
+    require_once(KONAWIKI_DIR_FW_SIMPLE.'/fw_template_engine.lib.php');
     if (!is_writable($DIR_TEMPLATE_CACHE)) {
         echo 'The dir.cache not writable. Please make cache dir.';
         exit;
@@ -58,7 +59,7 @@ function konawiki_init()
     require_once(KONAWIKI_DIR_LIB.'/konawiki_parser.inc.php');
     require_once(KONAWIKI_DIR_LIB.'/useragent.inc.php');
     // データベース関連のライブラリを取り込む
-    require_once(KONAWIKI_DIR_LIB.'/fw_database.lib.php');
+    require_once(KONAWIKI_DIR_FW_SIMPLE.'/fw_database.lib.php');
     require_once(KONAWIKI_DIR_LIB.'/konawiki_db.inc.php');
     // 認証関連のライブラリを取り込む
     require_once(KONAWIKI_DIR_LIB.'/konawiki_auth.inc.php');
@@ -1571,6 +1572,11 @@ function konawiki_lang($key, $def = null)
     }
     if ($def == null) $def = $key;
     return $def;
+}
+
+function lang($key, $def = null)
+{
+    return konawiki_lang($key, $def);
 }
 
 function konawiki_getKeywords($page, $rawtag = "") {
