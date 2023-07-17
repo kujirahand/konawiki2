@@ -16,9 +16,9 @@ function konawiki_initDB()
 
     // setup database
     $sql_dir = konawiki_private('dir.engine').'/sql';
-    database_set($db_dsn, $sql_dir.'/konawiki_sql_main.txt', 'main');
-    database_set($sub_dsn, $sql_dir.'/konawiki_sql_subdb.txt', 'sub');
-    database_set($backup_dsn, $sql_dir.'/konawiki_sql_backup.txt', 'backup');
+    database_set($db_dsn, $sql_dir.'/konawiki_sql_main.sql', 'main');
+    database_set($sub_dsn, $sql_dir.'/konawiki_sql_subdb.sql', 'sub');
+    database_set($backup_dsn, $sql_dir.'/konawiki_sql_backup.sql', 'backup');
 }
 
 /**
