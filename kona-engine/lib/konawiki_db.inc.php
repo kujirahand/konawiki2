@@ -96,7 +96,6 @@ function konawiki_getAuthHash($log_id) {
 
 function _konawiki_db_init()
 {
-    konawiki_initDB_createDB();
     konawiki_initDB_addHelp();
     $msg = konawiki_lang('Success to init DB.');
     konawiki_showMessage($msg);

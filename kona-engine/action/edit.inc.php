@@ -305,6 +305,7 @@ function action_edit_command()
   if (!$checkResult) {
     $label = konawiki_lang('Edit');
     $edit_token = konawiki_getEditToken();
+    $page = konawiki_getPage();
     $edit_link = konawiki_getPageURL2($page, "edit", "", "edit_token=".$edit_token);
     konawiki_showMessage(
       "<div><h3>{$label}:</h3><p>".
