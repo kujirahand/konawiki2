@@ -324,7 +324,7 @@ function konawiki_set_public_info() {
         [$type_css, 'konawiki.css', TRUE],
         [$type_css, $skin_css, TRUE],
         [$type_css, $theme_css, TRUE],
-        [$type_jss, 'jquery-3.4.1.min.js', FALSE],
+        [$type_jss, 'jquery-3.7.0.min.js', FALSE],
         [$type_css, 'drawer.css', TRUE],
         [$type_jss, 'drawer.js', TRUE],
     ];
