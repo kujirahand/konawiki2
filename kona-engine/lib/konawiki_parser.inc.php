@@ -531,8 +531,13 @@ function __konawiki_parser_tohtml(&$text, $level)
         }
         // url
         if (preg_match('@^(http|https|ftp)\://[\w\d\.\#\$\%\&\(\)\-\=\_\~\^\|\,\.\/\?\+\!\[\]\@]+@', $text, $m) > 0) {
-            $result .= konawiki_parser_makeUriLink($m[0]);
-            $text = substr($text, strlen($m[0]));
+            // 末尾に「~」があれば、それは無視する (#23)
+            $link = $m[0];
+            if (substr($link, -1) === '~') {
+                $link = substr($link, 0, strlen($link) - 1);
+            }
+            $result .= konawiki_parser_makeUriLink($link);
+            $text = substr($text, strlen($link));
             continue;
         }
         // mailto
