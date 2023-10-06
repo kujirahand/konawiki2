@@ -95,7 +95,7 @@ function getTemplateHeader($args) {
 
 <!-- pico sakura ------------------------------------------------>
 <!-- picoaudio player -->
-<script src="https://unpkg.com/picoaudio/dist/browser/PicoAudio.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/picoaudio@1.1.2/dist/browser/PicoAudio.min.js"></script>
 <script type="module">
   // load module
   import init, {SakuraCompiler, get_version} from 'https://cdn.jsdelivr.net/npm/sakuramml@{$sakura_version}/sakuramml.js';
@@ -103,7 +103,6 @@ function getTemplateHeader($args) {
     // set global object for sakuramml compiler
     window.__sakuramml = {
       SakuraCompiler,
-      com: SakuraCompiler.new(),
       version: get_version()
     };
     console.log('sakuramml loaded: ver.', window.__sakuramml.version);
@@ -138,24 +137,31 @@ function getTemplateHeader($args) {
     }
   };
   function playMML(pid) {
-    const txt = document.getElementById('sakuramml_txt' + pid)
-    const pico = document.getElementById('pico' + pid)
     window.sakuramml_pid = pid;
+    // --------------------------------------------------
     // init player
-    if (typeof(window.__picoaudio) === 'undefined') {
-      window.__picoaudio = new PicoAudio();
-    } else {
+    // --------------------------------------------------
+    let pico = null;
+    if (typeof(window.__picoaudio) !== 'undefined') {
       window.__picoaudio.initStatus();
     }
+    pico = window.__picoaudio = new PicoAudio();
+    pico.init();
     try {
+      // --------------------------------------------------
       // sakuramml compile
-      const a = window.__sakuramml.com.compile(txt.value)
-      const smfData = new Uint8Array(a);
+      // --------------------------------------------------
+      const txt = document.getElementById('sakuramml_txt' + pid)
+      const mml = txt.value;
+      const com = window.__sakuramml.SakuraCompiler.new();
+      const bin = com.compile(mml)
+      const smfData = new Uint8Array(bin);
+      // --------------------------------------------------
       // set smf to picoaudio
-      const parsedData = window.__picoaudio.parseSMF(smfData);
-      window.__picoaudio.setData(parsedData);
-      window.__picoaudio.init();
-      window.__picoaudio.play();
+      // --------------------------------------------------
+      const parsedData = pico.parseSMF(smfData);
+      pico.setData(parsedData);
+      pico.play();
     } catch (err) {
       console.error(err);
       document.getElementById('skr_error_msg' + pid).innerHTML = '[SYSTEM_ERROR]' + tohtml(err.toString())
