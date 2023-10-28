@@ -47,6 +47,7 @@ if (file_exists($ini)) {
   if (file_exists($ini2)) { // user konawiki.ini.php
     include_once $ini2;
   } else {
+    // There is currently no configuration file, so copy the template.
     $conf = file_get_contents($rootDir.'/data/template-konawiki.ini.php');
     file_put_contents($ini, $conf);
     require_once $ini;
