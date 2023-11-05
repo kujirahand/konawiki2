@@ -15,6 +15,10 @@ a img
 
 .clear { clear: both;  }
 
+img#wiki-main-logo {
+    width: 3em;
+}
+
 div.underline {
     width:100%;
     border-bottom: solid 2px #E0e0FF;
