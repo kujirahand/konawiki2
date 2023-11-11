@@ -13,7 +13,7 @@ _}}}
 }}}
  * - [公開設定] 公開
  */
-define("SAKURAMML_VERSION", "0.1.25");
+define("SAKURAMML_VERSION", "0.1.26");
 
 function plugin_sakuramml_convert($params)
 {
