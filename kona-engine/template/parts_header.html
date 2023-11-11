@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="konawiki::version" contents="{{ $KONAWIKI_VERSION }}">
 <title>{{ $pagetitle }}</title>
 
-{{if $norobot }}
+{{ if $norobot }}
 <!-- norobot -->
 <meta name="Keywords" content="norobot" />
 <meta name="Robots" content="noindex,nofollow" />

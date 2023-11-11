@@ -5,8 +5,7 @@
  * ---------------------------------------------------------------------
  */
 
-// konawiki lib version
-define('KONAWIKI_VERSION', '2.3.4');
+require_once dirname(__DIR__).'/konawiki_version.inc.php';
 require_once __DIR__.'/konawiki_options.inc.php';
 
 //----------------------------------------------------------------------
