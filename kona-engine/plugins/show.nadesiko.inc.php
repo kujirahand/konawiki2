@@ -7,9 +7,6 @@
  * - [公開設定] 非公開
  */
 //------------------------------------------------------------------------------
-//
-// TODO: v2.3.x では動かない。。。
-//
 /* option
 $konawiki['private']['show.plugins']['nadesiko'] = array(
         'enabled'   => FALSE,
@@ -61,7 +58,7 @@ function show_nadesiko($plugin, $log)
             $google2 = "http://www.google.co.jp/search?hl=ja&lr=lang_ja&q={$page2_}";
             $foot = <<< EOS__
 ----
--[[ググってみる:$google2]]＞[[仕事に役立つプログラミング（コラム）検索:$google]]
+-[[ググってみる:$google2]]
 
 #googleadsense(nako-yoko)
 
@@ -77,18 +74,20 @@ EOS__;
 
 function toUTF8($s)
 {
-    return mb_convert_encoding($s, 'UTF8', 'SJIS');
+    return $s;
+    //return mb_convert_encoding($s, 'UTF8', 'SJIS');
 }
 function toSJIS($s)
 {
-    return mb_convert_encoding($s, 'SJIS', 'UTF8');
+    return $s;
+    // return mb_convert_encoding($s, 'SJIS', 'UTF8');
 }
 
 function show_nadesiko_showH0()
 {
     $db = show_nadesiko_getDB();
     $sql = "SELECT h1 FROM command group by h1";
-    $r = $db->query($sql);
+    $r = $db->query($sql)->fetchAll();
     if (!$r) {
         return "ありません\n";
     }
@@ -115,12 +114,10 @@ function show_nadesiko_showH0()
 function show_nadesiko_showH1($h1)
 {
     $db = show_nadesiko_getDB();
-    $sql = 
-      "SELECT name,h1,h2 FROM command WHERE ".
-      "h1=? order by h2";
-    $stmt = $db->prepare($sql);
-    $stmt->execute([$h1]);
-    $r = $stmt->fetchAll();
+    $sql = "SELECT name,h1,h2 FROM command WHERE h1=? order by h2";
+    $p = $db->prepare($sql);
+    $p->execute([$h1]);
+    $r = $p->fetchAll();
     if (!$r) {
         return "ありません\n";
     }
@@ -148,39 +145,35 @@ function show_nadesiko_showH1($h1)
 function show_nadesiko_showH2($h1,$h2)
 {
     $db = show_nadesiko_getDB();
-    $h1 = toSJIS($h1);
-    $h2 = toSJIS($h2);
-    $sql = 
-      "SELECT name,h1,h2 FROM command WHERE ".
-      "  h1=? AND h2=? order by h1";
-    $stmt = $db->prepare($sql);
-    $stmt->execute([$h1, $h2]);
-    $r = $stmt->fetchAll();
+    $sql = "SELECT name,h1,h2 FROM command WHERE h1=? AND h2=? order by h1";
+    $p = $db->prepare($sql);
+    $p->execute([$h1, $h2]);
+    $r = $p->fetchAll();
     if (!$r) {
-      return "ありません\n";
+        return "ありません\n";
     }
     $res = "";
     $head_h1 = $old_head_h1 = $head_h2 = $old_head_h2 = "";
     foreach ($r as $row) {
-      foreach ($row as $key => $val) { // to utf8
-          $row[$key] = toUTF8($val);
-      }
-      $h1   = $row["h1"];
-      $h2   = $row["h2"];
-      $h1 = str_replace('/','／',$h1);
-      $h2 = str_replace('/','／',$h2);
-      $name = $row["name"];
-      $head_h1 = "- &link(分類/{$h1});\n";
-      if ($head_h1 != $old_head_h1) {
-          $res .= $head_h1;
-          $old_head_h1 = $head_h1;
-      }
-      $head_h2 = "-- &link(分類/{$h1}/{$h2});\n";
-      if ($head_h2 != $old_head_h2) {
-          $res .= $head_h2;
-          $old_head_h2 = $head_h2;
-      }
-      $res .= "---[[$name]]\n";
+        foreach ($row as $key => $val) { // to utf8
+            $row[$key] = toUTF8($val);
+        }
+        $h1   = $row["h1"];
+        $h2   = $row["h2"];
+        $h1 = str_replace('/','／',$h1);
+        $h2 = str_replace('/','／',$h2);
+        $name = $row["name"];
+        $head_h1 = "- &link(分類/{$h1});\n";
+        if ($head_h1 != $old_head_h1) {
+            $res .= $head_h1;
+            $old_head_h1 = $head_h1;
+        }
+        $head_h2 = "-- &link(分類/{$h1}/{$h2});\n";
+        if ($head_h2 != $old_head_h2) {
+            $res .= $head_h2;
+            $old_head_h2 = $head_h2;
+        }
+        $res .= "---[[$name]]\n";
     }
     return $res;
 }
@@ -188,11 +181,10 @@ function show_nadesiko_showH2($h1,$h2)
 function show_nadesiko_showCommand($name)
 {
     $db = show_nadesiko_getDB();
-    $name = toSJIS($name);
     $sql = "SELECT * FROM command WHERE name=?";
-    $stmt = $db->prepare($sql);
-    $stmt->execute([$name]);
-    $r = $stmt->fetchAll();
+    $p = $db->prepare($sql);
+    $p->execute([$name]);
+    $r = $p->fetchAll();
     $res = '';
     if ($r) {
         foreach ($r as $row) {
@@ -235,12 +227,11 @@ EOS__;
 function show_nadesiko_getDB()
 {
     global $plug_nadesiko;
-    $db = isset($plug_nadesiko['db.handle']) 
-	      ? $plug_nadesiko['db.handle'] : "" ;
+    $db = isset($plug_nadesiko['db.handle'])  ? $plug_nadesiko['db.handle'] : null ;
     if (!$db) {
         $dns = $plug_nadesiko['db.dns'];
-        $dns = preg_replace('#^sqlite\:\/+#', '', $dns);
-        $db = new PDO("sqlite:".$dns);
+        $db = new PDO($dns);
+        // var_dump($db);
         if (!$db) {
             echo 'COMMAND DATABASE OPEN ERROR!';
             exit;
@@ -249,5 +240,3 @@ function show_nadesiko_getDB()
     }
     return $db;
 }
-
-

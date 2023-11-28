@@ -80,6 +80,7 @@ function action_show_()
         // check show plugin
         _konawiki_show_plugins($log);
         // show template
+        $log['body'] = empty($log['body']) ? '' : $log['body'];
         $html = $log['body'] = konawiki_parser_convert($log['body']);
         // make cache
         if (($log_exists) && ($konawiki_show_as_dynamic_page == FALSE)) {
@@ -116,6 +117,11 @@ function action_show_()
     // create body_all
     $wikibody_header = isset($log['wikibody_header']) ? $log['wikibody_header'] : '';
     $wikibody_footer = isset($log['wikibody_footer']) ? $log['wikibody_footer'] : '';
+    // check
+    $log['tag'] = empty($log['tag']) ? '' : $log['tag'];
+    $log['body_header'] = empty($log['body_header']) ? '' : $log['body_header'];
+    $log['body_footer'] = empty($log['body_footer']) ? '' : $log['body_footer'];
+    //
     $log['body_all'] = <<< __EOS__
     {$wikibody_header}
     {$log['body_header']}
