@@ -81,7 +81,7 @@ function plugin_nako3_convert($params)
       $baseurl."release/plugin_caniuse.js",
       // $baseurl."release/plugin_datetime.js", // v3.2.31で省略可能に
       // $baseurl."release/nako_gen_async.js", // 「!非同期モード」は非サポートに
-      "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.1/chart.min.js",
+      // "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.1/chart.min.js", // v3.4.23で省略可能に
     );
     foreach ($jslist as $js) {
       $include_js .= "<script defer src='$js'></script>";
@@ -344,6 +344,7 @@ function nako3_setLogger (nako3) {
       return
     }
     if (e.level === 'warn' || e.level === 'error') {
+      if (e.noColor === '[警告]undefined') { return } // 意味不明なエラーの出力を回避
       console.log(...e.browserConsole)
       const err = nako3_get_error()
       err.innerHTML = e.html
