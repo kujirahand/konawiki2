@@ -17,3 +17,18 @@ The KonaWiki application excels in facilitating information sharing. It allows f
 - **Word Count** : Continuously counts the number of characters, both in part and in whole.
 - **Plugins** : A wide range of plugins are available for use.　[→ plugins](kona-engine/plugins/)
 
+## Install
+
+- [日本語でインストールの手順](https://kujirahand.com/konawiki/index.php?%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)
+
+### Install for command line:
+
+```sh
+git clone --recursive https://github.com/kujirahand/konawiki2.git ./konawiki2
+cd konawiki2
+chmod 777 attach
+chmod 777 data
+chmod 777 cache
+```
+
+
