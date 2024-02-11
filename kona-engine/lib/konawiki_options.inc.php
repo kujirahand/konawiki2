@@ -68,6 +68,7 @@ function konawiki_checkOptions() {
     kona_check_private('db.dsn', "sqlite://$data_dir/konawiki.db");
     kona_check_private('subdb.dsn', "sqlite://$data_dir/konawiki_sub.db");
     kona_check_private('backupdb.dsn', "sqlite://$data_dir/konawiki_backup.db");
+    kona_check_private('users_db.dsn', "sqlite://$data_dir/konawiki_users.db");
     // # wiki parameters
     kona_check_private('auth.read.enabled', TRUE);
     kona_check_private('caauthche.write.enabled', TRUE);

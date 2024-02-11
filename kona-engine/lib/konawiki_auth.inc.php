@@ -134,6 +134,7 @@ function _konawiki_auth_form()
     // ログインチェック
     $user = trim(konawiki_param("user", false));
     $pw   = trim(konawiki_param("pw",   false));
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : "";
     if ($user !== false && $pw !== false) {
         if (_konawiki_auth_check_password($user, $pw)) {
             // Check Permission
@@ -146,12 +147,19 @@ function _konawiki_auth_form()
             $_SESSION["login.time"] = time();
             $_SESSION["login.user"] = $user;
             $konawiki_auth_user = $user;
+            // ログインを記録
+            db_exec('INSERT INTO login_history (user, ip, ctime) VALUES (?, ?, ?)', [$user, $ip, time()], 'users');
+            // 古いログイン記録を削除
+            $limit_old = time() - 60 * 60 * 24 * 90; // 90days
+            db_exec('DELETE FROM login_history WHERE ctime < ?', [$limit_old], 'users');
             return true;
         }
     }
     // ログイン失敗～フォームを表示
     if ($user !== false) {
         $err = konawiki_lang('Invalid username or password.');
+        // ログインエラーを記録する
+        db_exec("INSERT INTO login_errors (ip, ctime) VALUES (?, ?)", [$ip, time()], 'users');
     }
     konawiki_show_loginForm($err);
     exit;
