@@ -54,6 +54,13 @@ if (file_exists($ini)) {
   }
 }
 //--------------------------------------------------------------------
+// check template engine
+$engineDir = $private['dir.engine'];
+if (!file_exists($engineDir.'/fw_simple/fw_template_engine.lib.php')) {
+  echo "<h1>Not Found template engine : <a href='./kona-engine/setup-template.php'>Click here to install.</a></h1>\n";
+  exit;
+}
+//--------------------------------------------------------------------
 // include library
 $engineDir = $private['dir.engine'];
 if (!file_exists($engineDir)) {
