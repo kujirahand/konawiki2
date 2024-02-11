@@ -78,16 +78,20 @@ function action_login_()
         // ログインに失敗した情報について表示する
         $erros = db_get("SELECT * FROM login_errors WHERE ip=? ORDER BY ctime DESC LIMIT 101", [$ip], 'users');
         $times = count($erros);
-        $body .= "<h5>Login Erros ({$times}times):</h5><ul>\n";
-        $i = 0;
-        foreach ($erros as $row) {
-            $ctime = date("Y-m-d H:i:s", $row['ctime']);
-            $ip = $row['ip'];
-            $body .= "<li>{$ctime} [{$ip}]</li>\n";
-            $i++;
-            if ($i >= 6) { break; }
+        if ($times > 0) {
+            $body .= "<h5>Login Erros ({$times}times):</h5><ul>\n";
+            $i = 0;
+            foreach ($erros as $row) {
+                $ctime = date("Y-m-d H:i:s", $row['ctime']);
+                $ip = $row['ip'];
+                $body .= "<li>{$ctime} [{$ip}]</li>\n";
+                $i++;
+                if ($i >= 6) {
+                    break;
+                }
+            }
+            $body .= "</ul>\n";
         }
-        $body .= "</ul>\n";
     }
     else if (konawiki_isLogin_read()) {
         $msg = konawiki_lang("Success to login! Thank you.");
