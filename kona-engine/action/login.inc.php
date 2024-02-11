@@ -38,9 +38,9 @@ function action_login_()
 
     // 複数回のログインを拒否する
     $limit_t = time() - 60 * 60 * 24; // 24hours
-    $erros = db_get("SELECT * FROM login_errors WHERE ip=? AND ctime > ? LIMIT 6", [$ip, $limit_t], 'users');
+    $erros = db_get("SELECT * FROM login_errors WHERE ip=? AND ctime > ? LIMIT 20", [$ip, $limit_t], 'users');
     // エラーならばエラーを記録して終了
-    if (count($erros) >= 6) {
+    if (count($erros) >= 20) {
         konawiki_error("There have been too many login attempts.", "Login Error");
         exit;
     }
