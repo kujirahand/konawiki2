@@ -165,6 +165,10 @@ function _konawiki_auth_form()
     exit;
 }
 
+function konawiki_active_user() {
+    return isset($_SESSION["login.user"]) ? $_SESSION["login.user"] : "-";
+}
+
 function konawiki_logout()
 {
     global $konawiki_auth_user;

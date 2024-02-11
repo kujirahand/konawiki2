@@ -1157,4 +1157,9 @@ pre.code span.rem     { color: #909; }
   background-color: #f0f7ff;
 }
 
+.parts-login-user-name {
+    background-color: #e0f0e0;
+    padding: 4px;
+}
+
 /* vim:set expandtab ts=4 : */
