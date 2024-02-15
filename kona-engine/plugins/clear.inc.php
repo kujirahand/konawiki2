@@ -8,7 +8,7 @@
  * - [公開設定] 公開
  */
 
-function plugin_clear_action($params)
+function plugin_clear_convert($params)
 {
     return "<div style='clear:both;'></div>";
 }
