@@ -286,17 +286,37 @@ function to_html(s) {
 // ---------------------------------------------------------
 // 「表示ログクリア」命令の定義
 // ---------------------------------------------------------
-const nako3_clear = function (s, use_canvas) {
+const nako3_clear_logs = function (sys) {
+  // clear info
   var info = nako3_get_info()
   if (!info) return
   info.value = ''
   info.innerHTML = ''
   info.style.display = 'none'
+  // clear logs
+  if (sys && sys.__exec) {
+    if (sys.__setSysVar) {
+      sys.__setSysVar('表示ログ', '')
+    } else {
+      sys.__v0['表示ログ'] = ''
+    }
+  }
+}
+const nako3_clear = function (s, use_canvas) {
+  // info
+  var info = nako3_get_info()
+  if (!info) return
+  info.value = ''
+  info.innerHTML = ''
+  info.style.display = 'none'
+  // error
   const err = nako3_get_error()
   err.innerHTML = ''
   err.style.display = 'none'
+  // div
   const div = nako3_get_div()
-  if (div) div.innerHTML = ''
+  if (div) { div.innerHTML = '' }
+  // canvas
   if (use_canvas) {
     const canvas = nako3_get_canvas()
     if (canvas) {
@@ -327,7 +347,7 @@ const nako3_init_timer = setInterval(function (){
   nako3_setLogger(nako3)
 }, 300)
 function nako3_addFunctionForKonaWiki2 (nako3) {
-  nako3.setFunc("表示ログクリア", [], nako3_clear, true)
+  nako3.setFunc("表示ログクリア", [], nako3_clear_logs, true)
   nako3.setFunc("__LOG", [['を', 'と', 'に']], nako3_funcLog, true)
   nako3.setFunc("__DEBUG", [], nako3_setDebugMode, true)
 }
