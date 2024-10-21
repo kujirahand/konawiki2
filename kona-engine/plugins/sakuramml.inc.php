@@ -138,6 +138,7 @@ function getTemplateHeader($args) {
   };
   function playMML(pid) {
     window.sakuramml_pid = pid;
+    const errorMsg = document.getElementById('skr_error_msg' + pid)
     // --------------------------------------------------
     // init player
     // --------------------------------------------------
@@ -153,8 +154,15 @@ function getTemplateHeader($args) {
       // --------------------------------------------------
       const txt = document.getElementById('sakuramml_txt' + pid)
       const mml = txt.value;
-      const com = window.__sakuramml.SakuraCompiler.new();
+      const com = window.__sakuramml.SakuraCompiler.new()
       const bin = com.compile(mml)
+      const logStr = com.get_log()
+      if (logStr) {
+        console.log('[sakuramml]', logStr)
+	errorMsg.innerHTML = tohtml(logStr)
+        errorMsg.style.color = 'gray'
+        errorMsg.style.display = 'block'
+      }
       const smfData = new Uint8Array(bin);
       // --------------------------------------------------
       // set smf to picoaudio
@@ -164,7 +172,9 @@ function getTemplateHeader($args) {
       pico.play();
     } catch (err) {
       console.error(err);
-      document.getElementById('skr_error_msg' + pid).innerHTML = '[SYSTEM_ERROR]' + tohtml(err.toString())
+      errorMsg.style.color = 'red'
+      errorMsg.style.display = 'block'
+      errorMsg.innerHTML = '[SYSTEM_ERROR]' + tohtml(err.toString())
     }
   }
 </script>
