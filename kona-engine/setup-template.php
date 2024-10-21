@@ -19,10 +19,14 @@ if (!file_exists($zip_file)) {
 }
 $zip_dir = __DIR__ . "/tmp";
 echo "<h3>Unzip - 解凍します。</h3>\n";
+/*
 $zip = new ZipArchive();
 $zip->open($zip_file); // 展開したい zip ファイルを指定します
 $zip->extractTo($zip_dir); // 展開先のディレクトリを指定します
 $zip->close();
+*/
+system("unzip \"$zip_file\" -d \"$zip_dir\"");
+//
 echo "<h3>Move - 該当パスに移動します</h3>\n";
 $src = $zip_dir . "/php_fw_simple-1.0";
 $to = __DIR__ . "/fw_simple";
