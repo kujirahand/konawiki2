@@ -69,6 +69,7 @@ function konawiki_init()
     konawiki_parseURI();
     // Initialize Database
     konawiki_initDB(); // @see ./konawiki_db.inc.php
+    konawiki_checkSecurity();
 
     // set public info
     konawiki_set_public_info();
@@ -1607,4 +1608,32 @@ function konawiki_isSystemPage($page) {
         return TRUE;
     }
     return FALSE;
+}
+
+function konawiki_checkSecurity()
+{
+    global $DIR_TEMPLATE_CACHE;
+    // check security version
+    $security_check_file = KONAWIKI_DIR_DATA . '/.security_check.v2_3_8.php';
+    if (file_exists($security_check_file)) {
+        return;
+    }
+    // check private/.htaccess
+    $htaccessBody = <<< EOS
+# Deny all access
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order Allow,Deny
+  Deny from all
+</IfModule>
+EOS;
+    // cache dir
+    $cache_htaccess = $DIR_TEMPLATE_CACHE . '/.htaccess';
+    file_put_contents($cache_htaccess, $htaccessBody);
+    // data dir
+    $body_htaccess = KONAWIKI_DIR_DATA . '/.htaccess';
+    file_put_contents($body_htaccess, $htaccessBody);
+    file_put_contents($security_check_file, "ok");
 }

@@ -73,12 +73,12 @@ function plugin_nako3_convert($params)
     $jslist = array(
       // nadesiko
       $baseurl."release/wnako3.js",
-      $baseurl."release/plugin_csv.js",
       $baseurl."release/plugin_markup.js",
       $baseurl."release/plugin_kansuji.js",
       $baseurl."release/plugin_turtle.js",
       $baseurl."release/plugin_webworker.js",
       $baseurl."release/plugin_caniuse.js",
+      // $baseurl."release/plugin_csv.js", // 省略可能に
       // $baseurl."release/plugin_datetime.js", // v3.2.31で省略可能に
       // $baseurl."release/nako_gen_async.js", // 「!非同期モード」は非サポートに
       // "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.1/chart.min.js", // v3.4.23で省略可能に
