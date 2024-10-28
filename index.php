@@ -3,12 +3,16 @@
  * KonaWiki2 -- index.php (Main File)
  * @author kujirahand (https://kujirahand.com)
  */
+
 //--------------------------------------------------------------------
 // set encoding
+//--------------------------------------------------------------------
 mb_internal_encoding("UTF-8");
 header("Content-Type: text/html; charset=UTF-8");
+
 //--------------------------------------------------------------------
 // define blank config
+//--------------------------------------------------------------------
 global $konawiki, $public, $private;
 $scrdir = dirname($_SERVER['SCRIPT_NAME']);
 if ($scrdir == "/") $scrdir = "";
@@ -37,6 +41,7 @@ $private['plugins.disable'] = array(
 
 //--------------------------------------------------------------------
 // include user config file
+//--------------------------------------------------------------------
 $rootDir = dirname(__FILE__);
 $ini = $rootDir.'/data/konawiki.ini.php';
 if (file_exists($ini)) {
@@ -55,6 +60,7 @@ if (file_exists($ini)) {
 }
 //--------------------------------------------------------------------
 // check template engine
+//--------------------------------------------------------------------
 $engineDir = $private['dir.engine'];
 if (!file_exists($engineDir.'/fw_simple/fw_template_engine.lib.php')) {
   echo "<h1>Not Found template engine : <a href='./kona-engine/setup-template.php'>Click here to install.</a></h1>\n";
@@ -62,6 +68,7 @@ if (!file_exists($engineDir.'/fw_simple/fw_template_engine.lib.php')) {
 }
 //--------------------------------------------------------------------
 // include library
+//--------------------------------------------------------------------
 $engineDir = $private['dir.engine'];
 if (!file_exists($engineDir)) {
   echo "Not Found system files : kona-engine dir<br>\n";
@@ -72,7 +79,5 @@ if (!file_exists($engineDir)) {
 include_once $engineDir.'/lib/lib_kona.inc.php';
 // initialize
 konawiki_init();
-
-
 
 
