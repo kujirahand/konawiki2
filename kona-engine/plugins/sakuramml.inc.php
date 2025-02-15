@@ -1,4 +1,5 @@
 <?php
+
 /** konawiki plugins -- ピコサクラMML
  * - [書式] {{{#sakuramml(rows=8) データ }}}
  * - [引数]
@@ -13,48 +14,49 @@ _}}}
 }}}
  * - [公開設定] 公開
  */
-define("SAKURAMML_VERSION", "0.1.37");
+define("SAKURAMML_VERSION", "0.1.40");
 
 function plugin_sakuramml_convert($params)
 {
-    $pid = konawiki_getPluginInfo("sakuramml", "pid", 1);
-    konawiki_setPluginInfo("sakuramml", "pid", $pid+1);
-    
-    $sakura_version = SAKURAMML_VERSION;
-    $mml = "";
-    $rows = 8;
-    foreach ($params as $line) {
-        $line = trim($line);
-        if (preg_match('#^rows\=(\d+)#', $line, $m)) {
-            $rows = intval($m[1]);
-            continue;
-        }
-        if (preg_match('#^ver\=(\d+)#', $line, $m)) {
-            $sakura_version = intval($m[1]);
-            continue;
-        }
-        if ($mml == "") {
-            $mml = $line;
-        }
+  $pid = konawiki_getPluginInfo("sakuramml", "pid", 1);
+  konawiki_setPluginInfo("sakuramml", "pid", $pid + 1);
+
+  $sakura_version = SAKURAMML_VERSION;
+  $mml = "";
+  $rows = 8;
+  foreach ($params as $line) {
+    $line = trim($line);
+    if (preg_match('#^rows\=(\d+)#', $line, $m)) {
+      $rows = intval($m[1]);
+      continue;
     }
-    
-    $html = "";
-    $args = [
-        "sakura_version" => $sakura_version,
-        "pid" => $pid,
-        "mml" => htmlspecialchars($mml),
-        "rows" => $rows,
-    ];
-    if ($pid == 1) { // 初回のみヘッダを表示
-        $html .= getTemplateHeader($args);
+    if (preg_match('#^ver\=(\d+)#', $line, $m)) {
+      $sakura_version = intval($m[1]);
+      continue;
     }
-    $html .= getTemplate($args);
-    return $html;
+    if ($mml == "") {
+      $mml = $line;
+    }
+  }
+
+  $html = "";
+  $args = [
+    "sakura_version" => $sakura_version,
+    "pid" => $pid,
+    "mml" => htmlspecialchars($mml),
+    "rows" => $rows,
+  ];
+  if ($pid == 1) { // 初回のみヘッダを表示
+    $html .= getTemplateHeader($args);
+  }
+  $html .= getTemplate($args);
+  return $html;
 }
 
-function getTemplate($args) {
-    extract($args);
-    return <<< EOS__
+function getTemplate($args)
+{
+  extract($args);
+  return <<< EOS__
 <!-- #sakuramml.parts.pid{$pid}-->
 <div class="sakuramml_block" id="sakuramml_bock{$pid}">
   <div class="sakuramml_version_outer" style="text-align:right;font-size:0.4em; color:silver; background-color:#fffaf7;">
@@ -78,10 +80,10 @@ function getTemplate($args) {
 EOS__;
 }
 
-function getTemplateHeader($args) {
-    extract($args);
-    return <<< __EOS__
-
+function getTemplateHeader($args)
+{
+  extract($args);
+  return <<< __EOS__
 <!-- #sakuramml (pico sakura) -->
 <style>
 .sakuramml_block {
@@ -92,7 +94,6 @@ function getTemplateHeader($args) {
     border-top: 1px solid silver;
 }
 </style>
-
 <!-- pico sakura ------------------------------------------------>
 <!-- picoaudio player -->
 <script src="https://cdn.jsdelivr.net/npm/picoaudio@1.1.2/dist/browser/PicoAudio.min.js"></script>
@@ -159,7 +160,7 @@ function getTemplateHeader($args) {
       const logStr = com.get_log()
       if (logStr) {
         console.log('[sakuramml]', logStr)
-	errorMsg.innerHTML = tohtml(logStr)
+        errorMsg.innerHTML = tohtml(logStr)
         errorMsg.style.color = 'gray'
         errorMsg.style.display = 'block'
       }
@@ -180,4 +181,3 @@ function getTemplateHeader($args) {
 </script>
 __EOS__;
 }
-
