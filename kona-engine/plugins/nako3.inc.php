@@ -170,7 +170,7 @@ function plugin_nako3_gen_style_code() {
     border-bottom: 1px dotted silver;
 }
 .nako3txt {
-  margin:0; padding: 4px; font-size:1em; line-height:1.4em;
+  margin:0; padding: 4px; font-size:1em; line-height:1.4;
   width: 98%;
 }
 .nako3row  > button, 
@@ -214,7 +214,7 @@ function plugin_nako3_gen_style_code() {
 }
 .nako3_div {
   font-size: 1em;
-  line-height: 1.4em;
+  line-height: 1.4;
   padding: 18px;
 }
 .nako3_div button {
@@ -242,7 +242,7 @@ function plugin_nako3_gen_style_code() {
   font-size:0.8em; color: gray;
   border: 1px dashed gray;
   padding: 12px; margin: 8px;
-  line-height: 2.8em;
+  line-height: 2.8;
 }
 </style>
 EOS;
