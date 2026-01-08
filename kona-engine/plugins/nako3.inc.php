@@ -367,7 +367,9 @@ function nako3_setLogger (nako3) {
       if (e.noColor === '[警告]undefined') { return } // 意味不明なエラーの出力を回避
       console.log(...e.browserConsole)
       const err = nako3_get_error()
-      err.innerHTML = e.html
+      // (バグ回避のため) https://github.com/kujirahand/nadesiko3/issues/2076
+      const e_html = e.html.replace('main.nako3(0行目)', 'main.nako3(1行目)')
+      err.innerHTML = e_html
       err.style.display = 'block'
     }
   })
@@ -402,14 +404,14 @@ async function nako3_run(id, use_canvas) {
       "「" + canvas_name + "」へ描画開始;" +
       "カメ描画先=「" + canvas_name + "」;"
   }
-  addon += "\\n" // 重要(インデント構文対策)
+  addon += "\\n\\n" // 重要(インデント構文対策)
   const box = nako3_get_resultbox(id)
   box.style.display = 'block'
   try {
     const nako3 = navigator.nako3
     nako3_clear()
     await nako3.loadDependencies(addon + code, 'main.nako3', addon)
-    const env = await nako3.run(addon + code, 'main.nako3', addon)
+    const env = await nako3.runAsync(addon + code, 'main.nako3', {'preCode': addon})
     if (nako3_isDebug) {
       console.log('__DEBUG')
       console.log(env)
