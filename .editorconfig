@@ -1,0 +1,6 @@
+# 改行コードは LF に統一する (Issue #52)
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
