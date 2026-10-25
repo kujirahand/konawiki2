@@ -57,8 +57,13 @@ function konawiki_checkOptions() {
     // URI
     $scheme = 'http';
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') { $scheme = 'https'; }
-    $base_uri = $scheme.'://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'';
-    $root_uri = $scheme.'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
+    // Host ヘッダは検証してから URL 組み立てに使う (#32)。
+    // 不正なホスト名の場合は SERVER_NAME、それも不正なら localhost に落とす。
+    // 固定したい場合は設定ファイルで $public['baseurl'] を明示すること。
+    $host = konawiki_http_host();
+    $script_name = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/index.php';
+    $base_uri = $scheme.'://'.$host.$script_name.'';
+    $root_uri = $scheme.'://'.$host.dirname($script_name);
     kona_check_private('uri.base', $base_uri);
     kona_check_private('uri.attach', $root_uri.'/attach');
     kona_check_private('uri.skin', $root_uri.'/skin');
@@ -122,3 +127,18 @@ function konawiki_getBrowserLang() {
     return $lang[0];
 }
 
+
+// ホスト名として妥当な形式か (ホスト名[:ポート] / [IPv6][:ポート]) (#32)
+function konawiki_is_valid_host($host) {
+    if (!is_string($host) || $host === '') return false;
+    return (bool)preg_match('/\A(?:\[[0-9A-Fa-f:.]+\]|[A-Za-z0-9_.\-]+)(?::[0-9]{1,5})?\z/', $host);
+}
+
+// URL 組み立てに使うホスト名を返す (#32)
+function konawiki_http_host() {
+    $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+    if (konawiki_is_valid_host($host)) return $host;
+    $host = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '';
+    if (konawiki_is_valid_host($host)) return $host;
+    return 'localhost';
+}

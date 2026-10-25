@@ -79,6 +79,11 @@ function action_show_()
                 $log['body'] = substr($r['html'], strlen($cache_prefix));
                 $has_cache = TRUE;
             }
+            else if ($r) {
+                // 旧形式のキャッシュ行は再利用せず削除する (#32)。
+                // 動的ページでは再生成時の削除に到達しないため、ここで掃除する。
+                db_exec("DELETE FROM cache_logs WHERE log_id=?", [$log_id], 'backup');
+            }
         }
     }
     if (!$has_cache) {

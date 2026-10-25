@@ -26,8 +26,7 @@ function action_freeze_()
     $pass = konawiki_param("pass", "");
     $err = "";
     if ($pass != "") {
-      $adminkey = konawiki_private("admin.key");
-      if (konawiki_checkPassword($pass, $adminkey)) {
+      if (konawiki_checkAdminKey($pass)) {
         _freeze($freeze, $id);
         konawiki_showMessage(
           "<h3>{$labelComp}</h3>".

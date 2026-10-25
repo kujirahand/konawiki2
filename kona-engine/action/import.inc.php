@@ -24,7 +24,7 @@ function action_import_()
       exit;
     }
     $admin = konawiki_param("admin","");
-    if ($admin !== konawiki_private("admin.key", "")) {
+    if (!konawiki_checkAdminKey($admin)) {
       konawiki_error("Invalid admin key.");
       exit;
     }

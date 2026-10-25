@@ -56,6 +56,12 @@ function plugin_bodyvote_action($params)
         $plugin_params["error"] = "意図せぬ操作が行われました。ページを戻って改めて操作を行ってください。";
         return FALSE;
     }
+    // 凍結中のページには書き込まない (#32。本文を書き換えるため、
+    // 通常の編集で凍結中は拒否されるのと挙動をそろえる)
+    if (konawiki_isPageFrozen()) {
+        $plugin_params["error"] = konawiki_lang('Sorry, This page is freezing.');
+        return FALSE;
+    }
     // make params
     $res = array();
     foreach ($params as $line) {
