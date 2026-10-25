@@ -202,3 +202,51 @@ function konawiki_attach_row_comment($row)
     }
     return '';
 }
+
+/**
+ * 添付ファイル名の変更内容を検証する (Issue #22)
+ * 実ファイルは「{id}{拡張子}」で保存されるため、拡張子の変更は禁止する。
+ * @param string $oldname 現在のファイル名
+ * @param string $newname 新しいファイル名
+ * @return string 問題なければ空文字列、問題があればエラーメッセージ
+ */
+function konawiki_attach_validate_rename($oldname, $newname)
+{
+    $oldname = (string)$oldname;
+    $newname = trim((string)$newname);
+    if ($newname === '') {
+        return "ファイル名が空です。";
+    }
+    if (strlen($newname) > 255) {
+        return "ファイル名が長すぎます。";
+    }
+    // パス区切りや NUL 文字による事故を防ぐ
+    if (strpos($newname, '/') !== FALSE || strpos($newname, '\\') !== FALSE ||
+        strpos($newname, "\0") !== FALSE || $newname === '.' || $newname === '..') {
+        return "ファイル名に使えない文字が含まれています。";
+    }
+    // 拡張子は大文字小文字も含めて厳密に一致させる
+    $old_ext = '';
+    $new_ext = '';
+    if (preg_match('/(\.\w+)$/', $oldname, $m)) { $old_ext = $m[1]; }
+    if (preg_match('/(\.\w+)$/', $newname, $m)) { $new_ext = $m[1]; }
+    if ($old_ext !== $new_ext) {
+        return "拡張子は変更できません。";
+    }
+    return '';
+}
+
+/**
+ * 添付ファイルの名前を変更する (Issue #22)
+ * mtime は変更しない (一覧の並び順を変えないため)。comment にも触れない。
+ * @param integer $id attach テーブルの id
+ * @param string $newname 新しいファイル名 (検証済みであること)
+ * @return boolean 変更できたら TRUE
+ */
+function konawiki_attach_rename($id, $newname)
+{
+    $id = intval($id);
+    $sql = "UPDATE attach SET name=? WHERE id=?";
+    db_exec($sql, [(string)$newname, $id]);
+    return TRUE;
+}

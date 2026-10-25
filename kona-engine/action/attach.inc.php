@@ -343,6 +343,65 @@ function action_attach_comment()
     konawiki_showMessage($body);
 }
 
+/**
+ * 添付ファイルの名前を変更する (Issue #22)
+ */
+function action_attach_rename()
+{
+    if (!konawiki_checkEditToken()) {
+        konawiki_error("編集エラー。ページを戻って画面を更新してください。");
+        return;
+    }
+    if (!konawiki_auth()) return;
+    $id = konawiki_param('id', 0);
+    if (!is_numeric($id)) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    $id = intval($id);
+    $sql = "SELECT * FROM attach WHERE id=?";
+    $info = db_get1($sql, [$id]);
+    if (!isset($info['id'])) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    // 表示中のページの添付ファイルであることを確認する
+    // (ページが特定できない場合も、所属不明として更新しない)
+    $log_id = konawiki_getPageId();
+    if ($log_id === FALSE || intval($info['log_id']) !== intval($log_id)) {
+        konawiki_error("更新エラー。このページの添付ファイルではありません。");
+        return;
+    }
+    $newname = trim((string)konawiki_param('newname', ''));
+    $p = konawiki_getPageInfoById($info['log_id']);
+    $page = $p['name'];
+    $url = konawiki_getPageURL($page, 'attach');
+    // 同名の場合は更新しない
+    if ($newname === (string)$info['name']) {
+        $body = "<p class='box'><a href='$url'>ファイル名は同じです</a></p>";
+        konawiki_showMessage($body);
+        return;
+    }
+    $err = konawiki_attach_validate_rename($info['name'], $newname);
+    if ($err !== '') {
+        konawiki_error($err);
+        return;
+    }
+    // 同じページ内で名前が重複しないことを確認する
+    $sql = "SELECT id FROM attach WHERE log_id=? AND name=? AND id<>?";
+    $dup = db_get1($sql, [$info['log_id'], $newname, $id]);
+    if (isset($dup['id'])) {
+        konawiki_error("変更エラー。同じ名前のファイルが既に添付されています。");
+        return;
+    }
+    if (!konawiki_attach_rename($id, $newname)) {
+        konawiki_error("更新エラー。ファイル名を変更できませんでした。");
+        return;
+    }
+    $body = "<p class='box'><a href='$url'>ファイル名を変更しました</a></p>";
+    konawiki_showMessage($body);
+}
+
 function konawiki_getContentType($filename)
 {
     include_once(KONAWIKI_DIR_LIB."/mime.inc.php");
