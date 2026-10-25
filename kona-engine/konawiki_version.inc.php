@@ -1,3 +1,3 @@
 <?php
 // konawiki version
-define('KONAWIKI_VERSION', '2.3.7');
+define('KONAWIKI_VERSION', '2.3.8');
