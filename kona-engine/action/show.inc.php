@@ -55,6 +55,8 @@ function action_show_()
 
     // Cache function
     $has_cache = FALSE;
+    // 旧キャッシュには非公開情報が含まれ得るため、この形式だけを再利用する。
+    $cache_prefix = "<!-- konawiki-cache-security31-v2 -->";
     $cachemode = konawiki_private('cache.mode');
     if ($cachemode == 'cache') {
         // clear cache ?
@@ -73,8 +75,8 @@ function action_show_()
             // CHECK CACHE
             $sql = "SELECT * FROM cache_logs WHERE log_id=? LIMIT 1";
             $r = db_get1($sql, [$log_id], 'backup');
-            if ($r) {
-                $log['body'] = $r['html'];
+            if ($r && strpos($r['html'], $cache_prefix) === 0) {
+                $log['body'] = substr($r['html'], strlen($cache_prefix));
                 $has_cache = TRUE;
             }
         }
@@ -93,7 +95,7 @@ function action_show_()
                 $r = db_exec("DELETE FROM cache_logs WHERE log_id=?", [$log_id], 'backup');
             }
             $sql = "INSERT INTO cache_logs (log_id,html,ctime)VALUES(?,?,?)";
-            db_exec($sql, [$log_id, $html, time()], 'backup');
+            db_exec($sql, [$log_id, $cache_prefix.$html, time()], 'backup');
         }
     }
     $cache_checker = "";

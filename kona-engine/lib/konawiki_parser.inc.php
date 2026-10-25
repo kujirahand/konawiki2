@@ -645,6 +645,9 @@ function konawiki_parser_checkURL($url)
 
 function konawiki_parser_showPageDescription($page)
 {
+    // 本文抜粋・タグの表示は閲覧者の権限に依存するため共有キャッシュしない。
+    global $konawiki_show_as_dynamic_page;
+    $konawiki_show_as_dynamic_page = TRUE;
     $page = konawiki_parser_checkURL($page);
     $page_htm = htmlspecialchars($page);
     # get page info

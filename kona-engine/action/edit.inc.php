@@ -195,14 +195,8 @@ function action_edit_delete()
   foreach ($attach_ary as $row) {
     if (empty($row['id'])) continue;
     $id = $row['id'];
-    // 実ファイルは "{id}{拡張子}" で保存されるため両方を削除する
-    // (削除した添付ファイルが直接URLで残り続けるのを防ぐ)
-    $ext = "";
-    if (preg_match('/(\.\w+)$/', isset($row['name']) ? $row['name'] : '', $mm)) {
-      $ext = $mm[1];
-    }
-    $file = KONAWIKI_DIR_ATTACH."/".$id.$ext;
-    if (@unlink($file) || @unlink(KONAWIKI_DIR_ATTACH."/".$id)) {
+    // 表示名に依存せず、旧形式も含めて添付の実ファイルを全て削除する。
+    if (konawiki_removeAttachFiles($id)) {
       $del_count++;
       $del_files[] = "-".htmlspecialchars($row['name']);
     }

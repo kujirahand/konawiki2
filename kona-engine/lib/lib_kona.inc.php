@@ -1122,6 +1122,28 @@ function konawiki_jump($url)
     exit;
 }
 
+/**
+ * 添付IDに対応する実ファイルを、拡張子なしの旧形式も含めて削除する。
+ * 表示名は投稿時に変更できるため、実ファイル名の推測には使用しない。
+ */
+function konawiki_removeAttachFiles($id)
+{
+    $id = intval($id);
+    if ($id <= 0) return FALSE;
+    $base = KONAWIKI_DIR_ATTACH.'/'.$id;
+    $files = glob($base.'.*');
+    if ($files === FALSE) $files = [];
+    $files[] = $base;
+    $removed = FALSE;
+    foreach ($files as $file) {
+        // 数値IDの完全一致を使い、別IDのファイルやディレクトリは削除しない。
+        if ((is_file($file) || is_link($file)) && @unlink($file)) {
+            $removed = TRUE;
+        }
+    }
+    return $removed;
+}
+
 function konawiki_getEditToken($force = FALSE)
 {
     global $konawiki;
