@@ -267,6 +267,13 @@ function konawiki_attach_unique_name($log_id, $name, $exclude_id = 0)
         $ext = $m[1];
         $base = substr($name, 0, strlen($name) - strlen($ext));
     }
+    // 連番候補が、除外対象 (自分自身) の現在の名前と同じ場合は空きとみなさない
+    // (例: report_2.txt を report.txt に変更しようとして report_2.txt に戻ってしまうのを防ぐ)
+    $self_name = null;
+    if ($exclude_id > 0) {
+        $self = db_get1("SELECT name FROM attach WHERE id=?", [$exclude_id]);
+        if (isset($self['name'])) { $self_name = (string)$self['name']; }
+    }
     for ($n = 2; ; $n++) {
         $suffix = "_{$n}" . $ext;
         // 255バイトを超えないよう、必要ならベース名を短くする
@@ -275,6 +282,9 @@ function konawiki_attach_unique_name($log_id, $name, $exclude_id = 0)
             $b = mb_strcut($b, 0, max(0, 255 - strlen($suffix)), 'UTF-8');
         }
         $cand = $b . $suffix;
+        if ($self_name !== null && $cand === $self_name) {
+            continue;
+        }
         $dup = db_get1($sql, [$log_id, $cand, $exclude_id]);
         if (!isset($dup['id'])) {
             return $cand;

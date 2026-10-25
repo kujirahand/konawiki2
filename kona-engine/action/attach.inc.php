@@ -133,6 +133,7 @@ function action_attach_write()
     $mtime = time();
     // 同名のファイルが既にある場合は、連番を付けて保存する (Issue #22)
     // 重複チェックは、実際に保存される名前 (指定されたファイル名) で行う
+    $filename_req = $filename;
     $filename = konawiki_attach_unique_name($log_id, $filename);
     // insert into db
     $has_comment_col = konawiki_attach_ensure_comment_column();
@@ -179,10 +180,16 @@ function action_attach_write()
     $attach_link = "<a href='{$attach_}'>$name_htm</a>";
     $back_link = konawiki_getPageURL($page, "attach");
     // message
+    $numbered = '';
+    if ($filename !== $filename_req) {
+      $filename_req_htm = htmlspecialchars($filename_req);
+      $numbered = "<p>(同名のファイルがあったため「{$filename_req_htm}」は「{$name_htm}」になりました)</p>";
+    }
     $body = <<<__EOS__
 <h4>添付成功</h4>
 <blockquote>
 <p>[{$page_link}] に [{$attach_link}] を 添付しました。</p>
+{$numbered}
 <p>[<a href="{$back_link}">→一覧を確認する/→他のファイルを添付</a>]</p>
 </blockquote>
 __EOS__;

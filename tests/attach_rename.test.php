@@ -128,6 +128,17 @@ db_exec("DELETE FROM attach WHERE id=?", [$uq_id]);
 // 他ページの同名は重複とみなさない
 test_eq(__LINE__, konawiki_attach_unique_name($page_id + 100000, 'exists.txt'), 'exists.txt',
     'attach_rename: unique_name ignores other page');
+// 連番候補が自分自身の現在の名前と同じ場合は空きとみなさない (自己連番衝突の防止)
+$self_parent = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'report.txt', 'text/plain', $now, $now]);
+$self_id = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'report_2.txt', 'text/plain', $now, $now]);
+test_eq(__LINE__, konawiki_attach_unique_name($page_id, 'report.txt', $self_id), 'report_3.txt',
+    'attach_rename: unique_name skips own current name');
+db_exec("DELETE FROM attach WHERE id=?", [$self_parent]);
+db_exec("DELETE FROM attach WHERE id=?", [$self_id]);
 
 // ---------------------------------------------------------------------
 // アクション
@@ -216,6 +227,22 @@ $out = test_attach_rename_action('AttachRenameTest',
     test_attach_rename_post('AttachRenameTest', $id1, 'renamed.txt'));
 test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
     'attach_rename: restored renamed.txt after serial test');
+
+// 連番ファイル自身を親名に変更する場合は、次の連番になる (自己連番衝突の防止)
+$chain_parent = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'chain.txt', 'text/plain', $now, $now]);
+$chain_id = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'chain_2.txt', 'text/plain', $now, $now]);
+$out = test_attach_rename_action('AttachRenameTest',
+    test_attach_rename_post('AttachRenameTest', $chain_id, 'chain.txt'));
+test_eq(__LINE__, test_attach_rename_name($chain_id), 'chain_3.txt',
+    'attach_rename: serial-named file renamed to parent gets next serial');
+test_contains(__LINE__, $out, 'chain_3.txt',
+    'attach_rename: self serial message shows new name');
+db_exec("DELETE FROM attach WHERE id=?", [$chain_parent]);
+db_exec("DELETE FROM attach WHERE id=?", [$chain_id]);
 
 // 拡張子の変更
 $out = test_attach_rename_action('AttachRenameTest',
