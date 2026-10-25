@@ -16,6 +16,7 @@ $private['authusers'] = [
     'taro'       => '{md5}' . md5('s3cret'),
     'hanako'     => '{sha1}' . sha1('pw2'),
     'xphp'       => '{x-php-md5}' . md5('pw3'),
+    'xphp_sha1'  => '{x-php-sha1}' . sha1('pw4'),
     'plain_user' => 'plainpass',
 ];
 
@@ -25,6 +26,8 @@ test_eq(__LINE__, _konawiki_auth_check_password('taro', ''),       FALSE, 'auth:
 test_eq(__LINE__, _konawiki_auth_check_password('hanako', 'pw2'),  TRUE,  'auth: sha1 correct');
 test_eq(__LINE__, _konawiki_auth_check_password('hanako', 'pw3'),  FALSE, 'auth: sha1 wrong');
 test_eq(__LINE__, _konawiki_auth_check_password('xphp', 'pw3'),    TRUE,  'auth: x-php-md5 correct');
+test_eq(__LINE__, _konawiki_auth_check_password('xphp_sha1', 'pw4'), TRUE,  'auth: x-php-sha1 correct');
+test_eq(__LINE__, _konawiki_auth_check_password('xphp_sha1', 'wrong'), FALSE, 'auth: x-php-sha1 wrong');
 test_eq(__LINE__, _konawiki_auth_check_password('plain_user', 'plainpass'), TRUE,  'auth: raw correct');
 test_eq(__LINE__, _konawiki_auth_check_password('plain_user', 'plainpas'),  FALSE, 'auth: raw wrong (prefix)');
 test_eq(__LINE__, _konawiki_auth_check_password('plain_user', '0'),         FALSE, 'auth: raw wrong (0)');
