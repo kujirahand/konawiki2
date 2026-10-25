@@ -16,8 +16,9 @@ function plugin_meta_table_convert($params) {
   $err = plugin_meta_table_check_json($s, $json);
   if ($err) { return $err; }
   
-  // モード分岐
-  $m = empty($_GET['m']) ? 'list' : $_GET['m'];
+  // モード分岐 (作成フォームは POST で送るため POST も見る #32)
+  $m = isset($_POST['m']) ? $_POST['m']
+     : (empty($_GET['m']) ? 'list' : $_GET['m']);
   switch ($m) {
   case 'list':  return plugin_meta_table_list($json);
   case 'add':   return plugin_meta_table_add($json);
@@ -121,12 +122,13 @@ function plugin_meta_table_add($json, $msg = '') {
   if ($msg) {
     $html .= "<p class='error'>$msg</p>\n";
   }
-  $html .= "<form method='get' action='$action' class='pure-form'>\n";
+  $html .= "<form method='post' action='$action' class='pure-form'>\n";
   $html .= "<p><label>{$html_name}の名前:";
   $html .= "   <input type='text' name='mname'></label>";
   $html .= "   <input type='hidden' name='page' value='$html_page'></label>";
   $html .= "   <input type='hidden' name='action' value='show'></label>";
   $html .= "   <input type='hidden' name='m' value='edit'></label>";
+  $html .= "   <input type='hidden' name='edit_token' value='".konawiki_getEditToken()."'></label>";
   $html .= "   <input type='hidden' name='m2' value='new'></label>";
   $html .= "   <input class='pure-button' type='submit' value='確認'></p>";
   $html .= "</form>\n";
@@ -137,7 +139,8 @@ function plugin_meta_table_edit($json, $msg = '') {
   $name = $json['name'];
   $html_name = htmlspecialchars($name);
   $fields = $json['fields'];
-  $mname = isset($_GET['mname']) ? $_GET['mname'] : '';
+  $mname = isset($_POST['mname']) ? $_POST['mname']
+         : (isset($_GET['mname']) ? $_GET['mname'] : '');
   if ($mname == '') { return plugin_meta_table_add($json, '名前が空です。'); }
   $pagename = "$name/$mname";
   
@@ -146,9 +149,18 @@ function plugin_meta_table_edit($json, $msg = '') {
   $ctime = time();
   $meta_obj = [];
   // check new page
-  $m2 = isset($_GET['m2']) ? $_GET['m2'] : 'new';
+  $m2 = isset($_POST['m2']) ? $_POST['m2']
+      : (isset($_GET['m2']) ? $_GET['m2'] : 'new');
   // new or update
   if ($m2 == 'new') {
+    // 新規作成は GET では行わない (#32)。追加フォームからの
+    // POST + edit_token を必須とし、リンク踏襲による意図しない
+    // ページ作成 (CSRF 含む) を防ぐ。
+    $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+    if ($method !== 'POST' || !konawiki_checkEditToken(TRUE)) {
+      return plugin_meta_table_add($json,
+        '新規作成は追加フォームから送信してください。');
+    }
     // 既存ページがあったら警告する
     if ($log) {
       return plugin_meta_table_add($json, '既に同じ名前の物件があります。違う名前にしてください。');
@@ -163,7 +175,7 @@ function plugin_meta_table_edit($json, $msg = '') {
     $id = db_insert('INSERT INTO logs (name, body, ctime, mtime) VALUES (?,?,?,?)',
       [$pagename, $body, $ctime, $ctime]);
     $log = [
-      'id' => $id, 'name' => $pagenam, 
+      'id' => $id, 'name' => $pagename, 
     ];
     $sublog_id = db_insert(
       'INSERT INTO sublogs (log_id, plug_name, ctime, mtime)'.

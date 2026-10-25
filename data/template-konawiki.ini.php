@@ -34,21 +34,28 @@ $public['norobot'] = false;
 //----------------------------------------------------------------------
 // password & specifying user privileges
 //----------------------------------------------------------------------
-// * Master admin password
+// * Master admin password (管理キー) --- 必ず自分だけの値を設定してください
+//   空のままでは管理機能 (凍結/インポート/ページ名変更など) は使えません。
+//   また、旧テンプレートの既定値 'konawiki' は公開情報のため無効扱いです。
 // (ex) 'test'                                  // plain
 // (ex) '{md5}098f6bcd4621d373cade4e832627b4f6' // md5
-$private['admin.key']   = 'konawiki';
+// (ex) '{password_hash}$2y$10$...'             // password_hash (推奨)
+//      ハッシュは次のコマンドで生成できます:
+//      php -r "echo password_hash('your-password', PASSWORD_DEFAULT), PHP_EOL;"
+$private['admin.key']   = '';
 $private['auth.read.enabled']   = FALSE;
 $private['auth.write.enabled']  = TRUE; 
 
-// * login setting user & password
+// * login setting user & password --- 必ず自分だけのユーザーを設定してください
+//   旧テンプレートの既定ユーザー (username / password) は公開情報のため、
+//   そのままの設定ではログインできません。
 // (ex) $authusers['username1'] = 'password';
 // (ex) $authusers['username2'] = '{md5}1a1dc91c907325c69271ddf0c944bc72';
 // (ex) $authusers['username3'] = '{sha1}9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684';
-if (isset($authusers['username'])) unset($authusers['username']);
+// (ex) $authusers['username4'] = '{password_hash}$2y$10$...'; // 推奨
 // username & password & privileges
-$authusers['username'] = 'password';
-$users_perm['username'] = array('read'=>true, 'write'=>true);
+// $authusers['username'] = 'password';
+// $users_perm['username'] = array('read'=>true, 'write'=>true);
 
 //----------------------------------------------------------------------
 // options

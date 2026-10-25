@@ -358,7 +358,7 @@ function __action_edit_command_renamepage()
   // get parameter
   $newname = trim(konawiki_param("newname"));
   $admin = trim(konawiki_param("admin"));
-  if ($admin !== konawiki_private("admin.key")) {
+  if (!konawiki_checkAdminKey($admin)) {
     konawiki_error("管理者キーが違います。");
     exit;
   }
@@ -385,7 +385,7 @@ function __action_edit_command_replace_allpage()
   $des   = trim(konawiki_param("des"));
   $admin = trim(konawiki_param("admin"));
   
-  if ($admin !== konawiki_private("admin.key")) {
+  if (!konawiki_checkAdminKey($admin)) {
     konawiki_error(konawiki_lang('Invalid Admin key.'));
     exit;
   }
@@ -535,7 +535,7 @@ function __action_edit_command_renamepage_ex_preview()
     $oldname = trim(konawiki_param("oldname"));
     $newname = trim(konawiki_param("newname"));
     $admin = trim(konawiki_param("admin"));
-    if ($admin !== konawiki_private("admin.key")) {
+    if (!konawiki_checkAdminKey($admin)) {
         konawiki_error("管理者キーが違います。");
         exit;
     }
@@ -581,7 +581,7 @@ function __action_edit_command_renamepage_ex()
   $oldname = trim(konawiki_param("oldname"));
   $newname = trim(konawiki_param("newname"));
   $admin = trim(konawiki_param("admin"));
-  if ($admin !== konawiki_private("admin.key")) {
+  if (!konawiki_checkAdminKey($admin)) {
     konawiki_error("管理者キーが違います。");
     exit;
   }
@@ -620,7 +620,7 @@ function __action_edit_command_batch() {
   konawiki_clearCache();
   // get parameter
   $admin = trim(konawiki_param("admin"));
-  if ($admin !== konawiki_private("admin.key")) {
+  if (!konawiki_checkAdminKey($admin)) {
       konawiki_error("管理者キーが違います。");
       exit;
   }

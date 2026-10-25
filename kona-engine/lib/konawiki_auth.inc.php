@@ -70,25 +70,45 @@ function _konawiki_auth_check_password($user, $pass)
 
     // check users
     $users = konawiki_private('authusers');
-    if (isset($users[$user])) {
-        $a_pass = $users[$user];
-        if (!preg_match('#\{(.+)\}(.*)$#', $a_pass, $m)) {
+    if (!is_array($users) || !isset($users[$user])) {
+        return $result;
+    }
+    $a_pass = (string)$users[$user];
+    // 保存値が空の場合は、入力が空でも一致とみなさない (#32)
+    if ($a_pass === '') {
+        return $result;
+    }
+    // テンプレートの既定資格情報 (username / password) は公開情報のため、
+    // そのままの設定ではログインを拒否する (#32)
+    if ($user === 'username' && $a_pass === 'password') {
+        return $result;
+    }
+    if (!preg_match('#\{(.+)\}(.*)$#s', $a_pass, $m)) {
+        // 接頭辞なしの password_hash() 出力そのもの (#32)
+        $info = password_get_info($a_pass);
+        if (!empty($info['algo'])) {
+            $result = password_verify((string)$pass, $a_pass);
+        } else {
             // raw password (緩い比較による型ジャグリングを避け定数時間で比較)
-            $result = hash_equals((string)$a_pass, (string)$pass);
+            $result = hash_equals($a_pass, (string)$pass);
         }
-        else {
-            $fmt  = $m[1];
-            $hash = $m[2];
-            switch ($fmt) {
-            case "md5":
-            case "x-php-md5":
-                $result = hash_equals(strtolower($hash), strtolower(md5($pass)));
-                break;
-            case "sha1":
-            case "x-php-sha1":
-                $result = hash_equals(strtolower($hash), strtolower(sha1($pass)));
-                break;
-            }
+    }
+    else {
+        $fmt  = $m[1];
+        $hash = $m[2];
+        switch ($fmt) {
+        case "password_hash":
+        case "x-php-password-hash":
+            $result = password_verify((string)$pass, $hash);
+            break;
+        case "md5":
+        case "x-php-md5":
+            $result = hash_equals(strtolower($hash), strtolower(md5($pass)));
+            break;
+        case "sha1":
+        case "x-php-sha1":
+            $result = hash_equals(strtolower($hash), strtolower(sha1($pass)));
+            break;
         }
     }
     return $result;

@@ -17,7 +17,12 @@ global $konawiki, $public, $private;
 $scrdir = dirname($_SERVER['SCRIPT_NAME']);
 if ($scrdir == "/") $scrdir = "";
 $https = empty($_SERVER["HTTPS"]) ? "http" : "https";
-$scrUri = "{$https}://{$_SERVER['HTTP_HOST']}{$scrdir}";
+// Host ヘッダは検証してから URL 組み立てに使う (#32)
+$httpHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+if (!preg_match('/\A(?:\[[0-9A-Fa-f:.]+\]|[A-Za-z0-9_.\-]+)(?::[0-9]{1,5})?\z/', $httpHost)) {
+  $httpHost = 'localhost';
+}
+$scrUri = "{$https}://{$httpHost}{$scrdir}";
 
 // set default setting
 $konawiki = [
@@ -57,6 +62,27 @@ if (file_exists($ini)) {
     file_put_contents($ini, $conf);
     require_once $ini;
   }
+}
+//--------------------------------------------------------------------
+// check initial setup (#32)
+// 管理キーとログインユーザーがどちらも未設定の場合、既定資格情報の
+// まま運用されるのを防ぐため、セットアップ案内を表示して終了する。
+// (書き込み認証を無効にしている場合は対象外)
+//--------------------------------------------------------------------
+$adminKey = isset($private['admin.key']) ? $private['admin.key'] : '';
+$writeAuthEnabled = !isset($private['auth.write.enabled'])
+  || $private['auth.write.enabled'] != FALSE;
+if (($adminKey === '' || $adminKey === 'konawiki')
+    && empty($authusers) && $writeAuthEnabled) {
+  header("Content-Type: text/html; charset=UTF-8");
+  echo "<h1>KonaWiki2 セットアップが必要です / Setup required</h1>\n";
+  echo "<p>設定ファイル <code>data/konawiki.ini.php</code> で、"
+    . "<code>\$private['admin.key']</code> (管理キー) と "
+    . "<code>\$authusers</code> (ログインユーザー) を設定してください。</p>\n";
+  echo "<p>Please set <code>\$private['admin.key']</code> and "
+    . "<code>\$authusers</code> in <code>data/konawiki.ini.php</code>. "
+    . "パスワードは <code>{password_hash}</code> 形式 (password_hash) の利用を推奨します。</p>\n";
+  exit;
 }
 //--------------------------------------------------------------------
 // check template engine
