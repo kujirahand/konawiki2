@@ -144,10 +144,16 @@ function konawiki_attach_has_comment_column()
     return FALSE;
 }
 
-function konawiki_attach_ensure_comment_column()
+/**
+ * comment カラムの利用可否を確認し、結果をプロセス内でキャッシュする。
+ * @param boolean $force TRUE のときはキャッシュを使わず再確認する
+ *                       (テーブル差し替えを行うテストなどから使う)
+ * @return boolean comment カラムが利用可能なら TRUE
+ */
+function konawiki_attach_ensure_comment_column($force = FALSE)
 {
     static $available = null;
-    if ($available !== null) {
+    if ($available !== null && !$force) {
         return $available;
     }
     $available = FALSE;

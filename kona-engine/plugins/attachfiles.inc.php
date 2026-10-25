@@ -56,10 +56,55 @@ function plugin_attachfiles_arg_comment($params, $name)
   return $comment;
 }
 
+function plugin_attachfiles_resolve_comments($params, $names)
+{
+  // 引数 (ファイル名=コメント) を、実際に添付されているファイル名の
+  // 一覧に対して解決する。「ファイル名=」に前方一致する名前が複数ある
+  // 場合は最も長い名前を優先する。たとえば添付に `data` と
+  // `data=2023.csv` の両方があるとき、`data=2023.csv=集計結果` は
+  // `data=2023.csv` への指定として解釈し、`data` には適用しない。
+  // 戻り値: [ファイル名 => コメント] (後勝ち)
+  $result = array();
+  if (!$params) {
+    return $result;
+  }
+  foreach ($params as $param) {
+    $param = trim((string)$param);
+    if ($param === '') {
+      continue;
+    }
+    $best = null;
+    $best_comment = null;
+    foreach ($names as $name) {
+      $prefix = $name . '=';
+      if (strpos($param, $prefix) === 0) {
+        if ($best === null || strlen($name) > strlen($best)) {
+          $best = $name;
+          $best_comment = trim(substr($param, strlen($prefix)));
+        }
+      }
+    }
+    if ($best !== null) {
+      $result[$best] = $best_comment;
+      continue;
+    }
+    // 前方一致しない場合は先頭の '=' で分割し、添付名と完全一致する
+    // 場合のみ採用する (' a.png = spaced ' のような指定への対応)
+    $pos = strpos($param, '=');
+    if ($pos === FALSE) {
+      continue;
+    }
+    $name = trim(substr($param, 0, $pos));
+    if ($name === '' || !in_array($name, $names, TRUE)) {
+      continue;
+    }
+    $result[$name] = trim(substr($param, $pos + 1));
+  }
+  return $result;
+}
+
 function plugin_attachfiles_convert($params)
 {
-  // 引数で指定されたファイル毎のコメント (Issue #21)
-  $arg_comments = plugin_attachfiles_parse_comments($params);
 
   // attachファイル一覧を得る
   $log_id = konawiki_getPageId();
@@ -82,6 +127,15 @@ function plugin_attachfiles_convert($params)
     "SELECT * FROM attach WHERE ".
     "  log_id=? ORDER BY mtime ASC";
   $rows = db_get($sql, [$log_id]);
+  // 引数で指定されたファイル毎のコメント (Issue #21)
+  // 実際の添付名一覧に対して最長一致で解決する
+  $attach_names = array();
+  if ($rows) {
+    foreach ($rows as $row_for_names) {
+      $attach_names[] = $row_for_names['name'];
+    }
+  }
+  $arg_comments = plugin_attachfiles_resolve_comments($params, $attach_names);
   if ($rows) {
     foreach ($rows as $res) {
       $id   = $res['id'];
@@ -95,10 +149,7 @@ function plugin_attachfiles_convert($params)
       } else if (isset($res['comment'])) {
         $comment = (string)$res['comment'];
       }
-      $arg_comment = plugin_attachfiles_arg_comment($params, $name);
-      if ($arg_comment !== null) {
-        $comment = $arg_comment;
-      } else if (array_key_exists($name, $arg_comments)) {
+      if (array_key_exists($name, $arg_comments)) {
         $comment = $arg_comments[$name];
       }
       $comment_h = htmlspecialchars($comment, ENT_QUOTES);

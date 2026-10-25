@@ -143,7 +143,15 @@ function action_attach_write()
       return;
     } else {
       // insert into db
-      if (konawiki_attach_ensure_comment_column()) {
+      $has_comment_col = konawiki_attach_ensure_comment_column();
+      if (!$has_comment_col && $comment !== '') {
+        // comment カラムを用意できない状態で、入力されたコメントを
+        // 無言で落としてアップロードを成功させない (Codexレビュー指摘)
+        db_rollback();
+        konawiki_error("コメントを保存できませんでした。時間をおいて再度お試しください。");
+        return;
+      }
+      if ($has_comment_col) {
         $sql =
           "INSERT INTO attach (log_id,name,ext,comment,ctime,mtime)".
           "             VALUES(     ?,   ?,  ?,      ?,    ?,    ?)";
