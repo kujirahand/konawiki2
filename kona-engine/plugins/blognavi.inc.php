@@ -20,7 +20,8 @@ function plugin_blognavi_convert($params)
     $pat = isset($params[0]) ? $params[0] : "";
     $FrontPage = konawiki_public('FrontPage');
     // db
-    $where = '';
+    // 非公開ページは前後ページ候補から除外する (Issue #55)
+    $where = 'AND COALESCE(private,0)=0';
     $order = 'ctime';
     $params = [$FrontPage];
     if ($pat) {
@@ -30,7 +31,7 @@ function plugin_blognavi_convert($params)
             $pat .= '%';
         }
         $order = 'name';
-        $where = "AND name like ?";
+        $where .= " AND name like ?";
         $params[] = $pat_;
     }
     $sql =
