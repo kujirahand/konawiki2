@@ -230,6 +230,34 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
         self.assertEqual("編集済みBBS",
                          self.sublog_body("article", "CsrfArticle"))
 
+    def test_comment_get_request_cannot_write(self):
+        # トークンが正しくても、GETリクエストでは書き込めない (POST必須)
+        self.page("CsrfCommentGet", "#comment")
+        html = self.get(self.anon, "CsrfCommentGet")
+        query = "CsrfCommentGet&" + urllib.parse.urlencode(dict(
+            plugin="comment", pid=self.hidden(html, "pid"), name="",
+            comment="", r_name="tester", r_comment="GETでは書けない",
+            edit_token=self.token(html)))
+        res = self.get(self.anon, query)
+        self.assertIn(CSRF_ERROR, res)
+        self.assertIsNone(self.sublog_body("comment", "CsrfCommentGet"))
+
+    def test_token_rotates_on_login_and_logout(self):
+        # 権限が変わるタイミングでトークンが破棄され、再発行されること
+        self.page("CsrfRotate", "#comment")
+        client = self.client()
+        t_anon = self.token(self.get(client, "CsrfRotate"))
+        login_page = self.get(client, "FrontPage&login")
+        self.assertEqual(t_anon, self.token(login_page))
+        self.post(client, dict(page="FrontPage", action="login",
+                               user="review", pw="review-pass",
+                               edit_token=t_anon))
+        t_login = self.token(self.get(client, "CsrfRotate"))
+        self.assertNotEqual(t_anon, t_login)
+        self.get(client, "FrontPage&logout")
+        t_logout = self.token(self.get(client, "CsrfRotate"))
+        self.assertNotEqual(t_login, t_logout)
+
     def test_token_is_stable_across_renders(self):
         # 描画のたびにトークンが変わると、先に開いたタブのフォームや
         # 同一ページの複数フォームが使えなくなるため、再利用されること

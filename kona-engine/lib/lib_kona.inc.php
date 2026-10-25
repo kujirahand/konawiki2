@@ -1142,10 +1142,15 @@ function konawiki_getEditToken($force = FALSE)
     return $edit_token;
 }
 
-function konawiki_checkEditToken()
+function konawiki_checkEditToken($post_only = FALSE)
 {
     $ses_edit_token = isset($_SESSION['konawiki2_edit_token']) ? $_SESSION['konawiki2_edit_token'] : '';
-    $get_edit_token = konawiki_param('edit_token', '');
+    if ($post_only) {
+        // 書き込み処理では、URLに載ったトークン (GET) を受理しない (#10)
+        $get_edit_token = isset($_POST['edit_token']) ? $_POST['edit_token'] : '';
+    } else {
+        $get_edit_token = konawiki_param('edit_token', '');
+    }
     // トークンが文字列でない場合 (配列など) や、セッション側に
     // トークンが発行されていない場合は一致とみなさない (#10)
     if (!is_string($ses_edit_token) || $ses_edit_token === '') {
@@ -1158,6 +1163,15 @@ function konawiki_checkEditToken()
         return FALSE;
     }
     return TRUE;
+}
+
+// 発行済みの edit_token を破棄する (次回の発行で新しいトークンになる)。
+// ログイン/ログアウトなど権限が変わるタイミングで呼ぶ (#10)。
+function konawiki_clearEditToken()
+{
+    global $konawiki;
+    unset($_SESSION['konawiki2_edit_token']);
+    unset($konawiki['private']['edit_token']);
 }
 
 

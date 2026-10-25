@@ -124,7 +124,7 @@ function plugin_article_action($params)
   }
   // CSRF対策 (#10): 投稿時・ログイン中の編集時ともに
   // フォームで発行した edit_token を必須とする
-  if (!konawiki_checkEditToken()) {
+  if (!konawiki_checkEditToken(TRUE)) {
     $plugin_params["error"] = "意図せぬ操作が行われました。ページを戻って改めて操作を行ってください。";
     return FALSE;
   }
