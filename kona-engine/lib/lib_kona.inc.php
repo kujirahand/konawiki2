@@ -1130,18 +1130,36 @@ function konawiki_removeAttachFiles($id)
 {
     $id = intval($id);
     if ($id <= 0) return FALSE;
-    $base = KONAWIKI_DIR_ATTACH.'/'.$id;
-    $files = glob($base.'.*');
-    if ($files === FALSE) $files = [];
-    $files[] = $base;
+    // glob() のパターンは添付ディレクトリのパス文字列から組み立てるため、
+    // パスに glob メタ文字 ([ ] * ? 等) が含まれると一致しない (#32)。
+    // ディレクトリを走査して、数値IDそのもの、または "{id}." で始まる
+    // 名前だけを対象にする (別IDのファイルやディレクトリは削除しない)。
+    $dir = KONAWIKI_DIR_ATTACH;
+    if (!is_dir($dir)) return FALSE;
+    $entries = scandir($dir);
+    if ($entries === FALSE) return FALSE;
     $removed = FALSE;
-    foreach ($files as $file) {
-        // 数値IDの完全一致を使い、別IDのファイルやディレクトリは削除しない。
+    $prefix = $id.'.';
+    foreach ($entries as $entry) {
+        if ($entry !== (string)$id && strpos($entry, $prefix) !== 0) {
+            continue;
+        }
+        $file = $dir.'/'.$entry;
         if ((is_file($file) || is_link($file)) && @unlink($file)) {
             $removed = TRUE;
         }
     }
     return $removed;
+}
+
+/**
+ * 指定ページ (省略時は表示中のページ) が凍結されているか返す (#32)
+ */
+function konawiki_isPageFrozen($page = FALSE)
+{
+    $log = konawiki_getLog($page);
+    if (!$log || !isset($log['freeze'])) return FALSE;
+    return (intval($log['freeze']) > 0);
 }
 
 function konawiki_getEditToken($force = FALSE)
@@ -1573,16 +1591,35 @@ function konawiki_clearCacheDB_All()
 
 /**
  * ハッシュを利用したパスワードの照合
- * @param $user
- * @param $pass
+ * @param $user 入力されたパスワード (引数名は歴史的なもの)
+ * @param $pass 設定ファイルに保存されている値。平文のほか
+ *              {md5}... / {sha1}... / {password_hash}... 形式と、
+ *              password_hash() の出力そのもの ("$2y$..." 等) に対応する (#32)
  * @return bool
  */
 function konawiki_checkPassword($user, $pass)
 {
+    $user = (string)$user;
+    $pass = (string)$pass;
+    // 保存値が空の場合は、入力が空でも一致とみなさない
+    if ($pass === '') {
+        return FALSE;
+    }
     $type = "";
-    if (preg_match('#^\{([a-z0-9]+)\}(.+)$#', $pass, $m)) {
+    if (preg_match('#^\{([a-z0-9_\-]+)\}(.+)$#s', $pass, $m)) {
         $type = $m[1];
         $pass = $m[2];
+    }
+    // password_hash 形式は password_verify で照合する
+    if ($type == "password_hash" || $type == "x-php-password-hash") {
+        return password_verify($user, $pass);
+    }
+    if ($type == "") {
+        $info = password_get_info($pass);
+        if (!empty($info['algo'])) {
+            // 接頭辞なしの password_hash() 出力そのもの
+            return password_verify($user, $pass);
+        }
     }
     if ($type == "md5" || $type == "x-php-md5") {
         $hash = md5($user);
@@ -1594,6 +1631,22 @@ function konawiki_checkPassword($user, $pass)
         $hash = $user;
     }
     return (hash_equals($hash, $pass));
+}
+
+/**
+ * 管理キー (admin.key) の照合 (#32)
+ * - 未設定 (空) の管理キーは、入力が空でも一致とみなさない
+ * - テンプレートの既定値だった 'konawiki' は公開情報のため、
+ *   設定されていても未設定として扱い、管理操作を拒否する
+ * - 保存形式は konawiki_checkPassword と同じ (平文/{md5}/{sha1}/{password_hash})
+ */
+function konawiki_checkAdminKey($input)
+{
+    $stored = konawiki_private('admin.key', '');
+    if (!is_string($stored) || $stored === '' || $stored === 'konawiki') {
+        return FALSE;
+    }
+    return konawiki_checkPassword((string)$input, $stored);
 }
 
 /**
