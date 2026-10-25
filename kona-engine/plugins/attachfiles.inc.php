@@ -108,10 +108,9 @@ function plugin_attachfiles_convert($params)
 
   // attachファイル一覧を得る
   $log_id = konawiki_getPageId();
-  // 既存DBでは comment カラムを遅延追加する
-  if (function_exists('konawiki_attach_ensure_comment_column')) {
-    konawiki_attach_ensure_comment_column();
-  }
+  // 表示では comment カラムの移行 (DDL) を行わない (Issue #46)。
+  // カラムが無い既存DBでも konawiki_attach_row_comment() が空文字列を返すので、
+  // DBコメントの読み出しはそのまま動作する。移行は書き込み時に行われる。
 
   $html = "<h3>添付ファイル一覧</h3>\n";
   $html .= "<style>";

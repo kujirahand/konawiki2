@@ -88,6 +88,76 @@ test_eq(__LINE__, $row['comment'], '', 'attachfiles: comment cleared');
 konawiki_attach_set_comment($doc_id, '資料のコメント');
 
 // ---------------------------------------------------------------------
+// 表示では comment カラムを移行せず、書き込みで移行する (Issue #46)
+// attach テーブルを旧定義 (comment なし) で作り直して再現する。
+// この節の間、他の節が作った attach 行はバックアップ側に退避されているため参照しない。
+// ---------------------------------------------------------------------
+require_once KONAWIKI_DIR_ACTION . '/attach.inc.php';
+include_once KONAWIKI_DIR_PLUGINS . '/attachfiles.inc.php';
+db_exec("ALTER TABLE attach RENAME TO attach_mig46_backup");
+db_exec("CREATE TABLE attach ("
+    . "id INTEGER PRIMARY KEY, log_id INTEGER, name TEXT,"
+    . " ext TEXT, ctime INTEGER, mtime INTEGER)");
+$legacy46_id = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'legacy46.txt', 'text/plain', $now, $now]);
+test_assert(__LINE__, $legacy46_id > 0, 'attachfiles: #46 legacy row inserted');
+
+// 確認専用の関数は DDL を実行しない
+test_eq(__LINE__, konawiki_attach_comment_column_available(TRUE), FALSE,
+    'attachfiles: #46 available is FALSE without column');
+test_eq(__LINE__, konawiki_attach_has_comment_column(), FALSE,
+    'attachfiles: #46 available does not migrate');
+
+// 添付一覧の表示では移行しない
+$_GET['page'] = 'AttachFilesTest'; $_POST = [];
+$list46 = konawiki_getAttachList('AttachFilesTest');
+$names46 = [];
+foreach ($list46 as $r) { $names46[] = $r['name']; }
+test_assert(__LINE__, in_array('legacy46.txt', $names46, TRUE),
+    'attachfiles: #46 getAttachList returns legacy row');
+test_eq(__LINE__, konawiki_attach_has_comment_column(), FALSE,
+    'attachfiles: #46 getAttachList does not migrate');
+
+// #attachfiles の表示でも移行しない
+$html = plugin_attachfiles_convert([]);
+test_contains(__LINE__, $html, 'legacy46.txt',
+    'attachfiles: #46 plugin shows legacy row');
+test_eq(__LINE__, konawiki_attach_has_comment_column(), FALSE,
+    'attachfiles: #46 plugin does not migrate');
+
+// カラムが無い行のコメントは空文字列
+$legacy46_row = null;
+foreach ($list46 as $r) {
+    if ($r['name'] === 'legacy46.txt') { $legacy46_row = $r; }
+}
+test_eq(__LINE__, konawiki_attach_row_comment($legacy46_row), '',
+    'attachfiles: #46 legacy row comment is empty');
+
+// 書き込み経路では移行する。表示で FALSE がキャッシュされているため、
+// 別リクエストになったことを模擬してキャッシュを破棄してから呼ぶ
+unset($GLOBALS['konawiki_attach_comment_column']);
+test_eq(__LINE__, konawiki_attach_set_comment($legacy46_id, '書き込みで移行'), TRUE,
+    'attachfiles: #46 set_comment migrates');
+test_eq(__LINE__, konawiki_attach_has_comment_column(), TRUE,
+    'attachfiles: #46 column added by write');
+$row = db_get1("SELECT * FROM attach WHERE id=?", [$legacy46_id]);
+test_eq(__LINE__, $row['comment'], '書き込みで移行',
+    'attachfiles: #46 comment saved after migration');
+test_eq(__LINE__, konawiki_attach_comment_column_available(), TRUE,
+    'attachfiles: #46 available shares cache with ensure');
+
+// 元のテーブルに戻し、キャッシュも実テーブルに合わせ直す
+db_exec("DROP TABLE attach");
+db_exec("ALTER TABLE attach_mig46_backup RENAME TO attach");
+test_eq(__LINE__, konawiki_attach_ensure_comment_column(TRUE), TRUE,
+    'attachfiles: #46 ensure after table restore');
+$row = db_get1("SELECT * FROM attach WHERE id=?", [$doc_id]);
+test_eq(__LINE__, $row['name'], 'doc.pdf',
+    'attachfiles: #46 original rows restored');
+$_GET = ['page' => 'AttachFilesTest']; $_POST = [];
+
+// ---------------------------------------------------------------------
 // 引数パース (ファイル名=コメント)
 // ---------------------------------------------------------------------
 include_once KONAWIKI_DIR_PLUGINS . '/attachfiles.inc.php';
@@ -272,7 +342,7 @@ test_eq(__LINE__, test_attach_comment_value($doc_id), 'アクションで更新'
 // action=attach / stat=comment に分解され、ディスパッチャ
 // (konawiki_execute_action) が action/attach.inc.php の
 // action_attach_comment() を呼ぶ規約であることを確認する。
-// 認証を有効にした実経路の動作は HTTP スモークで別途検証している。
+// 認証を有効にした実経路の動作は tests/attach46_http.py で自動検証している（Issue #46）。
 // ---------------------------------------------------------------------
 $test_saved_qs = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : null;
 $test_saved_get = $_GET;

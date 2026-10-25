@@ -393,7 +393,8 @@ function konawiki_getContentType($filename)
 
 function konawiki_getAttachList($page)
 {
-    konawiki_attach_ensure_comment_column();
+    // 表示のみでは comment カラムの移行 (DDL) を実行しない。
+    // カラムが無い既存DBではコメントは空として表示され、移行は書き込み時に行われる (Issue #46)
     $log_id = konawiki_getPageId($page);
     if ($log_id == FALSE) {
         return FALSE;

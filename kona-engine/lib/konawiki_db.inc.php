@@ -145,35 +145,59 @@ function konawiki_attach_has_comment_column()
 }
 
 /**
- * comment カラムの利用可否を確認し、結果をプロセス内でキャッシュする。
+ * comment カラムの有無を、DDL を一切実行せずに確認する (確認専用, Issue #46)。
+ * 結果は $GLOBALS['konawiki_attach_comment_column'] にキャッシュする
+ * (未確認は未設定、確認済みは TRUE/FALSE)。ensure と同じキャッシュを共有する。
+ * 表示経路ではこの関数を使うか、何も呼ばないこと。
+ * @param boolean $force TRUE のときはキャッシュを使わず再確認してキャッシュを更新する
+ * @return boolean comment カラムが存在すれば TRUE (attach テーブルが無い場合は FALSE)
+ */
+function konawiki_attach_comment_column_available($force = FALSE)
+{
+    if (!$force && isset($GLOBALS['konawiki_attach_comment_column'])) {
+        return $GLOBALS['konawiki_attach_comment_column'];
+    }
+    if (!db_table_exists('attach')) {
+        $GLOBALS['konawiki_attach_comment_column'] = FALSE;
+        return FALSE;
+    }
+    $GLOBALS['konawiki_attach_comment_column'] = konawiki_attach_has_comment_column();
+    return $GLOBALS['konawiki_attach_comment_column'];
+}
+
+/**
+ * comment カラムの利用可否を確認し、無ければ ALTER TABLE で追加する。結果はキャッシュする。
+ * 移行 (DDL) は書き込み経路 (アップロード・コメント保存) と明示的な移行呼び出しからのみ行う。
+ * 表示経路では konawiki_attach_comment_column_available() を使うか何も呼ばないこと (Issue #46)。
+ * キャッシュは konawiki_attach_comment_column_available() と共有する。
  * @param boolean $force TRUE のときはキャッシュを使わず再確認する
  *                       (テーブル差し替えを行うテストなどから使う)
  * @return boolean comment カラムが利用可能なら TRUE
  */
 function konawiki_attach_ensure_comment_column($force = FALSE)
 {
-    static $available = null;
-    if ($available !== null && !$force) {
-        return $available;
+    $cache = 'konawiki_attach_comment_column';
+    if (!$force && isset($GLOBALS[$cache])) {
+        // 確認済みなら、移行失敗後に ALTER を繰り返さないようそのまま返す
+        return $GLOBALS[$cache];
     }
-    $available = FALSE;
     if (!db_table_exists('attach')) {
+        $GLOBALS[$cache] = FALSE;
         return FALSE;
     }
     if (konawiki_attach_has_comment_column()) {
-        $available = TRUE;
+        $GLOBALS[$cache] = TRUE;
         return TRUE;
     }
     try {
         db_exec("ALTER TABLE attach ADD COLUMN comment TEXT DEFAULT ''");
-        $available = TRUE;
+        $GLOBALS[$cache] = TRUE;
     } catch (Exception $e) {
-        // 同時実行で既に追加された場合は再確認した結果を返す。
-        // 読み取り専用のDB等で追加できない場合は FALSE を返し、
-        // 呼び出し元の表示処理はコメントなしで継続できるようにする。
-        $available = konawiki_attach_has_comment_column();
+        // 同時実行で既に追加された場合や、読み取り専用DBで追加できない場合は、
+        // 再確認した結果を採用する
+        $GLOBALS[$cache] = konawiki_attach_has_comment_column();
     }
-    return $available;
+    return $GLOBALS[$cache];
 }
 
 /**
