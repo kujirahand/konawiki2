@@ -60,7 +60,7 @@ konawiki_checkOptions();
 // ---------------------------------------------------------------------
 // サンドボックス (テスト用の一時ディレクトリ)
 // ---------------------------------------------------------------------
-$KONA2_TEST_SANDBOX = sys_get_temp_dir() . '/konawiki2_test_' . getmypid();
+$KONA2_TEST_SANDBOX = sys_get_temp_dir() . '/konawiki2_test_' . getmypid() . '_' . bin2hex(random_bytes(4));
 foreach (['data', 'attach', 'cache'] as $d) {
     if (!is_dir("$KONA2_TEST_SANDBOX/$d")) {
         mkdir("$KONA2_TEST_SANDBOX/$d", 0777, TRUE);
@@ -157,8 +157,14 @@ function test_assert($line, $b, $desc = 'assert')
         $file = $KONA2_TEST_FILE;
         if ($file === '') {
             // 単体実行時は呼び出し元のファイル名を使う
-            $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-            $file = isset($bt[1]['file']) ? basename($bt[1]['file']) : '?';
+            // (test_eq 等の経由でも直接呼びでも、このファイル以外で最初のフレームを探す)
+            $file = '?';
+            foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $fr) {
+                if (isset($fr['file']) && $fr['file'] !== __FILE__) {
+                    $file = basename($fr['file']);
+                    break;
+                }
+            }
         }
         $KONA2_TEST_ERRORS[] = [
             'file' => $file,
@@ -235,8 +241,7 @@ function test_write_page($page, $body, $tag = FALSE)
     $_POST['page'] = $page;
     $err = '';
     $r = konawiki_writePage($body, $err, FALSE, $tag);
-    if (!$r) {
-        echo "test_write_page($page) failed: $err\n";
-    }
+    // 戻り値を無視する呼び出しでも失敗を見逃さないよう失敗数に数える
+    test_assert(__LINE__, $r, "test_write_page($page) failed: $err");
     return $r;
 }

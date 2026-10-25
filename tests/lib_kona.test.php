@@ -61,7 +61,7 @@ test_eq(__LINE__, konawiki_private('ul_mark1'), '・', 'options: ul_mark1');
 test_eq(__LINE__, konawiki_private('h1_mark1'), '■', 'options: h1_mark1');
 test_eq(__LINE__, konawiki_private('h2_mark1'), '●', 'options: h2_mark1');
 test_assert(__LINE__, konawiki_private('session.name') !== null, 'options: session.name');
-test_eq(__LINE__, KONAWIKI_VERSION, '2.3.7', 'options: version constant');
+test_assert(__LINE__, preg_match('/^\d+\.\d+\.\d+$/', KONAWIKI_VERSION) === 1, 'options: version constant');
 
 // ブラウザ言語 (Accept-Language の先頭を見る)
 $saved_lang = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : null;

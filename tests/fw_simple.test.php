@@ -11,6 +11,8 @@ require_once __DIR__ . '/test_common.inc.php';
 // ---------------------------------------------------------------------
 // fw_etc: get_param / post_param / ss_param
 // ---------------------------------------------------------------------
+$saved_get = $_GET; $saved_post = $_POST;
+$saved_session = isset($_SESSION) ? $_SESSION : null;
 $_GET = ['g' => 'gv']; $_POST = ['p' => 'pv'];
 if (session_status() !== PHP_SESSION_ACTIVE) { $_SESSION = ['s' => 'sv']; }
 test_eq(__LINE__, get_param('g'), 'gv', 'get_param: hit');
@@ -20,7 +22,8 @@ test_eq(__LINE__, post_param('p'), 'pv', 'post_param: hit');
 test_eq(__LINE__, post_param('missing'), '', 'post_param: default');
 test_eq(__LINE__, ss_param('s'), 'sv', 'ss_param: hit');
 test_eq(__LINE__, ss_param('missing', 'd'), 'd', 'ss_param: default');
-$_GET = []; $_POST = [];
+$_GET = $saved_get; $_POST = $saved_post;
+if ($saved_session === null) { unset($_SESSION); } else { $_SESSION = $saved_session; }
 
 // NGワード ( $ngword_list に含まれる語があるか )
 global $ngword_list;
@@ -47,7 +50,6 @@ test_eq(__LINE__, $echoed, '/index.php?a=show&d=d1', 'echo_url');
 // 後続のテストファイルに影響しないよう戻す
 $_SERVER['HTTP_HOST'] = 'localhost';
 $_SERVER['SCRIPT_NAME'] = '/index.php';
-unset($_SESSION['s']);
 
 // ---------------------------------------------------------------------
 // fw_template_engine_plugins: フィルタ関数
@@ -106,6 +108,7 @@ $saved_cache = isset($DIR_TEMPLATE_CACHE) ? $DIR_TEMPLATE_CACHE : null;
 $DIR_TEMPLATE = $tpl_dir;
 $DIR_TEMPLATE_CACHE = $cache_dir;
 $FW_TEMPLATE_PARAMS = [];
+try {
 
 ob_start();
 template_render('hello.html', [
@@ -134,11 +137,12 @@ try {
     ob_start();
     template_render('no_such_template.html', []);
     ob_end_clean();
-} catch (Exception $e) {
+} catch (Throwable $e) {
     ob_end_clean();
     $threw = TRUE;
 }
 test_assert(__LINE__, $threw, 'template: missing file throws');
-
-$DIR_TEMPLATE = $saved_tpl;
-$DIR_TEMPLATE_CACHE = $saved_cache;
+} finally {
+    $DIR_TEMPLATE = $saved_tpl;
+    $DIR_TEMPLATE_CACHE = $saved_cache;
+}
