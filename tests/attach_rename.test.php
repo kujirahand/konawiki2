@@ -38,6 +38,22 @@ test_assert(__LINE__, konawiki_attach_validate_rename('abc', 'abc.txt') !== '',
 test_assert(__LINE__,
     konawiki_attach_validate_rename('a.txt', str_repeat('a', 252) . '.txt') !== '',
     'attach_rename: too long name rejected');
+// 制御文字・引用符はダウンロード時の Content-Disposition ヘッダーを壊すため拒否
+test_assert(__LINE__, konawiki_attach_validate_rename('a.txt', "b\n.txt") !== '',
+    'attach_rename: newline rejected');
+test_assert(__LINE__, konawiki_attach_validate_rename('a.txt', "b\r.txt") !== '',
+    'attach_rename: CR rejected');
+test_assert(__LINE__, konawiki_attach_validate_rename('a.txt', "b\t.txt") !== '',
+    'attach_rename: tab rejected');
+test_assert(__LINE__, konawiki_attach_validate_rename('a.txt', 'b".txt') !== '',
+    'attach_rename: double quote rejected');
+test_assert(__LINE__, konawiki_attach_validate_rename('a.txt', "b'.txt") !== '',
+    'attach_rename: single quote rejected');
+// 拡張子なし・複数のドットは末尾の拡張子が同じなら可
+test_eq(__LINE__, konawiki_attach_validate_rename('abc', 'def'), '',
+    'attach_rename: no extension rename ok');
+test_eq(__LINE__, konawiki_attach_validate_rename('a.tar.gz', 'b.tar.gz'), '',
+    'attach_rename: multi dot name ok');
 
 // ---------------------------------------------------------------------
 // ヘルパー
@@ -51,6 +67,14 @@ $id2 = db_insert(
     [$page_id, 'exists.txt', 'text/plain', $now, $now + 2]);
 test_assert(__LINE__, $id1 > 0 && $id2 > 0, 'attach_rename: rows inserted');
 
+// comment カラムは #21 を含むベースでは新規DBのスキーマに必ず含まれる。
+// (ensure は後続の attachfiles.test.php の移行テストに影響するため、ここでは呼ばない)
+$cols = [];
+foreach (db_get("PRAGMA table_info(attach)") as $c) { $cols[] = $c['name']; }
+test_assert(__LINE__, in_array('comment', $cols, TRUE),
+    'attach_rename: comment column exists in schema');
+db_exec("UPDATE attach SET comment=? WHERE id=?", ['保持するコメント', $id1]);
+
 $before = db_get1("SELECT * FROM attach WHERE id=?", [$id1]);
 test_eq(__LINE__, konawiki_attach_rename($id1, 'new.txt'), TRUE,
     'attach_rename: helper returns TRUE');
@@ -58,10 +82,20 @@ $after = db_get1("SELECT * FROM attach WHERE id=?", [$id1]);
 test_eq(__LINE__, $after['name'], 'new.txt', 'attach_rename: name changed in DB');
 test_eq(__LINE__, intval($after['mtime']), intval($before['mtime']),
     'attach_rename: mtime unchanged');
-if (array_key_exists('comment', $before)) {
-    test_eq(__LINE__, $after['comment'], $before['comment'],
-        'attach_rename: comment unchanged');
-}
+test_eq(__LINE__, $after['comment'], '保持するコメント',
+    'attach_rename: comment unchanged');
+// ヘルパーを直接呼んでも、検証・重複ガードが働くこと
+test_eq(__LINE__, konawiki_attach_rename($id1, 'new.png'), FALSE,
+    'attach_rename: helper rejects extension change');
+test_eq(__LINE__, konawiki_attach_rename($id1, "bad\n.txt"), FALSE,
+    'attach_rename: helper rejects control char name');
+test_eq(__LINE__, konawiki_attach_rename($id1, 'exists.txt', $page_id), FALSE,
+    'attach_rename: helper rejects duplicate with log_id guard');
+test_eq(__LINE__, konawiki_attach_rename(999999, 'x.txt'), FALSE,
+    'attach_rename: helper rejects unknown id');
+$row_chk = db_get1("SELECT name FROM attach WHERE id=?", [$id1]);
+test_eq(__LINE__, $row_chk['name'], 'new.txt',
+    'attach_rename: helper rejections leave DB unchanged');
 $old = db_get1("SELECT id FROM attach WHERE log_id=? AND name=?", [$page_id, 'old.txt']);
 test_assert(__LINE__, !$old, 'attach_rename: old name not found');
 $found = db_get1("SELECT id FROM attach WHERE log_id=? AND name=?", [$page_id, 'new.txt']);
@@ -149,7 +183,7 @@ $out = test_attach_rename_action('AttachRenameTest',
 test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
     'attach_rename: action rejects path separator');
 
-// 存在しない id・数値でない id
+// 存在しない id・数値でない id・整数でない id
 $out = test_attach_rename_action('AttachRenameTest',
     test_attach_rename_post('AttachRenameTest', 999999, 'x.txt'));
 test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
@@ -158,8 +192,62 @@ $out = test_attach_rename_action('AttachRenameTest',
     test_attach_rename_post('AttachRenameTest', 'abc', 'x.txt'));
 test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
     'attach_rename: action non-numeric id leaves data');
+$out = test_attach_rename_action('AttachRenameTest',
+    test_attach_rename_post('AttachRenameTest', '1.9', 'float.txt'));
+test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
+    'attach_rename: action float-like id leaves data');
+$out = test_attach_rename_action('AttachRenameTest',
+    test_attach_rename_post('AttachRenameTest', '1e2', 'exp.txt'));
+test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
+    'attach_rename: action exponent-like id leaves data');
 test_eq(__LINE__, test_attach_rename_name($id2), 'exists.txt',
     'attach_rename: other rows untouched');
+
+// ---------------------------------------------------------------------
+// 実ファイル・参照プラグイン・後続操作との統合
+// ---------------------------------------------------------------------
+// 実ファイルは {id}{拡張子} で置かれ、改名しても移動しない
+if (!is_dir(KONAWIKI_DIR_ATTACH)) { mkdir(KONAWIKI_DIR_ATTACH, 0777, TRUE); }
+$phys = KONAWIKI_DIR_ATTACH . "/{$id1}.txt";
+file_put_contents($phys, "attach body");
+$_GET = ['page' => 'AttachRenameTest']; $_POST = [];
+require_once KONAWIKI_DIR_ENGINE . '/plugins/ref.inc.php';
+$ref_new = plugin_ref_convert(['renamed.txt']);
+test_contains(__LINE__, $ref_new, "/{$id1}.txt", 'attach_rename: #ref new name resolves to physical file');
+test_contains(__LINE__, $ref_new, 'renamed.txt', 'attach_rename: #ref shows new name');
+$ref_old = plugin_ref_convert(['new.txt']);
+test_contains(__LINE__, $ref_old, 'file not found', 'attach_rename: #ref old name no longer resolves');
+// 改名しても実ファイルは同じ場所に残る
+$out = test_attach_rename_action('AttachRenameTest',
+    test_attach_rename_post('AttachRenameTest', $id1, 'final.txt'));
+test_contains(__LINE__, $out, 'ファイル名を変更しました', 'attach_rename: second rename ok');
+test_assert(__LINE__, file_exists($phys), 'attach_rename: physical file stays after rename');
+$ref_fin = plugin_ref_convert(['final.txt']);
+test_contains(__LINE__, $ref_fin, "/{$id1}.txt", 'attach_rename: #ref final name resolves');
+// 日付更新 (stat=up) が改名後も働く
+db_exec("UPDATE attach SET mtime=? WHERE id=?", [1000, $id1]);
+$_GET = ['page' => 'AttachRenameTest'];
+$_POST = ['page' => 'AttachRenameTest', 'id' => (string)$id1,
+    'edit_token' => 'test-token-22'];
+ob_start(); action_attach_up(); ob_get_clean();
+$row_up = db_get1("SELECT mtime FROM attach WHERE id=?", [$id1]);
+test_assert(__LINE__, intval($row_up['mtime']) > 1000,
+    'attach_rename: date update works after rename');
+// 改名したファイルを削除できる
+$id3 = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'del-target.txt', 'text/plain', $now, $now]);
+$out = test_attach_rename_action('AttachRenameTest',
+    test_attach_rename_post('AttachRenameTest', $id3, 'del-renamed.txt'));
+test_eq(__LINE__, test_attach_rename_name($id3), 'del-renamed.txt',
+    'attach_rename: rename target for delete');
+$_GET = ['page' => 'AttachRenameTest'];
+$_POST = ['page' => 'AttachRenameTest', 'id' => (string)$id3,
+    'edit_token' => 'test-token-22'];
+ob_start(); action_attach_delete(); ob_get_clean();
+$gone = db_get1("SELECT id FROM attach WHERE id=?", [$id3]);
+test_assert(__LINE__, !$gone, 'attach_rename: delete works after rename');
+@unlink($phys);
 
 // 後始末 (後続テストファイルへ状態を持ち越さない)
 $_GET = ['page' => 'AttachRenameTest']; $_POST = [];

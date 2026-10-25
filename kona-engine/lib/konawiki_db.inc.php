@@ -220,9 +220,11 @@ function konawiki_attach_validate_rename($oldname, $newname)
     if (strlen($newname) > 255) {
         return "ファイル名が長すぎます。";
     }
-    // パス区切りや NUL 文字による事故を防ぐ
-    if (strpos($newname, '/') !== FALSE || strpos($newname, '\\') !== FALSE ||
-        strpos($newname, "\0") !== FALSE || $newname === '.' || $newname === '..') {
+    // パス区切り・制御文字・引用符による事故を防ぐ
+    // (引用符や改行はダウンロード時の Content-Disposition ヘッダーを壊すため)
+    if (preg_match('/[\x00-\x1F\x7F"\']/', $newname) ||
+        strpos($newname, '/') !== FALSE || strpos($newname, '\\') !== FALSE ||
+        $newname === '.' || $newname === '..') {
         return "ファイル名に使えない文字が含まれています。";
     }
     // 拡張子は大文字小文字も含めて厳密に一致させる
@@ -240,13 +242,34 @@ function konawiki_attach_validate_rename($oldname, $newname)
  * 添付ファイルの名前を変更する (Issue #22)
  * mtime は変更しない (一覧の並び順を変えないため)。comment にも触れない。
  * @param integer $id attach テーブルの id
- * @param string $newname 新しいファイル名 (検証済みであること)
+ * @param string $newname 新しいファイル名 (関数内でも検証する)
+ * @param integer|null $log_id 指定すると同一ページ内の重複を更新と不可分に防ぐ
  * @return boolean 変更できたら TRUE
  */
-function konawiki_attach_rename($id, $newname)
+function konawiki_attach_rename($id, $newname, $log_id = null)
 {
     $id = intval($id);
-    $sql = "UPDATE attach SET name=? WHERE id=?";
-    db_exec($sql, [(string)$newname, $id]);
-    return TRUE;
+    $newname = trim((string)$newname);
+    // 単独で呼ばれた場合にも安全なよう、現在の名前を取得して検証する
+    $row = db_get1("SELECT * FROM attach WHERE id=?", [$id]);
+    if (!isset($row['id'])) {
+        return FALSE;
+    }
+    if (konawiki_attach_validate_rename($row['name'], $newname) !== '') {
+        return FALSE;
+    }
+    $db = database_get();
+    if ($log_id !== null) {
+        // 重複チェックと更新を1文で行い、同時変更でも同名が重複しないようにする
+        $stmt = $db->prepare(
+            "UPDATE attach SET name=? WHERE id=?".
+            " AND NOT EXISTS (SELECT 1 FROM attach".
+            " WHERE log_id=? AND name=? AND id<>?)");
+        $stmt->execute([$newname, $id, intval($log_id), $newname, $id]);
+    } else {
+        $stmt = $db->prepare("UPDATE attach SET name=? WHERE id=?");
+        $stmt->execute([$newname, $id]);
+    }
+    // 実際に更新された行がある場合だけ成功とする
+    return $stmt->rowCount() > 0;
 }

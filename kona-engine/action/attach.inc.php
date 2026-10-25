@@ -135,7 +135,8 @@ function action_attach_write()
     $sql = 
         "SELECT * FROM attach WHERE name=? AND ".
         "log_id=?";
-    $res = db_get1($sql, [$name, $log_id]);
+    // 重複チェックは、実際に保存される名前 (指定されたファイル名) で行う
+    $res = db_get1($sql, [$filename, $log_id]);
     if (isset($res["id"])) {
       // check password
       db_rollback();
@@ -354,7 +355,7 @@ function action_attach_rename()
     }
     if (!konawiki_auth()) return;
     $id = konawiki_param('id', 0);
-    if (!is_numeric($id)) {
+    if (!is_scalar($id) || !preg_match('/^\d+$/', (string)$id)) {
         konawiki_error("更新エラー。id が不正です。");
         return;
     }
@@ -394,7 +395,13 @@ function action_attach_rename()
         konawiki_error("変更エラー。同じ名前のファイルが既に添付されています。");
         return;
     }
-    if (!konawiki_attach_rename($id, $newname)) {
+    if (!konawiki_attach_rename($id, $newname, $info['log_id'])) {
+        // 同時変更で重複が発生した場合も、その旨を表示する
+        $dup = db_get1($sql, [$info['log_id'], $newname, $id]);
+        if (isset($dup['id'])) {
+            konawiki_error("変更エラー。同じ名前のファイルが既に添付されています。");
+            return;
+        }
         konawiki_error("更新エラー。ファイル名を変更できませんでした。");
         return;
     }
