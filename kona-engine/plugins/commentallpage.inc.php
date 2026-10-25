@@ -37,6 +37,9 @@ function plugin_commentallpage_convert($params)
     $logs = "";
     foreach ($r as $row) {
         $log_id = $row['log_id'];
+        // 非公開ページのコメントは表示しない (Issue #55)
+        $pinfo = konawiki_getPageInfoById($log_id);
+        if (!$pinfo || !empty($pinfo['private'])) continue;
         $body   = $row['body'];
         $page   = konawiki_getPageNameFromId($log_id);
         $page_link = konawiki_getPageLink($page);
