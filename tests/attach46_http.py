@@ -42,9 +42,14 @@ class Attach46HTTP(unittest.TestCase):
         shutil.copytree(repo / "skin", cls.root / "skin")
         for name in ("data", "cache", "attach"):
             (cls.root / name).mkdir()
-        # テンプレート既定の username / password、認証有効 (auth.write.enabled=TRUE) を使う
+        # 認証有効 (auth.write.enabled=TRUE) のまま、テスト用ユーザーを明示する。
+        # master では Issue #32 でテンプレート既定の資格情報が無効化されたため、
+        # csrf10_http.py と同じ作法で admin.key と authusers を設定する
         config = (repo / "data/template-konawiki.ini.php").read_text() + """
 $private['debug'] = TRUE;
+$private['admin.key'] = 'attach46-admin-key';
+$private['authusers'] = ['review' => 'review-pass'];
+$private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
 """
         (cls.root / "data/konawiki.ini.php").write_text(config)
         with socket.socket() as sock:
@@ -92,10 +97,10 @@ $private['debug'] = TRUE;
         self.admin = self.client()
         login_page = self.get(self.admin, "FrontPage&login")
         self.post(self.admin, dict(
-            page="FrontPage", action="login", user="username",
-            pw="password", edit_token=self.token(login_page)))
+            page="FrontPage", action="login", user="review",
+            pw="review-pass", edit_token=self.token(login_page)))
         top = self.get(self.admin, "FrontPage")
-        self.assertIn("username", top)  # ログインできていること
+        self.assertIn("review", top)  # ログインできていること
 
     # ---- helpers ----
     @staticmethod
