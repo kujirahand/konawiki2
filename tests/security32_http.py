@@ -326,29 +326,16 @@ $private['dir.attach'] = dirname(__DIR__) . '/at[t]ach';
 
     # ---- glob メタ文字を含む添付ディレクトリ ----
     def test_attach_delete_in_glob_dir(self):
-        self.page("AttachGlob", "attachment test")
-        boundary = "konawiki2-security32-boundary"
-        token = self.token(self.get(self.admin, "AttachGlob&attach"))
-        fields = dict(page="AttachGlob", action="attach", stat="write",
-                      filename="globfile", edit_token=token)
-        parts = []
-        for key, value in fields.items():
-            parts.append(('--%s\r\nContent-Disposition: form-data; name="%s"'
-                          '\r\n\r\n%s\r\n' % (boundary, key, value)).encode())
-        parts.append(('--%s\r\nContent-Disposition: form-data; name="userfile"; '
-                      'filename="one.png"\r\nContent-Type: image/png\r\n\r\n'
-                      % boundary).encode() + b"glob-file\r\n")
-        parts.append(("--%s--\r\n" % boundary).encode())
-        request = urllib.request.Request(
-            self.base, data=b"".join(parts),
-            headers={"Content-Type":
-                     "multipart/form-data; boundary=" + boundary})
-        res = self.admin.open(request, timeout=5).read().decode()
-        self.assertIn("添付成功", res)
+        pid = self.page("AttachGlob", "attachment test")
+        # 拡張子なしの名前は Issue #48 以降アップロードでは作れないため、
+        # 過去に作られた行を DB 直接作成で再現する
         with self.db() as db:
-            aid = db.execute("SELECT id FROM attach WHERE name='globfile'"
-                             ).fetchone()[0]
+            aid = db.execute(
+                "INSERT INTO attach(log_id,name,ext,ctime,mtime)"
+                " VALUES(?,?,?,1,1)", (pid, "globfile", "image/png")).lastrowid
+            db.execute("INSERT INTO attach_counters(id) VALUES(?)", (aid,))
         real = self.attach_dir / ("%d.png" % aid)
+        real.write_bytes(b"glob-file\n")
         self.assertTrue(real.exists())
         token = self.token(self.get(self.admin, "AttachGlob&attach"))
         self.get(self.admin,

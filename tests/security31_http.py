@@ -123,6 +123,22 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
             "Content-Type": "multipart/form-data; boundary=" + boundary})
         return client.open(request, timeout=5).read().decode()
 
+    def attach_legacy(self, log_id, name, content=b"review-file"):
+        """拡張子が食い違う添付行を DB 直接作成で再現する (Issue #48)。
+
+        Issue #48 以降、アップロードでは元ファイルと拡張子の異なる
+        (拡張子なしを含む) 名前を作れなくなったため、過去に作られた
+        行はこの方法で用意する。実ファイルは元ファイルの拡張子で
+        保存される形式 ({id}.png) を再現する。
+        """
+        with self.db() as db:
+            aid = db.execute(
+                "INSERT INTO attach(log_id,name,ext,ctime,mtime)"
+                " VALUES(?,?,?,1,1)", (log_id, name, "image/png")).lastrowid
+            db.execute("INSERT INTO attach_counters(id) VALUES(?)", (aid,))
+        (self.root / ("attach/%d.png" % aid)).write_bytes(content)
+        return aid
+
     def test_private_description_cache(self):
         self.page("CacheSecret", "SECRET-CACHE-33", 1)
         pid = self.page("CachePublic", "[[[CacheSecret]]]")
@@ -154,13 +170,18 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
         self.assertIn("STATIC-33", self.get(self.anon, "CacheStatic"))
 
     def test_attachment_delete_custom_name(self):
-        self.page("AttachCustom", "attachment test")
+        pid = self.page("AttachCustom", "attachment test")
+        # 拡張子の食い違う名前は Issue #48 以降アップロードでは作れないため、
+        # 過去に作られた行として DB 直接作成に切り替えた
         for filename, original in (("customname", "one.png"),
                                    ("custom.txt", "two.png"),
                                    ("regular.png", "three.png")):
-            self.assertIn("添付成功", self.upload(self.admin, "AttachCustom", filename, original))
-            with self.db() as db:
-                aid = db.execute("SELECT id FROM attach WHERE name=?", (filename,)).fetchone()[0]
+            if filename == "regular.png":
+                self.assertIn("添付成功", self.upload(self.admin, "AttachCustom", filename, original))
+                with self.db() as db:
+                    aid = db.execute("SELECT id FROM attach WHERE name=?", (filename,)).fetchone()[0]
+            else:
+                aid = self.attach_legacy(pid, filename)
             real = self.root / ("attach/%d.png" % aid)
             legacy = self.root / ("attach/%d" % aid)
             legacy.write_bytes(b"legacy")
@@ -178,10 +199,8 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
 
     def test_page_delete_removes_attachment_variants(self):
         body = "page deletion test"
-        self.page("DeletePage", body)
-        self.assertIn("添付成功", self.upload(self.admin, "DeletePage", "displayname"))
-        with self.db() as db:
-            aid = db.execute("SELECT id FROM attach WHERE name='displayname'").fetchone()[0]
+        pid = self.page("DeletePage", body)
+        aid = self.attach_legacy(pid, "displayname")
         legacy = self.root / ("attach/%d" % aid)
         legacy.write_bytes(b"legacy")
         self.get(self.admin, "DeletePage&edit&delete&hash=" + hashlib.md5(body.encode()).hexdigest())
@@ -195,14 +214,14 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
         self.assertRegex(token, r"^[0-9a-f]{64}$")
         for invalid in (False, "wrong-token"):
             self.assertIn("ページを戻って画面を更新してください",
-                          self.upload(self.anon, "AnonymousUpload", "blocked", token=invalid))
+                          self.upload(self.anon, "AnonymousUpload", "blocked.png", token=invalid))
         other = self.client()
         self.get(other, "FrontPage")
         self.assertIn("ページを戻って画面を更新してください",
-                      self.upload(other, "AnonymousUpload", "blocked", token=token))
-        self.assertIn("添付成功", self.upload(self.anon, "AnonymousUpload", "allowed", token=token))
+                      self.upload(other, "AnonymousUpload", "blocked.png", token=token))
+        self.assertIn("添付成功", self.upload(self.anon, "AnonymousUpload", "allowed.png", token=token))
         with self.db() as db:
-            self.assertEqual(db.execute("SELECT count(*) FROM attach WHERE name='blocked'").fetchone()[0], 0)
+            self.assertEqual(db.execute("SELECT count(*) FROM attach WHERE name='blocked.png'").fetchone()[0], 0)
 
     def test_existing_suites(self):
         self.assertIn("result=14/14", self.get(self.anon, "security31&test"))
@@ -211,10 +230,10 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
     def test_upload_requires_write_permission(self):
         self.page("ProtectedUpload", "protected test")
         token = self.token(self.get(self.anon, "ProtectedUpload&attach"))
-        response = self.upload(self.anon, "ProtectedUpload", "unauthorized", token=token)
+        response = self.upload(self.anon, "ProtectedUpload", "unauthorized.png", token=token)
         self.assertIn('name="pw"', response)
         with self.db() as db:
-            self.assertEqual(db.execute("SELECT count(*) FROM attach WHERE name='unauthorized'").fetchone()[0], 0)
+            self.assertEqual(db.execute("SELECT count(*) FROM attach WHERE name='unauthorized.png'").fetchone()[0], 0)
 
 
 if __name__ == "__main__":
