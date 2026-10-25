@@ -172,6 +172,8 @@ function _konawiki_auth_form()
             $_SESSION["login.time"] = time();
             $_SESSION["login.user"] = $user;
             $konawiki_auth_user = $user;
+            // 権限が変わるので CSRF トークンを破棄する (次回発行時に再生成) (#10)
+            konawiki_clearEditToken();
             // ログインを記録
             db_exec('INSERT INTO login_history (user, ip, ctime) VALUES (?, ?, ?)', [$user, $ip, time()], 'users');
             // 古いログイン記録を削除
@@ -205,6 +207,8 @@ function konawiki_logout()
     unset($_SESSION["login.time"]);
     unset($_SESSION["login.user"]);
     unset($_SESSION["login.user.perm"]);
+    // ログアウト時も CSRF トークンを破棄する (#10)
+    konawiki_clearEditToken();
 }
 
 /**
