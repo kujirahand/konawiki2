@@ -15,8 +15,10 @@ test_assert(__LINE__, $page_id !== FALSE && $page_id > 0, 'attachfiles: page cre
 
 // ---------------------------------------------------------------------
 // 既存DB (comment カラムなし) からの遅延マイグレーション
-// ※ ensure の static キャッシュのため、この節は他の ensure 呼び出しより
-//   先に実行する必要がある
+// attach テーブル自体を旧定義で作り直して再現する。カラムを落とす方法
+// (DROP COLUMN) は SQLite 3.35+ が必要で環境依存になるため使わない
+// (Codexレビュー指摘)。また ensure の static キャッシュは $force で
+// 再確認させるので、他のテストファイルの実行順にも依存しない。
 // ---------------------------------------------------------------------
 $cols = db_get("PRAGMA table_info(attach)");
 $names = [];
@@ -24,30 +26,31 @@ foreach ($cols as $c) { $names[] = $c['name']; }
 test_assert(__LINE__, in_array('comment', $names, TRUE),
     'attachfiles: fresh DB has comment column (SQL)');
 
-// カラムを落として旧DBを再現し、旧形式の行を入れる
-// (DROP COLUMN は SQLite 3.35+ が必要なため、古い環境ではこの節を飛ばす)
 $now = time();
-$vrow = db_get1("SELECT sqlite_version() AS v");
-$can_drop_column = $vrow && version_compare($vrow['v'], '3.35.0', '>=');
-if ($can_drop_column) {
-    db_exec("ALTER TABLE attach DROP COLUMN comment");
-    $legacy_id = db_insert(
-        "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
-        [$page_id, 'legacy.txt', 'text/plain', $now, $now]);
-    test_assert(__LINE__, $legacy_id > 0, 'attachfiles: legacy row inserted');
+db_exec("ALTER TABLE attach RENAME TO attach_mig_backup");
+db_exec("CREATE TABLE attach ("
+    . "id INTEGER PRIMARY KEY, log_id INTEGER, name TEXT,"
+    . " ext TEXT, ctime INTEGER, mtime INTEGER)");
+$legacy_id = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'legacy.txt', 'text/plain', $now, $now]);
+test_assert(__LINE__, $legacy_id > 0, 'attachfiles: legacy row inserted');
 
-    test_eq(__LINE__, konawiki_attach_ensure_comment_column(), TRUE,
-        'attachfiles: ensure adds missing column');
-    $cols = db_get("PRAGMA table_info(attach)");
-    $names = [];
-    foreach ($cols as $c) { $names[] = $c['name']; }
-    test_assert(__LINE__, in_array('comment', $names, TRUE),
-        'attachfiles: comment column restored by ensure');
-    $row = db_get1("SELECT * FROM attach WHERE id=?", [$legacy_id]);
-    test_eq(__LINE__, konawiki_attach_row_comment($row), '',
-        'attachfiles: legacy row comment defaults to empty');
-    db_exec("DELETE FROM attach WHERE id=?", [$legacy_id]);
-}
+test_eq(__LINE__, konawiki_attach_ensure_comment_column(TRUE), TRUE,
+    'attachfiles: ensure adds missing column');
+$cols = db_get("PRAGMA table_info(attach)");
+$names = [];
+foreach ($cols as $c) { $names[] = $c['name']; }
+test_assert(__LINE__, in_array('comment', $names, TRUE),
+    'attachfiles: comment column restored by ensure');
+$row = db_get1("SELECT * FROM attach WHERE id=?", [$legacy_id]);
+test_eq(__LINE__, konawiki_attach_row_comment($row), '',
+    'attachfiles: legacy row comment defaults to empty');
+// 元のテーブルに戻し、ensure のキャッシュも実テーブルに合わせ直す
+db_exec("DROP TABLE attach");
+db_exec("ALTER TABLE attach_mig_backup RENAME TO attach");
+test_eq(__LINE__, konawiki_attach_ensure_comment_column(TRUE), TRUE,
+    'attachfiles: ensure after table restore');
 test_eq(__LINE__, konawiki_attach_ensure_comment_column(), TRUE,
     'attachfiles: ensure is idempotent');
 
@@ -106,10 +109,31 @@ test_eq(__LINE__, plugin_attachfiles_arg_comment(['a.png=x'], 'b.png'),
     null, 'attachfiles: arg_comment not specified is null');
 test_eq(__LINE__, plugin_attachfiles_arg_comment(['a.png='], 'a.png'),
     '', 'attachfiles: arg_comment empty specified');
+
+// 引数の解決は実際の添付名一覧に対して最長一致で行う (Codexレビュー指摘)
+// `data` と `data=2023.csv` が両方あるとき、後者への指定を前者に適用しない
+test_eq(__LINE__, plugin_attachfiles_resolve_comments(
+    ['data=2023.csv=集計結果'], ['data', 'data=2023.csv']),
+    ['data=2023.csv' => '集計結果'], 'attachfiles: resolve longest match wins');
+test_eq(__LINE__, plugin_attachfiles_resolve_comments(
+    ['data=短い方'], ['data', 'data=2023.csv']),
+    ['data' => '短い方'], 'attachfiles: resolve plain name');
+test_eq(__LINE__, plugin_attachfiles_resolve_comments(
+    ['doc.pdf=資料', ' a.png = spaced '], ['doc.pdf', 'a.png']),
+    ['doc.pdf' => '資料', 'a.png' => 'spaced'], 'attachfiles: resolve spaced name');
+test_eq(__LINE__, plugin_attachfiles_resolve_comments([], ['a.png']), [],
+    'attachfiles: resolve no args');
+test_eq(__LINE__, plugin_attachfiles_resolve_comments(
+    ['ghost.txt=x'], ['a.png']), [],
+    'attachfiles: resolve unknown name ignored');
 $eq_id = db_insert(
     "INSERT INTO attach (log_id,name,ext,comment,ctime,mtime) VALUES (?,?,?,?,?,?)",
     [$page_id, 'data=2023.csv', 'text/csv', 'DB側コメント', $now, $now + 4]);
 test_assert(__LINE__, $eq_id > 0, 'attachfiles: = filename row inserted');
+$data_id = db_insert(
+    "INSERT INTO attach (log_id,name,ext,comment,ctime,mtime) VALUES (?,?,?,?,?,?)",
+    [$page_id, 'data', 'text/plain', 'data用コメント', $now, $now + 5]);
+test_assert(__LINE__, $data_id > 0, 'attachfiles: prefix filename row inserted');
 
 // ---------------------------------------------------------------------
 // #attachfiles の表示 (DBコメント)
@@ -154,6 +178,11 @@ $html = plugin_attachfiles_convert(['data=2023.csv=集計結果']);
 test_contains(__LINE__, $html, '集計結果', 'attachfiles: = filename arg comment shown');
 test_not_contains(__LINE__, $html, 'DB側コメント',
     'attachfiles: = filename arg comment overrides DB');
+// 前方一致する別ファイル (`data`) へは誤って適用されない (Codexレビュー指摘)
+test_not_contains(__LINE__, $html, '2023.csv=集計結果',
+    'attachfiles: arg comment not misapplied to prefix file');
+test_contains(__LINE__, $html, 'data用コメント',
+    'attachfiles: prefix file keeps its DB comment');
 
 // ---------------------------------------------------------------------
 // コメント更新アクション (action_attach_comment)
@@ -236,6 +265,31 @@ $out = test_attach_comment('AttachFilesTest', [
     'comment' => 'x', 'edit_token' => 'test-token-21']);
 test_eq(__LINE__, test_attach_comment_value($doc_id), 'アクションで更新',
     'attachfiles: action non-numeric id leaves data');
+
+// ---------------------------------------------------------------------
+// 実ルーティングとの対応 (Codexレビュー指摘)
+// index.php?AttachFilesTest&attach&comment は konawiki_parseURI で
+// action=attach / stat=comment に分解され、ディスパッチャ
+// (konawiki_execute_action) が action/attach.inc.php の
+// action_attach_comment() を呼ぶ規約であることを確認する。
+// 認証を有効にした実経路の動作は HTTP スモークで別途検証している。
+// ---------------------------------------------------------------------
+$test_saved_qs = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : null;
+$test_saved_get = $_GET;
+$_SERVER['QUERY_STRING'] = 'AttachFilesTest&attach&comment';
+$_GET = [];
+konawiki_parseURI();
+test_eq(__LINE__, $_GET['page'], 'AttachFilesTest', 'attachfiles: route page');
+test_eq(__LINE__, $_GET['action'], 'attach', 'attachfiles: route action');
+test_eq(__LINE__, $_GET['stat'], 'comment', 'attachfiles: route stat');
+test_assert(__LINE__, file_exists(KONAWIKI_DIR_ACTION . '/attach.inc.php'),
+    'attachfiles: route action file exists');
+test_assert(__LINE__,
+    function_exists('action_' . $_GET['action'] . '_' . $_GET['stat']),
+    'attachfiles: route resolves to action function');
+if ($test_saved_qs === null) { unset($_SERVER['QUERY_STRING']); }
+else { $_SERVER['QUERY_STRING'] = $test_saved_qs; }
+$_GET = $test_saved_get;
 
 // 後始末 (後続テストファイルへ状態を持ち越さない)
 if ($test_saved_auth_write === null) { unset($private['auth.write.enabled']); }
