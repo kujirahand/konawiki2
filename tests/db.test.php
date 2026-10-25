@@ -29,6 +29,12 @@ test_eq(__LINE__, $log['body'], 'Welcome to FrontPage', 'db: FrontPage body');
 $row = db_get1("SELECT * FROM key_values WHERE name=?", ['version']);
 test_eq(__LINE__, intval($row['value']), 106, 'db: key_values version');
 
+// konawiki_db_getConfig
+test_eq(__LINE__, intval(konawiki_db_getConfig('version')), 106, 'db: getConfig version');
+test_eq(__LINE__, konawiki_db_getConfig('no_such_key'), FALSE, 'db: getConfig missing returns FALSE');
+test_eq(__LINE__, konawiki_db_getConfig('no_such_key', 'dflt'), 'dflt', 'db: getConfig missing returns default');
+test_eq(__LINE__, konawiki_db_getConfig("it's \"quoted\"", 'dflt'), 'dflt', 'db: getConfig quoted key returns default');
+
 // ---------------------------------------------------------------------
 // db_* ラッパーの基本動作
 // ---------------------------------------------------------------------

@@ -31,10 +31,13 @@ konawiki_addPrivate('test.key', 'prival');
 test_eq(__LINE__, konawiki_private('test.key'), 'prival', 'private: add and get');
 test_eq(__LINE__, konawiki_private('no.key'), null, 'private: default null');
 test_eq(__LINE__, konawiki_private('no.key', 'd'), 'd', 'private: custom default');
-// private は空値を未設定として扱う現行挙動 (回帰検出のため記録する)
-// ※ empty() 判定に起因するこの挙動はフォローアップIssueで扱う
+// private は設定済みなら空値 ('' / FALSE / 0) でもその値を返す (isset 判定)
 konawiki_addPrivate('empty.key', '');
-test_eq(__LINE__, konawiki_private('empty.key', 'd'), 'd', 'private: empty value returns default');
+test_eq(__LINE__, konawiki_private('empty.key', 'd'), '', 'private: empty string is returned');
+konawiki_addPrivate('false.key', FALSE);
+test_eq(__LINE__, konawiki_private('false.key', 'd'), FALSE, 'private: FALSE is returned');
+konawiki_addPrivate('zero.key', 0);
+test_eq(__LINE__, konawiki_private('zero.key', 'd'), 0, 'private: 0 is returned');
 
 // プラグイン情報の保存
 konawiki_setPluginInfo('plug', 'k', 'v');
@@ -47,7 +50,7 @@ test_eq(__LINE__, konawiki_getPluginInfoArray('noplug'), [], 'plugin info: empty
 konawiki_set_debug(TRUE);
 test_eq(__LINE__, konawiki_is_debug(), TRUE, 'debug: on');
 konawiki_set_debug(FALSE);
-// private アクセサは空値を未設定として扱うため、OFF時は falsy が返る
+// private アクセサは設定済みの FALSE をそのまま返すため、OFF時は falsy が返る
 test_assert(__LINE__, !konawiki_is_debug(), 'debug: off');
 
 // ---------------------------------------------------------------------
@@ -58,6 +61,10 @@ test_eq(__LINE__, konawiki_public('FrontPage'), 'FrontPage', 'options: FrontPage
 test_eq(__LINE__, konawiki_public('title'), 'KonaWiki2', 'options: title');
 test_eq(__LINE__, konawiki_public('skin'), 'default', 'options: skin');
 test_eq(__LINE__, konawiki_private('ul_mark1'), '・', 'options: ul_mark1');
+test_eq(__LINE__, konawiki_private('auth.write.enabled'), TRUE, 'options: auth.write.enabled');
+test_eq(__LINE__, konawiki_private('authusers'), [], 'options: authusers');
+test_eq(__LINE__, konawiki_private('users_perm'), [], 'options: users_perm');
+test_eq(__LINE__, konawiki_private('date_format'), 'Y-m-d', 'options: date_format');
 test_eq(__LINE__, konawiki_private('h1_mark1'), '■', 'options: h1_mark1');
 test_eq(__LINE__, konawiki_private('h2_mark1'), '●', 'options: h2_mark1');
 test_assert(__LINE__, konawiki_private('session.name') !== null, 'options: session.name');
