@@ -1,6 +1,8 @@
 konawiki2
 =========
 
+[![Test](https://github.com/kujirahand/konawiki2/actions/workflows/test.yml/badge.svg)](https://github.com/kujirahand/konawiki2/actions/workflows/test.yml)
+
 The KonaWiki application excels in facilitating information sharing. It allows for easy markup in Japanese, making it user-friendly. KonaWiki can be utilized not only for writing but also for blogging and website construction.
 
 情報共有に活躍するWIKIアプリ。KonaWikiを使うと、日本語で手軽にマークアップすることができます。執筆、ブログ、サイト構築にも利用できます。
@@ -43,5 +45,7 @@ KonaWiki2 uses the [just](https://just.systems) task runner. Run `just --list` t
 - `just setup` — Initialize the submodule and directory permissions (same as the install steps above)
 
 タスクランナーの `just` を使用しています。テストを実行するには、`just test` を実行します。
+
+Tests also run on GitHub Actions (`.github/workflows/test.yml`): on every push to `master` and every pull request, `just lint` and `just test` are executed with PHP 7.4 and 8.0–8.4.
 
 
