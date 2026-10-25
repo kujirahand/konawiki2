@@ -5,6 +5,9 @@
  */
 require_once __DIR__ . '/test_common.inc.php';
 
+// 単体実行でも vote プラグインや認証ハッシュがDBを使えるようにする
+test_init_db();
+
 global $private;
 
 // ---------------------------------------------------------------

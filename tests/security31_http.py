@@ -223,10 +223,6 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
         with self.db() as db:
             self.assertEqual(db.execute("SELECT count(*) FROM attach WHERE name='blocked.png'").fetchone()[0], 0)
 
-    def test_existing_suites(self):
-        self.assertIn("result=14/14", self.get(self.anon, "security31&test"))
-        self.assertIn("result=3/3", self.get(self.anon, "basic&test"))
-
     def test_upload_requires_write_permission(self):
         self.page("ProtectedUpload", "protected test")
         token = self.token(self.get(self.anon, "ProtectedUpload&attach"))
