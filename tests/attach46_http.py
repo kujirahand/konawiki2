@@ -147,7 +147,14 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
 
     def upload(self, client, page, orig_name, content_bytes,
                comment=None, save_name=""):
-        """multipart/form-data を手組みしてアップロードし、応答本文を返す"""
+        """multipart/form-data を手組みしてアップロードし、応答本文を返す。
+
+        master ではアップロードにも edit_token が必須 (CSRF対策) なので、
+        対象ページの添付フォームから取得して一緒に送る。
+        フォームにトークンが無い版では送らない (チェック自体が無い)。
+        """
+        form = self.get(client, "%s&attach" % page)
+        token = self.hidden(form, "edit_token")
         boundary = "----konawiki" + uuid.uuid4().hex
         parts = []
 
@@ -159,6 +166,8 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
         field("page", page)
         field("action", "attach")
         field("stat", "write")
+        if token:
+            field("edit_token", token)
         field("filename", save_name)
         if comment is not None:
             field("comment", comment)
