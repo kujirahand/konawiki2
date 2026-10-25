@@ -15,6 +15,7 @@ Welcome agent! This file outlines the system architecture, directory layouts, ro
 /
 ├── index.php                 # Main entry point (loads configurations & routes requests)
 ├── go.php                    # Shortened URL redirection entry point
+├── justfile                  # Task runner recipes (just test / just lint / just serve ...)
 ├── README.md                 # Project documentation
 ├── sample.htaccess           # Sample Apache configuration (mod_rewrite settings)
 ├── LICENSE                   # Project license
@@ -93,3 +94,4 @@ Instead of using PDO directly, leverage these simplified wrapper functions:
 3. **Database Security**: Always use prepared statements/placeholders (`?`) when constructing SQL queries to prevent SQL injections.
 4. **Commenting Style**: Write inline/function comments in Japanese (`ja`), matching the legacy codebase language style.
 5. **Write Permissions**: Ensure newly created features respect web service write permissions on `data/`, `cache/`, and `attach/` directories.
+6. **Task Runner & Tests**: Development tasks are defined in the `justfile` (task runner `just`). After adding or fixing a feature, run the tests with `just test` (PHP CLI tests in `tests/`, if present, plus the HTTP regression tests `tests/*_http.py`). Use `just --list` to see all recipes (`just lint`, `just serve`, `just setup`, etc.).

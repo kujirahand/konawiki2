@@ -31,4 +31,17 @@ chmod 777 data
 chmod 777 cache
 ```
 
+## For Developers
+
+KonaWiki2 uses the [just](https://just.systems) task runner. Run `just --list` to see all recipes.
+
+- `just test` — Run all tests (PHP CLI tests, if present, and the HTTP regression tests in `tests/`)
+- `just test-http` — Run only the HTTP regression tests (e.g. `just test-http csrf10` to filter)
+- `just test-cli` — Run only the PHP CLI tests (`tests/test_main.php`)
+- `just lint` — Check PHP syntax
+- `just serve` — Start a local server at http://127.0.0.1:8000
+- `just setup` — Initialize the submodule and directory permissions (same as the install steps above)
+
+タスクランナーの `just` を使用しています。テストを実行するには、`just test` を実行します。
+
 
