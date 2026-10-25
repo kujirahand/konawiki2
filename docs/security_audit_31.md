@@ -8,7 +8,7 @@ konawiki3 の定期監査で見つかったパターン (掲示板管理パス�
 skin 拡張子、include 再帰・symlink) を konawiki2 の実コードと照合し、
 再現できた問題だけを修正した。
 検証は使い捨てコピー + `php -S` + curl の実機スモークと、
-回帰テスト `kona-engine/test/kona_test_security31.inc.php` で行った。
+回帰テスト `tests/security31.test.php` で行った。
 
 ## 修正した問題
 

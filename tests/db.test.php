@@ -4,7 +4,7 @@
  * - konawiki_initDB / database_set / db_* ラッパー
  * - konawiki_writePage / konawiki_getLog / konawiki_getPageId
  * - タグ、認証ハッシュ、バックアップログ
- * 旧来の Web 経由テスト kona-engine/test/kona_test_basic の内容を含む。
+ * 旧 Web 経由テスト kona_test_basic の内容を含む。
  */
 require_once __DIR__ . '/test_common.inc.php';
 
