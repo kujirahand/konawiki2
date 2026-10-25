@@ -709,8 +709,13 @@ function include_template($fname, $vars = FALSE)
         }
     }
     // extract variable
-    extract($public);
-    if ($vars) { extract($vars); }
+    // ※呼び出し側 ($vars) 優先で合成し、include 先を決める内部変数を
+    //   上書きできるキーは取り除く (テンプレート変数によるパス上書き防止)
+    $tpl_vars = $vars ? array_merge($public, $vars) : $public;
+    unset($tpl_vars['path'], $tpl_vars['skin'], $tpl_vars['fname'],
+          $tpl_vars['vars'], $tpl_vars['tpl_vars']);
+    extract($tpl_vars);
+    unset($tpl_vars);
     // include
     include($path);
 }
@@ -1115,6 +1120,28 @@ function konawiki_jump($url)
 {
     header("location: $url");
     exit;
+}
+
+/**
+ * 添付IDに対応する実ファイルを、拡張子なしの旧形式も含めて削除する。
+ * 表示名は投稿時に変更できるため、実ファイル名の推測には使用しない。
+ */
+function konawiki_removeAttachFiles($id)
+{
+    $id = intval($id);
+    if ($id <= 0) return FALSE;
+    $base = KONAWIKI_DIR_ATTACH.'/'.$id;
+    $files = glob($base.'.*');
+    if ($files === FALSE) $files = [];
+    $files[] = $base;
+    $removed = FALSE;
+    foreach ($files as $file) {
+        // 数値IDの完全一致を使い、別IDのファイルやディレクトリは削除しない。
+        if ((is_file($file) || is_link($file)) && @unlink($file)) {
+            $removed = TRUE;
+        }
+    }
+    return $removed;
 }
 
 function konawiki_getEditToken($force = FALSE)

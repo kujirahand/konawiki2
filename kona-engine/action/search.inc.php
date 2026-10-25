@@ -64,7 +64,8 @@ function action_search_exec()
     }
     // 
     $where_str = join(" AND ", $where_name);
-    $sql = "select name from logs where {$where_str} limit 31";
+    // 非公開ページ (private) は名前・本文とも検索対象から除外する
+    $sql = "select name from logs where {$where_str} AND COALESCE(private,0)=0 limit 31";
     $res = db_get($sql, $params_name);
     //
     $keyword_ = htmlspecialchars($keyword);
@@ -81,7 +82,7 @@ function action_search_exec()
     }
     $log_id_str = join(" OR ", $log_ids);
     if ($log_id_str != "") {
-        $sql = "SELECT name from logs where $log_id_str";
+        $sql = "SELECT name from logs where ($log_id_str) AND COALESCE(private,0)=0";
         $res = db_get($sql);
     } else {
         $res = array();
@@ -91,7 +92,7 @@ function action_search_exec()
     $body .= action_search_exec_result($res);
     // 本文の検索
     $where_str = join(" AND ", $where_body);
-    $sql = "select name from logs where {$where_str} limit 31";
+    $sql = "select name from logs where {$where_str} AND COALESCE(private,0)=0 limit 31";
     $res = db_get($sql, $params_body);
     $keyword_ = htmlspecialchars($keyword);
     $body .= "<h5>Body = [$keyword_]</h5>";
@@ -109,8 +110,8 @@ function action_search_backlink()
     $body = "";
     // search
     $where_body = "body like ?";
-    // 本文の検索
-    $sql = "select name from logs where {$where_body} limit 31";
+    // 本文の検索 (非公開ページは除外)
+    $sql = "select name from logs where {$where_body} AND COALESCE(private,0)=0 limit 31";
     $res = db_get($sql, ["%$keyword%"]);
     $keyword_ = htmlspecialchars($keyword);
     $body .= "<h5>Backlink = [$keyword_]</h5>";
@@ -143,7 +144,7 @@ function action_search_tag()
     }
     $log_id_str = join(" OR ", $log_ids);
     if ($log_id_str != "") {
-      $sql = "SELECT name from logs where $log_id_str";
+      $sql = "SELECT name from logs where ($log_id_str) AND COALESCE(private,0)=0";
       $res = db_get($sql);
     } else {
       $res = array();

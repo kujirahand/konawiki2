@@ -171,6 +171,8 @@ function plugin_comment_action_sub($pluginname, $params)
     return FALSE;
   }
   if ($commentmode != "edit") {
+    // 名前は1行の項目なので改行を取り除く (行単位の記法注入防止)
+    $name = preg_replace('/(\r|\n)/', '', (string)$name);
     if ($name === "") $name = konawiki_lang("Nanasi");
     if ($comment == "") {
       // maybe spam

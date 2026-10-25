@@ -284,10 +284,11 @@ function plugin_meta_table_update($json) {
   // update tmp_hidden / log[private]
   $private = isset($_POST['tmp_hidden']) ? intval($_POST['tmp_hidden']) : FALSE;
   if ($private) {
-    db_exec('UPDATE logs SET private=1, mtime=? WHERE id=?', [$log_id, time()]);
+    // ※パラメータ順は (mtime, id)。誤ると非表示設定が反映されない
+    db_exec('UPDATE logs SET private=1, mtime=? WHERE id=?', [time(), $log_id]);
     $msg .= "ただし、ページは非表示の状態になりました。";
   } else {
-    db_exec('UPDATE logs SET private=0, mtime=? WHERE id=?', [$log_id. time()]);
+    db_exec('UPDATE logs SET private=0, mtime=? WHERE id=?', [time(), $log_id]);
   }
 
   $mname_enc = urlencode($mname);

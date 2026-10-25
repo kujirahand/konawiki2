@@ -60,9 +60,11 @@ function plugin_vote_convert($params)
       form_input_hidden("vote-param",$i).
       form_input_submit("投票").
       "</form>";
+    $k_h = htmlspecialchars($k, ENT_QUOTES);
+    $v_h = htmlspecialchars($v, ENT_QUOTES);
     $res .= 
       "<tr>".
-      "<td>$k</td><td>$v</td><td>$frm</td>".
+      "<td>$k_h</td><td>$v_h</td><td>$frm</td>".
       "</tr>\n";
     $i++;
   }

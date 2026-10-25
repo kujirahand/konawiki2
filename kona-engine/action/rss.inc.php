@@ -18,6 +18,7 @@ function action_rss_cmd($template)
     $sql = "SELECT * FROM logs ".
     " WHERE name<>'FrontPage' AND name<>'MenuBar' AND name<>'SideBar'".
     "       AND name<>'NaviBar' AND name<>'GlobBar'".
+    "       AND COALESCE(private,0)=0".
     " ORDER BY ctime DESC LIMIT 20";
     $logs = db_get($sql);
     include_template($template, ["logs" => $logs]);

@@ -43,6 +43,9 @@ function plugin_bodycomment_action(&$params)
     }
     $comment = konawiki_param("r_comment");
     $name    = konawiki_param("r_name");
+    // 挿入文は1行のリスト項目なので改行を取り除く (行単位の記法注入防止)
+    $comment = preg_replace('/(\r|\n)/', '', (string)$comment);
+    $name    = preg_replace('/(\r|\n)/', '', (string)$name);
     $mtime   = konawiki_datetime(time());
     $instext = "- $comment -- $name (&new($mtime);)";
     # insert to raw text

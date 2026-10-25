@@ -32,7 +32,7 @@ function plugin_navi_convert($params)
     $order = "DESC";
   }
   $params = [];
-  $where = "name like ?";
+  $where = "name like ? AND COALESCE(private,0)=0";
   $pattern = str_replace('*','%',$pattern);
   if (strpos($pattern, '%') === FALSE) {
     $pattern .= '%';
