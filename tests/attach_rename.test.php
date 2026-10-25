@@ -102,6 +102,34 @@ $found = db_get1("SELECT id FROM attach WHERE log_id=? AND name=?", [$page_id, '
 test_eq(__LINE__, intval($found['id']), intval($id1), 'attach_rename: new name found');
 
 // ---------------------------------------------------------------------
+// 連番ヘルパー konawiki_attach_unique_name() (Issue #22)
+// ここでは id1 = new.txt, id2 = exists.txt
+// ---------------------------------------------------------------------
+test_eq(__LINE__, konawiki_attach_unique_name($page_id, 'free.txt'), 'free.txt',
+    'attach_rename: unique_name returns free name as is');
+test_eq(__LINE__, konawiki_attach_unique_name($page_id, 'exists.txt'), 'exists_2.txt',
+    'attach_rename: unique_name adds _2 when used');
+$uq_id = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'exists_2.txt', 'text/plain', $now, $now]);
+test_eq(__LINE__, konawiki_attach_unique_name($page_id, 'exists.txt'), 'exists_3.txt',
+    'attach_rename: unique_name adds _3 when _2 also used');
+// exclude_id に自分を指定すると、自分の名前は空き扱いになる
+test_eq(__LINE__, konawiki_attach_unique_name($page_id, 'exists.txt', $id2), 'exists.txt',
+    'attach_rename: unique_name excludes own row');
+db_exec("DELETE FROM attach WHERE id=?", [$uq_id]);
+// 拡張子なしは末尾にそのまま連番を付ける
+$uq_id = db_insert(
+    "INSERT INTO attach (log_id,name,ext,ctime,mtime) VALUES (?,?,?,?,?)",
+    [$page_id, 'abc', 'text/plain', $now, $now]);
+test_eq(__LINE__, konawiki_attach_unique_name($page_id, 'abc'), 'abc_2',
+    'attach_rename: unique_name no extension');
+db_exec("DELETE FROM attach WHERE id=?", [$uq_id]);
+// 他ページの同名は重複とみなさない
+test_eq(__LINE__, konawiki_attach_unique_name($page_id + 100000, 'exists.txt'), 'exists.txt',
+    'attach_rename: unique_name ignores other page');
+
+// ---------------------------------------------------------------------
 // アクション
 // この節では edit_token の照合を検証対象にするため、書き込み認証は
 // 明示的に無効化して konawiki_auth() を通過させる (節の終わりで復元する)。
@@ -170,13 +198,24 @@ test_contains(__LINE__, $out, 'ファイル名は同じです', 'attach_rename: 
 test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
     'attach_rename: same name leaves DB');
 
-// 既存ファイルとの重複
+// 既存ファイルとの重複 (Issue #22: エラーではなく連番を付けて変更する)
 $out = test_attach_rename_action('AttachRenameTest',
     test_attach_rename_post('AttachRenameTest', $id1, 'exists.txt'));
-test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
-    'attach_rename: action rejects duplicate name');
+test_eq(__LINE__, test_attach_rename_name($id1), 'exists_2.txt',
+    'attach_rename: action renames duplicate name with serial number');
+test_contains(__LINE__, $out, 'ファイル名を変更しました',
+    'attach_rename: duplicate name rename message');
+test_contains(__LINE__, $out, 'exists_2.txt',
+    'attach_rename: duplicate name message shows serial name');
+test_contains(__LINE__, $out, '同名のファイルがあったため',
+    'attach_rename: duplicate name message mentions serial number');
 test_eq(__LINE__, test_attach_rename_name($id2), 'exists.txt',
     'attach_rename: duplicate target untouched');
+// 後続のテストが renamed.txt 前提で動くよう戻す
+$out = test_attach_rename_action('AttachRenameTest',
+    test_attach_rename_post('AttachRenameTest', $id1, 'renamed.txt'));
+test_eq(__LINE__, test_attach_rename_name($id1), 'renamed.txt',
+    'attach_rename: restored renamed.txt after serial test');
 
 // 拡張子の変更
 $out = test_attach_rename_action('AttachRenameTest',

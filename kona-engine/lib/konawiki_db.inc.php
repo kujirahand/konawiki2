@@ -243,6 +243,46 @@ function konawiki_attach_validate_rename($oldname, $newname)
 }
 
 /**
+ * 同じページ内で重複しない添付ファイル名を返す (Issue #22)
+ * 同名があれば、拡張子の前に「_2」「_3」…と連番を付けて最初に空いている名前にする。
+ * @param integer $log_id ページの id
+ * @param string $name 希望するファイル名
+ * @param integer $exclude_id 重複判定から除外する attach の id (名前変更時の自分自身)
+ * @return string 重複しないファイル名 (255バイト以内)
+ */
+function konawiki_attach_unique_name($log_id, $name, $exclude_id = 0)
+{
+    $log_id = intval($log_id);
+    $exclude_id = intval($exclude_id);
+    $name = (string)$name;
+    $sql = "SELECT id FROM attach WHERE log_id=? AND name=? AND id<>?";
+    $dup = db_get1($sql, [$log_id, $name, $exclude_id]);
+    if (!isset($dup['id'])) {
+        return $name;
+    }
+    // 拡張子の切り分けは既存の規約どおり (最後のドット以降)
+    $base = $name;
+    $ext = '';
+    if (preg_match('/(\.\w+)$/', $name, $m)) {
+        $ext = $m[1];
+        $base = substr($name, 0, strlen($name) - strlen($ext));
+    }
+    for ($n = 2; ; $n++) {
+        $suffix = "_{$n}" . $ext;
+        // 255バイトを超えないよう、必要ならベース名を短くする
+        $b = $base;
+        if (strlen($b) + strlen($suffix) > 255) {
+            $b = mb_strcut($b, 0, max(0, 255 - strlen($suffix)), 'UTF-8');
+        }
+        $cand = $b . $suffix;
+        $dup = db_get1($sql, [$log_id, $cand, $exclude_id]);
+        if (!isset($dup['id'])) {
+            return $cand;
+        }
+    }
+}
+
+/**
  * 添付ファイルの名前を変更する (Issue #22)
  * mtime は変更しない (一覧の並び順を変えないため)。comment にも触れない。
  * @param integer $id attach テーブルの id
