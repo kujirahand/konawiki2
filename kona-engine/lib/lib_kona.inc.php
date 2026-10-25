@@ -1367,6 +1367,9 @@ function _konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private
             "INSERT INTO log_counters (id,value) VALUES ".
             "(?, 0)";
         db_exec($sql, [$id]);
+        // 新規ページでは $log は FALSE のため、配列として初期化してから
+        // 代入する (FALSE のまま代入すると PHP 8.1+ で Deprecated になる, #35)
+        $log = [];
         $log['ctime'] = $mtime;
         $log_id = $id;
     } else {
