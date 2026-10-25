@@ -12,6 +12,8 @@ function plugin_article_convert($params)
 	konawiki_setPluginDynamic(true);
 	
 	$plugin_name = "article";
+  // CSRF対策 (#10): 未ログインでもセッション用トークンを発行する
+  $edit_token = konawiki_getEditToken(TRUE);
   $pagemode = "{$plugin_name}-mode";
   // pid
   $pid = konawiki_getPluginInfo($plugin_name,"pid",0);
@@ -48,6 +50,7 @@ function plugin_article_convert($params)
             form_input_hidden("plugin", $plugin_name).
             form_input_hidden("pid", $pid).
             form_input_hidden($pagemode, "edit").
+            form_input_hidden("edit_token", $edit_token).
             form_input_submit("コメントの編集").
             "<span class='note'>&nbsp;※編集のためには管理者権限が必要です。</span>".
             "</form>";
@@ -97,6 +100,7 @@ function plugin_article_convert($params)
 <div>
 <input type="hidden" name="plugin" value="{$plugin_name}"/>
 <input type="hidden" name="pid" value="$pid"/>
+<input type="hidden" name="edit_token" value="$edit_token"/>
 </div>
 </form>
 {$footer}
@@ -107,6 +111,7 @@ __EOS;
 
 function plugin_article_action($params)
 {
+  global $plugin_params;
   $plugin_name = 'article';
   $pagemode = "{$plugin_name}-mode";
   // check pid
@@ -116,6 +121,12 @@ function plugin_article_action($params)
   $plug_key = $pid;
   if (count($params) >= 1) {
     $plug_key = $params[1];
+  }
+  // CSRF対策 (#10): 投稿時・ログイン中の編集時ともに
+  // フォームで発行した edit_token を必須とする
+  if (!konawiki_checkEditToken(TRUE)) {
+    $plugin_params["error"] = "意図せぬ操作が行われました。ページを戻って改めて操作を行ってください。";
+    return FALSE;
   }
   // check auth
   $commentmode = konawiki_param($pagemode, 'show');
@@ -151,6 +162,9 @@ function plugin_article_action($params)
     return FALSE;
   }
   if ($commentmode != "edit") {
+    // 件名・名前は見出し行に埋め込む1行の項目なので改行を取り除く
+    $name = preg_replace('/(\r|\n)/', '', (string)$name);
+    $comment = preg_replace('/(\r|\n)/', '', (string)$comment);
     if ($name === "") $name = "名無し";
     if ($comment == "") {
       // maybe spam

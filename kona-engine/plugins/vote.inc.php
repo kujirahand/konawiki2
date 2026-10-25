@@ -27,6 +27,7 @@ function plugin_vote_convert($params)
     $res .= form_tag($action);
     $res .= form_input_hidden("plugin","vote");
     $res .= form_input_hidden("vote-mode","write-csv");
+    $res .= form_input_hidden("edit_token", konawiki_getEditToken(TRUE));
     $res .= form_input_hidden("vote_id",
             htmlspecialchars($vote_id, ENT_QUOTES));
     $res .= "<textarea cols='50' rows='4' name='csv'>".
@@ -57,12 +58,15 @@ function plugin_vote_convert($params)
       form_input_hidden("plugin","vote").
       form_input_hidden("vote_id",$vote_id_htm).
       form_input_hidden("vote-mode","write").
+      form_input_hidden("edit_token", konawiki_getEditToken(TRUE)).
       form_input_hidden("vote-param",$i).
       form_input_submit("投票").
       "</form>";
+    $k_h = htmlspecialchars($k, ENT_QUOTES);
+    $v_h = htmlspecialchars($v, ENT_QUOTES);
     $res .= 
       "<tr>".
-      "<td>$k</td><td>$v</td><td>$frm</td>".
+      "<td>$k_h</td><td>$v_h</td><td>$frm</td>".
       "</tr>\n";
     $i++;
   }
@@ -92,6 +96,12 @@ function plugin_vote_action($params)
   $w_vote_id  = konawiki_param("vote_id","");
   if ($vote_id != $w_vote_id) {
     return TRUE;
+  }
+  // CSRF対策 (#10): 投票時・ログイン中のCSV編集時ともに
+  // フォームで発行した edit_token を必須とする
+  if (!konawiki_checkEditToken(TRUE)) {
+    $plugin_params['error'] = "意図せぬ操作が行われました。ページを戻って改めて操作を行ってください。";
+    return FALSE;
   }
   // モードで処理を分ける
   $vote_mode = konawiki_param("vote-mode","");

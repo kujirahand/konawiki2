@@ -709,8 +709,13 @@ function include_template($fname, $vars = FALSE)
         }
     }
     // extract variable
-    extract($public);
-    if ($vars) { extract($vars); }
+    // ※呼び出し側 ($vars) 優先で合成し、include 先を決める内部変数を
+    //   上書きできるキーは取り除く (テンプレート変数によるパス上書き防止)
+    $tpl_vars = $vars ? array_merge($public, $vars) : $public;
+    unset($tpl_vars['path'], $tpl_vars['skin'], $tpl_vars['fname'],
+          $tpl_vars['vars'], $tpl_vars['tpl_vars']);
+    extract($tpl_vars);
+    unset($tpl_vars);
     // include
     include($path);
 }
@@ -1117,12 +1122,42 @@ function konawiki_jump($url)
     exit;
 }
 
+/**
+ * 添付IDに対応する実ファイルを、拡張子なしの旧形式も含めて削除する。
+ * 表示名は投稿時に変更できるため、実ファイル名の推測には使用しない。
+ */
+function konawiki_removeAttachFiles($id)
+{
+    $id = intval($id);
+    if ($id <= 0) return FALSE;
+    $base = KONAWIKI_DIR_ATTACH.'/'.$id;
+    $files = glob($base.'.*');
+    if ($files === FALSE) $files = [];
+    $files[] = $base;
+    $removed = FALSE;
+    foreach ($files as $file) {
+        // 数値IDの完全一致を使い、別IDのファイルやディレクトリは削除しない。
+        if ((is_file($file) || is_link($file)) && @unlink($file)) {
+            $removed = TRUE;
+        }
+    }
+    return $removed;
+}
+
 function konawiki_getEditToken($force = FALSE)
 {
     global $konawiki;
     if (konawiki_isLogin_write() || $force) {
         if (isset($konawiki['private']['edit_token'])) {
             $edit_token = $konawiki['private']['edit_token'];
+        } else if (isset($_SESSION['konawiki2_edit_token'])
+                && is_string($_SESSION['konawiki2_edit_token'])
+                && $_SESSION['konawiki2_edit_token'] !== '') {
+            // 既に発行済みのトークンを再利用する (#10)。
+            // 描画のたびに発行し直すと、先に開いたタブのフォームや
+            // 同一ページ内の複数フォームが使えなくなってしまう。
+            $edit_token = $_SESSION['konawiki2_edit_token'];
+            $konawiki['private']['edit_token'] = $edit_token;
         } else {
             $edit_token = bin2hex(random_bytes(32));
             $_SESSION['konawiki2_edit_token'] = $edit_token;
@@ -1134,14 +1169,36 @@ function konawiki_getEditToken($force = FALSE)
     return $edit_token;
 }
 
-function konawiki_checkEditToken()
+function konawiki_checkEditToken($post_only = FALSE)
 {
     $ses_edit_token = isset($_SESSION['konawiki2_edit_token']) ? $_SESSION['konawiki2_edit_token'] : '';
-    $get_edit_token = konawiki_param('edit_token', '');
-    if (($get_edit_token == '') || (!hash_equals($ses_edit_token,$get_edit_token))) {
+    if ($post_only) {
+        // 書き込み処理では、URLに載ったトークン (GET) を受理しない (#10)
+        $get_edit_token = isset($_POST['edit_token']) ? $_POST['edit_token'] : '';
+    } else {
+        $get_edit_token = konawiki_param('edit_token', '');
+    }
+    // トークンが文字列でない場合 (配列など) や、セッション側に
+    // トークンが発行されていない場合は一致とみなさない (#10)
+    if (!is_string($ses_edit_token) || $ses_edit_token === '') {
+        return FALSE;
+    }
+    if (!is_string($get_edit_token) || $get_edit_token === '') {
+        return FALSE;
+    }
+    if (!hash_equals($ses_edit_token, $get_edit_token)) {
         return FALSE;
     }
     return TRUE;
+}
+
+// 発行済みの edit_token を破棄する (次回の発行で新しいトークンになる)。
+// ログイン/ログアウトなど権限が変わるタイミングで呼ぶ (#10)。
+function konawiki_clearEditToken()
+{
+    global $konawiki;
+    unset($_SESSION['konawiki2_edit_token']);
+    unset($konawiki['private']['edit_token']);
 }
 
 
@@ -1310,6 +1367,9 @@ function _konawiki_writePage($body, &$err, $hash = FALSE, $tag = FALSE, $private
             "INSERT INTO log_counters (id,value) VALUES ".
             "(?, 0)";
         db_exec($sql, [$id]);
+        // 新規ページでは $log は FALSE のため、配列として初期化してから
+        // 代入する (FALSE のまま代入すると PHP 8.1+ で Deprecated になる, #35)
+        $log = [];
         $log['ctime'] = $mtime;
         $log_id = $id;
     } else {

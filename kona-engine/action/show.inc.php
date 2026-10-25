@@ -55,23 +55,28 @@ function action_show_()
 
     // Cache function
     $has_cache = FALSE;
+    // 旧キャッシュには非公開情報が含まれ得るため、この形式だけを再利用する。
+    $cache_prefix = "<!-- konawiki-cache-security31-v2 -->";
     $cachemode = konawiki_private('cache.mode');
     if ($cachemode == 'cache') {
         // clear cache ?
+        // ※キャッシュの消去はログイン中の書き込み権限者に限る
         $cache = konawiki_param("cache", false);
-        if ($cache == "clear") {
-            konawiki_clearCacheDB($log_id);
-        }
-        else if ($cache == "clearall") {
-            konawiki_clearCacheDB_All();
+        if (konawiki_isLogin_write()) {
+            if ($cache == "clear") {
+                konawiki_clearCacheDB($log_id);
+            }
+            else if ($cache == "clearall") {
+                konawiki_clearCacheDB_All();
+            }
         }
         // check CACHE
         if ($log_exists) {
             // CHECK CACHE
             $sql = "SELECT * FROM cache_logs WHERE log_id=? LIMIT 1";
             $r = db_get1($sql, [$log_id], 'backup');
-            if ($r) {
-                $log['body'] = $r['html'];
+            if ($r && strpos($r['html'], $cache_prefix) === 0) {
+                $log['body'] = substr($r['html'], strlen($cache_prefix));
                 $has_cache = TRUE;
             }
         }
@@ -90,7 +95,7 @@ function action_show_()
                 $r = db_exec("DELETE FROM cache_logs WHERE log_id=?", [$log_id], 'backup');
             }
             $sql = "INSERT INTO cache_logs (log_id,html,ctime)VALUES(?,?,?)";
-            db_exec($sql, [$log_id, $html, time()], 'backup');
+            db_exec($sql, [$log_id, $cache_prefix.$html, time()], 'backup');
         }
     }
     $cache_checker = "";
@@ -188,6 +193,8 @@ function _konawiki_show_tag($tag, $id)
             foreach ($r as $row) {
                 $log_id = $row['log_id'];
                 if ($log_id == $id) continue;
+                $pinfo = konawiki_getPageInfoById($log_id);
+                if (!$pinfo || !empty($pinfo['private'])) continue;
                 $page = konawiki_getPageNameFromId($log_id);
                 $pages[$page] = '<li>'.konawiki_getPageLink($page).'</li>';
             }

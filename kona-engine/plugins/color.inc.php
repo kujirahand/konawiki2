@@ -21,7 +21,12 @@ function plugin_color_convert($params)
     $s = join(",",$params);
 
     $s = konawiki_parser_tohtml(trim($s));
-    $color = konawiki_parser_tohtml(trim($color));
+    $color = trim((string)$color);
+    // 色として正しい形式だけを許可し、style 属性への注入を防ぐ
+    if (!preg_match('/^(#[0-9a-fA-F]{3}|#[0-9a-fA-F]{4}|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{8}|[a-zA-Z]{1,32})$/', $color)) {
+        $color = 'inherit';
+    }
+    $color = konawiki_parser_tohtml($color);
     return <<<EOS__
 <span style="color:$color;">$s</span>
 EOS__;

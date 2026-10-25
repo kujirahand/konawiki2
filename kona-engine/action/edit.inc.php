@@ -87,7 +87,12 @@ function action_edit_update()
   $id = konawiki_getPageId();
   $svr_auth_hash = konawiki_getAuthHash($id);
   $usr_auth_hash = konawiki_param("login_auth_hash", "");
-  if ($svr_auth_hash == $usr_auth_hash) {
+  // ※サーバー側ハッシュが空の場合に一致とみなすと、ハッシュ未発行の
+  //   ページ (初期ページ等) が未認証で書き換えられてしまうため、
+  //   空でないハッシュ同士を定数時間で比較した場合のみ認証済みとする
+  if (is_string($svr_auth_hash) && $svr_auth_hash !== '' &&
+      is_string($usr_auth_hash) && $usr_auth_hash !== '' &&
+      hash_equals($svr_auth_hash, $usr_auth_hash)) {
     // login ok
   }
   // login check (2) auth form
@@ -190,8 +195,8 @@ function action_edit_delete()
   foreach ($attach_ary as $row) {
     if (empty($row['id'])) continue;
     $id = $row['id'];
-    $file = KONAWIKI_DIR_ATTACH."/".$id;
-    if (@unlink($file)) {
+    // 表示名に依存せず、旧形式も含めて添付の実ファイルを全て削除する。
+    if (konawiki_removeAttachFiles($id)) {
       $del_count++;
       $del_files[] = "-".htmlspecialchars($row['name']);
     }
@@ -211,7 +216,10 @@ function action_edit_api__write()
   $id = konawiki_getPageId();
   $svr_auth_hash = konawiki_getAuthHash($id);
   $usr_auth_hash = konawiki_param("login_auth_hash", "");
-  if ($svr_auth_hash == $usr_auth_hash) {
+  // ※サーバー側ハッシュが空の場合に一致とみなしてはいけない (同上)
+  if (is_string($svr_auth_hash) && $svr_auth_hash !== '' &&
+      is_string($usr_auth_hash) && $usr_auth_hash !== '' &&
+      hash_equals($svr_auth_hash, $usr_auth_hash)) {
     // login ok
   }
   // login check (2) auth form
@@ -269,6 +277,11 @@ function action_edit_removebackup()
 {
     if (!konawiki_auth()) {
         konawiki_error(konawiki_lang('Sorry, You do not have permission.'));
+    }
+    // CSRF対策: 履歴の削除には edit_token を必須とする
+    if (!konawiki_checkEditToken()) {
+        konawiki_error("編集エラー。ページを戻って画面を更新してください。");
+        return;
     }
     konawiki_clearCache();
 

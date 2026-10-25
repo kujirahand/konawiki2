@@ -11,6 +11,8 @@ function plugin_bodycomment_convert($params)
 	konawiki_setPluginDynamic(true);
 	
 	$pid = konawiki_getPluginInfo("bodycomment","pid",0);
+    // CSRF対策 (#10): 未ログインでもセッション用トークンを発行する
+    $edit_token = konawiki_getEditToken(TRUE);
     $s = <<<__EOS
 <form method="POST">
 <span style="display:none">
@@ -22,6 +24,7 @@ function plugin_bodycomment_convert($params)
 <input type="submit" value="コメントを挿入"/>
 <input type="hidden" name="plugin" value="bodycomment"/>
 <input type="hidden" name="pid" value="$pid"/>
+<input type="hidden" name="edit_token" value="$edit_token"/>
 </form>
 __EOS;
     return $s;
@@ -33,6 +36,11 @@ function plugin_bodycomment_action(&$params)
     $post_pid = konawiki_param("pid", 0);
     $pid = konawiki_getPluginInfo("bodycomment","pid",0);
     if ($pid != $post_pid) return TRUE;
+    // CSRF対策 (#10): フォームで発行した edit_token を必須とする
+    if (!konawiki_checkEditToken(TRUE)) {
+        $plugin_params["error"] = "意図せぬ操作が行われました。ページを戻って改めて操作を行ってください。";
+        return FALSE;
+    }
     # get comment
     $dummy1 = konawiki_param("comment");
     $dummy2 = konawiki_param("name");
@@ -43,6 +51,9 @@ function plugin_bodycomment_action(&$params)
     }
     $comment = konawiki_param("r_comment");
     $name    = konawiki_param("r_name");
+    // 挿入文は1行のリスト項目なので改行を取り除く (行単位の記法注入防止)
+    $comment = preg_replace('/(\r|\n)/', '', (string)$comment);
+    $name    = preg_replace('/(\r|\n)/', '', (string)$name);
     $mtime   = konawiki_datetime(time());
     $instext = "- $comment -- $name (&new($mtime);)";
     # insert to raw text

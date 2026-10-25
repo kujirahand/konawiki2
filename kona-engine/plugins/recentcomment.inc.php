@@ -39,6 +39,8 @@ function plugin_recentcomment_convert($params)
     foreach ($r as $e) {
         if (empty($e['log_id'])) continue;
         $log_id  = $e['log_id'];
+        $pinfo = konawiki_getPageInfoById($log_id);
+        if (!$pinfo || !empty($pinfo['private'])) continue;
         $name = konawiki_getPageNameFromId($log_id);
         $mtime = intval($e['mtime']);
         $mtime_ = konawiki_date_html($mtime);
