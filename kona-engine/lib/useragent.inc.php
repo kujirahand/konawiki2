@@ -44,19 +44,19 @@ function useragent_is_android()
 function useragent_is_docomo()
 {
   $ua = kona_getUserAgent();
-  return (ereg("^DoCoMo", $agent));
+  return (preg_match('/^DoCoMo/', $ua) === 1);
 }
 
 function useragent_is_softbank()
 {
   $ua = kona_getUserAgent();
-  return (ereg("^J-PHONE|^Vodafone|^SoftBank", $agent));
+  return (preg_match('/^(J-PHONE|Vodafone|SoftBank)/', $ua) === 1);
 }
 
 function useragent_is_au()
 {
   $ua = kona_getUserAgent();
-  return (ereg("^UP.Browser|^KDDI", $agent));
+  return (preg_match('/^(UP\.Browser|KDDI)/', $ua) === 1);
 }
 
 

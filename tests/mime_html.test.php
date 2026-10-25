@@ -50,7 +50,6 @@ test_eq(__LINE__, html_js_out('test-js-1', 'alert(1);'), '', 'html_js: same uid 
 
 // ---------------------------------------------------------------------
 // useragent.inc.php: スマートフォン判定など
-// ※ useragent_is_docomo() 等のガラケー判定は ereg() を使う旧実装のため対象外
 // ---------------------------------------------------------------------
 $saved_ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
 
@@ -72,6 +71,23 @@ $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
 test_eq(__LINE__, useragent_is_iPhone(), FALSE, 'ua: desktop not iPhone');
 test_eq(__LINE__, useragent_is_android(), FALSE, 'ua: desktop not android');
 test_eq(__LINE__, useragent_is_smartphone(), FALSE, 'ua: desktop not smartphone');
+
+// ガラケー判定
+$_SERVER['HTTP_USER_AGENT'] = 'DoCoMo/2.0 P903i';
+test_eq(__LINE__, useragent_is_docomo(), TRUE, 'ua: docomo');
+test_eq(__LINE__, useragent_is_softbank(), FALSE, 'ua: docomo not softbank');
+test_eq(__LINE__, useragent_is_au(), FALSE, 'ua: docomo not au');
+test_eq(__LINE__, useragent_is_galapagos(), TRUE, 'ua: docomo is galapagos');
+$_SERVER['HTTP_USER_AGENT'] = 'SoftBank/1.0/910T';
+test_eq(__LINE__, useragent_is_softbank(), TRUE, 'ua: softbank');
+test_eq(__LINE__, useragent_is_docomo(), FALSE, 'ua: softbank not docomo');
+test_eq(__LINE__, useragent_is_galapagos(), TRUE, 'ua: softbank is galapagos');
+$_SERVER['HTTP_USER_AGENT'] = 'KDDI-CA31 UP.Browser/6.2';
+test_eq(__LINE__, useragent_is_au(), TRUE, 'ua: au');
+test_eq(__LINE__, useragent_is_docomo(), FALSE, 'ua: au not docomo');
+test_eq(__LINE__, useragent_is_galapagos(), TRUE, 'ua: au is galapagos');
+$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)';
+test_eq(__LINE__, useragent_is_galapagos(), FALSE, 'ua: desktop not galapagos');
 
 if ($saved_ua === null) { unset($_SERVER['HTTP_USER_AGENT']); }
 else { $_SERVER['HTTP_USER_AGENT'] = $saved_ua; }

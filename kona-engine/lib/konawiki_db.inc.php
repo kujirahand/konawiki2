@@ -59,8 +59,6 @@ function konawiki_db_getConfig($key, $default = false)
     $db = konawiki_getDB();
     if (!$db) { return $default; }
     // select key
-    $_key = $db->escape($key);
-    $sql = "SELECT * FROM key_values WHERE name = '{$_key}' LIMIT 1";
     $row = db_get1('SELECT * FROM key_values WHERE name = ? LIMIT 1', [$key]);
     if (!$row) return $default;
     $v = isset($row['value']) ? $row['value'] : $default;

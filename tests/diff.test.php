@@ -51,3 +51,16 @@ test_eq(__LINE__, konawiki_array_search('c', ['a', 'b', 'c'], 1), 2, 'array_sear
 test_eq(__LINE__, konawiki_array_search('z', ['a', 'b', 'c']), FALSE, 'array_search: not found');
 test_eq(__LINE__, konawiki_array_search('1', [1, 2]), FALSE, 'array_search: strict (string vs int)');
 test_eq(__LINE__, konawiki_array_search(1, [1, 2]), 0, 'array_search: strict int');
+
+// ---------------------------------------------------------------------
+// 既存行の間に行を挿入した場合は追加マーク [+] が付く
+// ---------------------------------------------------------------------
+$body = "a\nX\nb";
+test_eq(__LINE__, konawiki_diff_checkConflict($body, "a\nb"), TRUE, 'diff: middle insert conflicts');
+test_contains(__LINE__, $body, '>>>[+] X', 'diff: middle insert has add mark');
+test_not_contains(__LINE__, $body, '>>>[-] X', 'diff: middle insert has no sub mark');
+$body = "a\nX\nY\nb";
+test_eq(__LINE__, konawiki_diff_checkConflict($body, "a\nb"), TRUE, 'diff: middle multi insert conflicts');
+test_contains(__LINE__, $body, '>>>[+] X', 'diff: middle multi insert X add mark');
+test_contains(__LINE__, $body, '>>>[+] Y', 'diff: middle multi insert Y add mark');
+test_not_contains(__LINE__, $body, '>>>[-] ', 'diff: middle multi insert has no sub mark');

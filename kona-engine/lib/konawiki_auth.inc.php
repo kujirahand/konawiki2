@@ -85,6 +85,7 @@ function _konawiki_auth_check_password($user, $pass)
                 $result = (strtolower(md5($pass)) == strtolower($hash));
                 break;
             case "sha1":
+            case "x-php-sha1":
                 $result = (strtolower(sha1($pass)) == strtolower($hash));
                 break;
             }

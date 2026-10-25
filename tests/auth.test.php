@@ -16,6 +16,7 @@ $private['authusers'] = [
     'taro'       => '{md5}' . md5('s3cret'),
     'hanako'     => '{sha1}' . sha1('pw2'),
     'xphp'       => '{x-php-md5}' . md5('pw3'),
+    'xphp_sha1'  => '{x-php-sha1}' . sha1('pw4'),
     'plain_user' => 'plainpass',
 ];
 
@@ -25,6 +26,8 @@ test_eq(__LINE__, _konawiki_auth_check_password('taro', ''),       FALSE, 'auth:
 test_eq(__LINE__, _konawiki_auth_check_password('hanako', 'pw2'),  TRUE,  'auth: sha1 correct');
 test_eq(__LINE__, _konawiki_auth_check_password('hanako', 'pw3'),  FALSE, 'auth: sha1 wrong');
 test_eq(__LINE__, _konawiki_auth_check_password('xphp', 'pw3'),    TRUE,  'auth: x-php-md5 correct');
+test_eq(__LINE__, _konawiki_auth_check_password('xphp_sha1', 'pw4'), TRUE,  'auth: x-php-sha1 correct');
+test_eq(__LINE__, _konawiki_auth_check_password('xphp_sha1', 'wrong'), FALSE, 'auth: x-php-sha1 wrong');
 test_eq(__LINE__, _konawiki_auth_check_password('plain_user', 'plainpass'), TRUE,  'auth: raw correct');
 test_eq(__LINE__, _konawiki_auth_check_password('plain_user', 'plainpas'),  FALSE, 'auth: raw wrong (prefix)');
 test_eq(__LINE__, _konawiki_auth_check_password('plain_user', '0'),         FALSE, 'auth: raw wrong (0)');
@@ -51,3 +54,11 @@ test_eq(__LINE__, konawiki_checkPassword('abc', '{sha1}' . sha1('xyz')), FALSE, 
 test_eq(__LINE__, konawiki_checkPassword('abc', 'abc'), TRUE,  'checkPassword: plain');
 test_eq(__LINE__, konawiki_checkPassword('abc', 'abd'), FALSE, 'checkPassword: plain mismatch');
 test_eq(__LINE__, konawiki_checkPassword('abc', ''),    FALSE, 'checkPassword: empty stored value');
+test_eq(__LINE__, konawiki_checkPassword('abc', '{x-php-md5}' . md5('abc')),   TRUE,  'checkPassword: x-php-md5');
+test_eq(__LINE__, konawiki_checkPassword('abc', '{x-php-md5}' . md5('xyz')),   FALSE, 'checkPassword: x-php-md5 mismatch');
+test_eq(__LINE__, konawiki_checkPassword('abc', '{x-php-sha1}' . sha1('abc')), TRUE,  'checkPassword: x-php-sha1');
+test_eq(__LINE__, konawiki_checkPassword('abc', '{x-php-sha1}' . sha1('xyz')), FALSE, 'checkPassword: x-php-sha1 mismatch');
+test_eq(__LINE__, konawiki_checkPassword('abc', '{md5}' . strtoupper(md5('abc'))),   TRUE, 'checkPassword: md5 uppercase stored');
+test_eq(__LINE__, konawiki_checkPassword('abc', '{sha1}' . strtoupper(sha1('abc'))), TRUE, 'checkPassword: sha1 uppercase stored');
+test_eq(__LINE__, konawiki_checkPassword('Abc', 'abc'), FALSE, 'checkPassword: plain is case sensitive');
+test_eq(__LINE__, konawiki_checkPassword('abc', null), FALSE, 'checkPassword: null stored value');
