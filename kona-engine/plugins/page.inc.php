@@ -29,6 +29,11 @@ function plugin_page_convert($params)
         }
     }
     $log = konawiki_getLog($page);
+    // 非公開ページは埋め込まない (閲覧権限のない内容の漏洩防止)
+    if (isset($log['private']) && $log['private'] &&
+        !konawiki_isLogin_write()) {
+        return "<!-- #page private page -->";
+    }
     if (isset($log['body'])) {
         $_GET['page'] = $_POST['page'] = $page;
         $htm = konawiki_parser_convert($log['body']);

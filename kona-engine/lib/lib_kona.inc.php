@@ -709,8 +709,13 @@ function include_template($fname, $vars = FALSE)
         }
     }
     // extract variable
-    extract($public);
-    if ($vars) { extract($vars); }
+    // ※呼び出し側 ($vars) 優先で合成し、include 先を決める内部変数を
+    //   上書きできるキーは取り除く (テンプレート変数によるパス上書き防止)
+    $tpl_vars = $vars ? array_merge($public, $vars) : $public;
+    unset($tpl_vars['path'], $tpl_vars['skin'], $tpl_vars['fname'],
+          $tpl_vars['vars'], $tpl_vars['tpl_vars']);
+    extract($tpl_vars);
+    unset($tpl_vars);
     // include
     include($path);
 }

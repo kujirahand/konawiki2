@@ -81,7 +81,7 @@ function plugin_tag_convert($params)
     // query logs
     $log_id_str = implode(',', $log_ids);
     if ($log_id_str != '') {
-	    $query = "SELECT * FROM logs WHERE id in ({$log_id_str});";
+	    $query = "SELECT * FROM logs WHERE id in ({$log_id_str}) AND COALESCE(private,0)=0;";
     	$r = db_get($query);
     } else {
     	$r = FALSE;

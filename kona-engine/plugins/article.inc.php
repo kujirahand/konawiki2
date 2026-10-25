@@ -151,6 +151,9 @@ function plugin_article_action($params)
     return FALSE;
   }
   if ($commentmode != "edit") {
+    // 件名・名前は見出し行に埋め込む1行の項目なので改行を取り除く
+    $name = preg_replace('/(\r|\n)/', '', (string)$name);
+    $comment = preg_replace('/(\r|\n)/', '', (string)$comment);
     if ($name === "") $name = "名無し";
     if ($comment == "") {
       // maybe spam

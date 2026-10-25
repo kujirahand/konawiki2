@@ -17,12 +17,22 @@ function plugin_textfile_convert($params)
       return "[#textfile:error no params]";
     }
     $_file = htmlspecialchars($file);
-    $file = str_replace('..', '', $file);
+    // data フォルダ直下のテキストだけを対象とし、設定ファイル
+    // (konawiki.ini.php) や DB 等の機密ファイルは読み出せないようにする
+    $file = basename(str_replace('..', '', $file));
+    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    if ($file === 'konawiki.ini.php' ||
+        in_array($ext, ['php', 'db', 'sqlite', 'sqlite3', 'ini'], TRUE)) {
+        return "[#textfile:error file not found $_file]";
+    }
     $path = KONAWIKI_DIR_DATA."/".$file;
-    if (file_exists($path)) {
-        $txt = file_get_contents($path);
-    } else {
+    $real = realpath($path);
+    $realdir = realpath(KONAWIKI_DIR_DATA);
+    if ($real === FALSE || $realdir === FALSE ||
+        dirname($real) !== $realdir) { // symlink による外への参照も防ぐ
         $txt = "[#textfile:error file not found $_file]";
+    } else {
+        $txt = file_get_contents($real);
     }
     $html = konawiki_parser_convert($txt);
     return $html;

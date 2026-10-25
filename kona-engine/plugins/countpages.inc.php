@@ -35,6 +35,7 @@ function plugin_countpages_convert($params)
         $where = "name = ?";
         $params[] = $pagename;
     }
+    $where .= " AND COALESCE(private,0)=0";
     $sql = "SELECT id FROM logs WHERE $where LIMIT $limit";
     $count_m = 0;
     $count_b = 0;

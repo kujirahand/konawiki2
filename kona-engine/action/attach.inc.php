@@ -64,6 +64,11 @@ function action_attach_form()
 
 function action_attach_write()
 {
+    // CSRF対策: アップロードには edit_token を必須とする
+    if (!konawiki_checkEditToken()) {
+        konawiki_error("編集エラー。ページを戻って画面を更新してください。");
+        return;
+    }
     $enabled    = konawiki_private('attach.enabled');
     if (!$enabled) {
         konawiki_error("添付ファイルが利用できない設定になっています。");
@@ -276,9 +281,15 @@ function action_attach_delete()
     $name = htmlspecialchars($name);
     $backlink = konawiki_getPageURL($page, "attach");
     //
-    $file = KONAWIKI_DIR_ATTACH.'/'.$id;
+    // 実ファイルは "{id}{拡張子}" で保存されるため両方を削除する
+    $ext = "";
+    if (preg_match('/(\.\w+)$/', $name, $mm)) {
+      $ext = $mm[1];
+    }
+    $file = KONAWIKI_DIR_ATTACH.'/'.$id.$ext;
     $baseurl = konawiki_public("baseurl");
     @unlink($file);
+    if ($ext !== "") { @unlink(KONAWIKI_DIR_ATTACH.'/'.$id); }
     db_commit();
     $body = "<p>(id:{$id})「{$name_html}」を削除しました。</p>".
         "<p><a href='{$backlink}'>→「{$page_htm}」の添付へ戻る</a></p>";

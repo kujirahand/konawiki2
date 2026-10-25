@@ -58,12 +58,15 @@ function action_show_()
     $cachemode = konawiki_private('cache.mode');
     if ($cachemode == 'cache') {
         // clear cache ?
+        // ※キャッシュの消去はログイン中の書き込み権限者に限る
         $cache = konawiki_param("cache", false);
-        if ($cache == "clear") {
-            konawiki_clearCacheDB($log_id);
-        }
-        else if ($cache == "clearall") {
-            konawiki_clearCacheDB_All();
+        if (konawiki_isLogin_write()) {
+            if ($cache == "clear") {
+                konawiki_clearCacheDB($log_id);
+            }
+            else if ($cache == "clearall") {
+                konawiki_clearCacheDB_All();
+            }
         }
         // check CACHE
         if ($log_exists) {
@@ -188,6 +191,8 @@ function _konawiki_show_tag($tag, $id)
             foreach ($r as $row) {
                 $log_id = $row['log_id'];
                 if ($log_id == $id) continue;
+                $pinfo = konawiki_getPageInfoById($log_id);
+                if (!$pinfo || !empty($pinfo['private'])) continue;
                 $page = konawiki_getPageNameFromId($log_id);
                 $pages[$page] = '<li>'.konawiki_getPageLink($page).'</li>';
             }

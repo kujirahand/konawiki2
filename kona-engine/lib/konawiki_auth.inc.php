@@ -73,8 +73,8 @@ function _konawiki_auth_check_password($user, $pass)
     if (isset($users[$user])) {
         $a_pass = $users[$user];
         if (!preg_match('#\{(.+)\}(.*)$#', $a_pass, $m)) {
-            // raw password
-            $result = ($pass == $a_pass);
+            // raw password (緩い比較による型ジャグリングを避け定数時間で比較)
+            $result = hash_equals((string)$a_pass, (string)$pass);
         }
         else {
             $fmt  = $m[1];
@@ -82,10 +82,10 @@ function _konawiki_auth_check_password($user, $pass)
             switch ($fmt) {
             case "md5":
             case "x-php-md5":
-                $result = (strtolower(md5($pass)) == strtolower($hash));
+                $result = hash_equals(strtolower($hash), strtolower(md5($pass)));
                 break;
             case "sha1":
-                $result = (strtolower(sha1($pass)) == strtolower($hash));
+                $result = hash_equals(strtolower($hash), strtolower(sha1($pass)));
                 break;
             }
         }
@@ -102,6 +102,17 @@ function konawiki_start_session()
     static $started = false;
     if ($started) return;
     session_name(konawiki_private('session.name'));
+    // Cookie に HttpOnly / SameSite=Lax を付け、HTTPS 時は Secure も付ける
+    if (PHP_VERSION_ID >= 70300) {
+        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax',
+            'secure' => $secure,
+        ]);
+    }
     @session_start();
     $started = true;
 }
@@ -136,6 +147,20 @@ function _konawiki_auth_form()
     $pw   = trim(konawiki_param("pw",   false));
     $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : "";
     if ($user !== false && $pw !== false) {
+        // ログイン試行回数の制限 (login アクションだけでなく、
+        // 認証フォームを経由する全ての経路で総当たりを防ぐ)
+        // login アクション側の制限と同じ条件: 同一IPから24時間に10回失敗
+        if ($ip !== "") {
+            $limit_t = time() - 60 * 60 * 24; // 24hours
+            $errors = db_get(
+                "SELECT ip FROM login_errors WHERE ip=? AND ctime > ? LIMIT 10",
+                [$ip, $limit_t], 'users');
+            if ($errors && count($errors) >= 10) {
+                konawiki_show_loginForm(
+                    konawiki_lang('There have been too many login attempts.'));
+                exit;
+            }
+        }
         if (_konawiki_auth_check_password($user, $pw)) {
             // Check Permission
             $perm_list = konawiki_private('users_perm');

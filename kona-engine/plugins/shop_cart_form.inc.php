@@ -337,7 +337,8 @@ function shop_cart_pw_hash($password) {
 
 function shop_cart_save_customer($info) {
   $email = $info["sc_email"];
-  $info["sc_pw"] = shop_cart_pw_hash($info["sc_pw"]);
+  // パスワードは password_hash で保存する (旧形式はログイン時に検証のみ)
+  $info["sc_pw"] = password_hash($info["sc_pw"], PASSWORD_DEFAULT);
   // check exists?
   $db = new PDO("sqlite:".SHOP_CART_CUSTOMER_DB);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -418,9 +419,18 @@ function shop_cart_login_try() {
     return $html_error;
   }
   // check password
-  $pw_hash = shop_cart_pw_hash($pass);
-  if ($w["sc_pw"] !== $pw_hash) {
-    return $html_error;
+  $stored = isset($w["sc_pw"]) ? $w["sc_pw"] : "";
+  if (is_string($stored) && password_get_info($stored)['algo'] !== null
+      && password_get_info($stored)['algo'] !== 0) {
+    // 現在の形式 (password_hash)
+    if (!password_verify($pass, $stored)) {
+      return $html_error;
+    }
+  } else {
+    // 旧形式 (固定salt + sha256) との互換検証
+    if (!hash_equals((string)$stored, shop_cart_pw_hash($pass))) {
+      return $html_error;
+    }
   }
   // success
   $_SESSION[CART_ITEMS_SENDTO] = $w;

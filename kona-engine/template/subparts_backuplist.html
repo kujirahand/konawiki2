@@ -29,6 +29,7 @@ if ($log_id > 0) {
         echo form_input_hidden('page',$page);
         echo form_input_hidden('action','edit');
         echo form_input_hidden('stat','removebackup');
+        echo form_input_hidden('edit_token', konawiki_getEditToken());
         echo "</p></form>";
         echo "</div>";
     }

@@ -656,6 +656,10 @@ function konawiki_parser_showPageDescription($page)
         return "<span class='none'>$caption</span>";
     }
     $url  = konawiki_getPageURL($page);
+    # 非公開ページは本文抜粋・タグ情報を出さない (リンクのみ)
+    if (!empty($log['private']) && !konawiki_isLogin_write()) {
+        return "<a href='{$url}'>{$page_htm}</a>";
+    }
     # make tag info
     $tags = konawiki_getTag($log["id"]);
     $tag_str = "";
@@ -717,8 +721,9 @@ function konawiki_parser_makeWikiLink($name)
         // check all url
         // [[caption:link]]
         if (strpos($link, '://') !== FALSE || strpos($link, 'mailto:') !== FALSE) {
-            // url
-            $caption = konawiki_parser_disp_url($caption);
+            // url (キャプションはHTMLとして解釈されないようエスケープする)
+            $caption = htmlspecialchars(
+                konawiki_parser_disp_url($caption), ENT_QUOTES);
             $link = $link;
             $wikilink = FALSE;
         }

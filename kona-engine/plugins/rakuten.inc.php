@@ -40,8 +40,9 @@ function plugin_rakuten__getCode($set, $keys)
     // APIの結果キャッシュがあれば読み込み
     $cache = array("_time"=>time());
     if (file_exists($cache_file)) {
-        $tmp = unserialize( file_get_contents($cache_file) );
-        if (time() - $tmp["_time"] < $cache_period) {
+        $tmp = json_decode( file_get_contents($cache_file), TRUE );
+        if (is_array($tmp) && isset($tmp["_time"]) &&
+            time() - $tmp["_time"] < $cache_period) {
             $cache = $tmp;
         }
     }
@@ -67,9 +68,9 @@ function plugin_rakuten__getCode($set, $keys)
         if ($price  ) { $api .= "&minPrice=$price";  }
         if ($genreid) { $api .= "&genreId=$genreid"; }
         //
-        if ( !$cache[$keyword] ) { // キャッシュが空なら取得する
+        if ( empty($cache[$keyword]) ) { // キャッシュが空なら取得する
             $cache[$keyword] = file_get_contents($api);
-            file_put_contents($cache_file, serialize($cache));
+            file_put_contents($cache_file, json_encode($cache));
         }
         // XMLを解析する
         $xml = simplexml_load_string( $cache[$keyword] );
