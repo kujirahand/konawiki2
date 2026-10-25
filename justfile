@@ -36,13 +36,15 @@ test-cli:
     {{php}} tests/test_main.php go_test
 
 # HTTP回帰テストだけを実行する (例: just test-http csrf10 で対象を絞れる)
-test-http filter="":
+test-http $filter="":
     #!/usr/bin/env bash
+    # 引数 filter は export 引数として環境変数で受け取る (レシピ本文への
+    # テキスト展開だと、引用符等を含む引数で bash の構文が壊れるため)
     set -euo pipefail
     ran=0
     for f in tests/*_http.py; do
         [ -e "$f" ] || continue
-        if [ -n "{{filter}}" ] && [[ "$f" != *"{{filter}}"* ]]; then
+        if [ -n "$filter" ] && [[ "$f" != *"$filter"* ]]; then
             continue
         fi
         echo "-- $f"
@@ -50,7 +52,7 @@ test-http filter="":
         ran=1
     done
     if [ "$ran" -eq 0 ]; then
-        echo "対象のHTTPテストが見つかりません: {{filter}}" >&2
+        echo "対象のHTTPテストが見つかりません: $filter" >&2
         exit 1
     fi
 
