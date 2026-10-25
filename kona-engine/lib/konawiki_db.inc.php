@@ -125,3 +125,64 @@ function konawiki_initDB_addHelp()
     
     $_POST['page'] = konawiki_public('FrontPage');
 }
+
+/**
+ * attach テーブルに comment カラム (ファイル毎のコメント, Issue #21) があるか
+ * 確認し、なければ追加する。
+ * 既存のDBにはマイグレーション機構がないため、必要な時点で遅延追加する。
+ * 新規DBでは konawiki_sql_main.sql の定義により最初から存在する。
+ * @return boolean comment カラムが利用可能なら TRUE
+ */
+function konawiki_attach_ensure_comment_column()
+{
+    static $checked = FALSE;
+    if ($checked) {
+        return TRUE;
+    }
+    if (!db_table_exists('attach')) {
+        return FALSE;
+    }
+    $cols = db_get("PRAGMA table_info(attach)");
+    if ($cols) {
+        foreach ($cols as $col) {
+            if (isset($col['name']) && $col['name'] === 'comment') {
+                $checked = TRUE;
+                return TRUE;
+            }
+        }
+    }
+    db_exec("ALTER TABLE attach ADD COLUMN comment TEXT DEFAULT ''");
+    $checked = TRUE;
+    return TRUE;
+}
+
+/**
+ * 添付ファイルのコメントを保存する (Issue #21)
+ * @param integer $id attach テーブルの id
+ * @param string $comment コメント (空文字列でコメントを消去)
+ * @return boolean 保存できたら TRUE
+ */
+function konawiki_attach_set_comment($id, $comment)
+{
+    if (!konawiki_attach_ensure_comment_column()) {
+        return FALSE;
+    }
+    $id = intval($id);
+    $sql = "UPDATE attach SET comment=? WHERE id=?";
+    db_exec($sql, [(string)$comment, $id]);
+    return TRUE;
+}
+
+/**
+ * 添付ファイルのコメントを取り出す (Issue #21)
+ * カラム追加前の行や未指定の場合は空文字列を返す。
+ * @param array $row attach テーブルの行
+ * @return string コメント
+ */
+function konawiki_attach_row_comment($row)
+{
+    if (isset($row['comment']) && $row['comment'] !== null) {
+        return (string)$row['comment'];
+    }
+    return '';
+}
