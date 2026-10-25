@@ -1519,6 +1519,9 @@ function konawiki_clearCacheDB_All()
  */
 function konawiki_checkPassword($user, $pass)
 {
+    // 引数が null の場合に内部関数でエラーにならないよう文字列化する
+    $user = (string)$user;
+    $pass = (string)$pass;
     $type = "";
     if (preg_match('#^\{([a-z0-9\-]+)\}(.+)$#', $pass, $m)) {
         $type = $m[1];

@@ -58,3 +58,4 @@ test_eq(__LINE__, konawiki_checkPassword('abc', '{x-php-sha1}' . sha1('xyz')), F
 test_eq(__LINE__, konawiki_checkPassword('abc', '{md5}' . strtoupper(md5('abc'))),   TRUE, 'checkPassword: md5 uppercase stored');
 test_eq(__LINE__, konawiki_checkPassword('abc', '{sha1}' . strtoupper(sha1('abc'))), TRUE, 'checkPassword: sha1 uppercase stored');
 test_eq(__LINE__, konawiki_checkPassword('Abc', 'abc'), FALSE, 'checkPassword: plain is case sensitive');
+test_eq(__LINE__, konawiki_checkPassword('abc', null), FALSE, 'checkPassword: null stored value');
