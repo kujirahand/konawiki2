@@ -48,7 +48,7 @@ function konawiki_diff_checkConflict(&$body, $cur_body, $mode = 'diff')
             // can insert
             for ($j = $ni; $j < $nj; $j++) {
                 $new_line = $new_ary[$j];
-                $res_ary[] = $conf_sub.$new_line;
+                $res_ary[] = $conf_add.$new_line;
             }
             $ni = $nj;
         }
