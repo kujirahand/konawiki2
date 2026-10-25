@@ -82,10 +82,6 @@ function action_attach_write()
     // check attach file
     $filename = trim(isset($_POST['filename']) ? $_POST['filename'] : '');
     $comment = trim(isset($_POST['comment']) ? $_POST['comment'] : '');
-    if (mb_strlen($comment) > 500) {
-      konawiki_error("コメントが長すぎます。(500文字まで)");
-      return;
-    }
     $name = basename($_FILES['userfile']['name']);
     if ($filename == '') { $filename = $name; }
     $name_ext = "";
@@ -125,6 +121,11 @@ function action_attach_write()
       konawiki_error(
         "アップロードできない形式です。<br>".
         "ファイル形式を確認してください。");
+      return;
+    }
+    // check comment (ファイル自体の検証を通過してから行う)
+    if (mb_strlen($comment) > 500) {
+      konawiki_error("コメントが長すぎます。(500文字まで)");
       return;
     }
     // check db
@@ -325,8 +326,9 @@ function action_attach_comment()
         return;
     }
     // 表示中のページの添付ファイルであることを確認する
+    // (ページが特定できない場合も、所属不明として更新しない)
     $log_id = konawiki_getPageId();
-    if ($log_id !== FALSE && intval($info['log_id']) !== intval($log_id)) {
+    if ($log_id === FALSE || intval($info['log_id']) !== intval($log_id)) {
         konawiki_error("更新エラー。このページの添付ファイルではありません。");
         return;
     }

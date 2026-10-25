@@ -57,7 +57,7 @@
   {{ for $list as $i }}
     {{e: $name = $i['name']; $name_u = rawurlencode($name); }}
     {{e: $id = $i['id'] }}
-    {{e: $comment_h = htmlspecialchars(isset($i['comment']) ? $i['comment'] : '', ENT_QUOTES) }}
+    {{e: $comment = isset($i['comment']) ? $i['comment'] : '' }}
     {{e: $link = konawiki_getPageURL($page, 'attach', '', "file=$name_u") }}
     {{e: $link_del = konawiki_getPageURL(
             $page, 'attach', 'delete', 
@@ -74,7 +74,7 @@
           <input type="hidden" name="stat" value="comment"/>
           <input type="hidden" name="id" value="{{$id}}"/>
           <input type="hidden" name="edit_token" value="{{$edit_token}}"/>
-          <input type="text" name="comment" value="{{$comment_h|raw}}" size="20" maxlength="500"/>
+          <input type="text" name="comment" value="{{$comment}}" size="20" maxlength="500"/>
           <input type="submit" value="保存"/>
         </form>
       </td>

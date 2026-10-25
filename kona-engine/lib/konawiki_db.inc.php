@@ -133,27 +133,43 @@ function konawiki_initDB_addHelp()
  * 新規DBでは konawiki_sql_main.sql の定義により最初から存在する。
  * @return boolean comment カラムが利用可能なら TRUE
  */
-function konawiki_attach_ensure_comment_column()
+function konawiki_attach_has_comment_column()
 {
-    static $checked = FALSE;
-    if ($checked) {
-        return TRUE;
-    }
-    if (!db_table_exists('attach')) {
-        return FALSE;
-    }
     $cols = db_get("PRAGMA table_info(attach)");
     if ($cols) {
         foreach ($cols as $col) {
             if (isset($col['name']) && $col['name'] === 'comment') {
-                $checked = TRUE;
                 return TRUE;
             }
         }
     }
-    db_exec("ALTER TABLE attach ADD COLUMN comment TEXT DEFAULT ''");
-    $checked = TRUE;
-    return TRUE;
+    return FALSE;
+}
+
+function konawiki_attach_ensure_comment_column()
+{
+    static $available = null;
+    if ($available !== null) {
+        return $available;
+    }
+    $available = FALSE;
+    if (!db_table_exists('attach')) {
+        return FALSE;
+    }
+    if (konawiki_attach_has_comment_column()) {
+        $available = TRUE;
+        return TRUE;
+    }
+    try {
+        db_exec("ALTER TABLE attach ADD COLUMN comment TEXT DEFAULT ''");
+        $available = TRUE;
+    } catch (Exception $e) {
+        // 同時実行で既に追加された場合は再確認した結果を返す。
+        // 読み取り専用のDB等で追加できない場合は FALSE を返し、
+        // 呼び出し元の表示処理はコメントなしで継続できるようにする。
+        $available = konawiki_attach_has_comment_column();
+    }
+    return $available;
 }
 
 /**

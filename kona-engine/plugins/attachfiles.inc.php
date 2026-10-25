@@ -37,6 +37,25 @@ function plugin_attachfiles_parse_comments($params)
   return $comments;
 }
 
+function plugin_attachfiles_arg_comment($params, $name)
+{
+  // ファイル名に '=' が含まれる場合にも対応するため、
+  // 「ファイル名=」で始まる引数を探す。指定がなければ null、
+  // 空コメントの指定があれば '' を返す (後勝ち)。
+  $comment = null;
+  if (!$params) {
+    return $comment;
+  }
+  $prefix = $name . '=';
+  foreach ($params as $param) {
+    $param = trim((string)$param);
+    if (strpos($param, $prefix) === 0) {
+      $comment = trim(substr($param, strlen($prefix)));
+    }
+  }
+  return $comment;
+}
+
 function plugin_attachfiles_convert($params)
 {
   // 引数で指定されたファイル毎のコメント (Issue #21)
@@ -76,7 +95,10 @@ function plugin_attachfiles_convert($params)
       } else if (isset($res['comment'])) {
         $comment = (string)$res['comment'];
       }
-      if (array_key_exists($name, $arg_comments)) {
+      $arg_comment = plugin_attachfiles_arg_comment($params, $name);
+      if ($arg_comment !== null) {
+        $comment = $arg_comment;
+      } else if (array_key_exists($name, $arg_comments)) {
         $comment = $arg_comments[$name];
       }
       $comment_h = htmlspecialchars($comment, ENT_QUOTES);
