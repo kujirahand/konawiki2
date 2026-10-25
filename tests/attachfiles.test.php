@@ -157,9 +157,14 @@ test_not_contains(__LINE__, $html, 'DB側コメント',
 
 // ---------------------------------------------------------------------
 // コメント更新アクション (action_attach_comment)
-// テスト環境では auth.write.enabled が未設定 (== FALSE) のため
-// konawiki_auth() は通過し、edit_token の照合が検証対象になる。
+// この節では edit_token の照合を検証対象にするため、書き込み認証は
+// 明示的に無効化して konawiki_auth() を通過させる (節の終わりで復元する)。
+// ※ 以前はオプション既定値のタイポで auth.write.enabled が未設定だった
+//   ことに依存していたが、#36 の修正で既定値 (TRUE) が効くようになった。
 // 描画 (konawiki_showMessage / konawiki_error) は出力として捕捉する。
+$test_saved_auth_write = isset($private['auth.write.enabled'])
+    ? $private['auth.write.enabled'] : null;
+$private['auth.write.enabled'] = FALSE;
 // ---------------------------------------------------------------------
 require_once KONAWIKI_DIR_FW_SIMPLE . '/fw_template_engine.lib.php';
 require_once KONAWIKI_DIR_ACTION . '/attach.inc.php';
@@ -233,5 +238,7 @@ test_eq(__LINE__, test_attach_comment_value($doc_id), 'アクションで更新'
     'attachfiles: action non-numeric id leaves data');
 
 // 後始末 (後続テストファイルへ状態を持ち越さない)
+if ($test_saved_auth_write === null) { unset($private['auth.write.enabled']); }
+else { $private['auth.write.enabled'] = $test_saved_auth_write; }
 $_GET = ['page' => 'AttachFilesTest']; $_POST = [];
 konawiki_clearCache();
