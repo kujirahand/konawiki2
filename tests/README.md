@@ -69,8 +69,8 @@ test_contains(__LINE__, "hello world", "world", "contains example");
 | `lib_kona.test.php` | 基本ライブラリ (パラメータ、URL生成、URI解析、日時整形、オプション) |
 | `mime_html.test.php` | MIME判定、フォーム部品、UserAgent判定 |
 | `parser.test.php` | Wiki記法パーサ (トークン化、HTML変換、Wikiリンク、URLチェック) |
+| `counter.test.php` | counter プラグインの月別集計 |
+| `security31.test.php` | セキュリティ監査 (#31) の回帰テスト |
 | `plugins.test.php` | プラグイン解決と個別プラグイン (color/small/rem/md5/clear) |
 
-なお、ブラウザから実行する旧来のテスト (`kona-engine/test/kona_test_*.inc.php`,
-`index.php?all&test`) も従来どおり利用できます。
-ページ書き込みの基本テストは `db.test.php` に同等の内容を含んでいます。
+旧来のブラウザ実行テスト (`kona-engine/test/`, `index.php?all&test`) は廃止し、`tests/*.test.php` に統合しました。
