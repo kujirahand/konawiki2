@@ -81,6 +81,7 @@ function action_attach_write()
     $log_id = $log["id"];
     // check attach file
     $filename = trim(isset($_POST['filename']) ? $_POST['filename'] : '');
+    $comment = trim(isset($_POST['comment']) ? $_POST['comment'] : '');
     $name = basename($_FILES['userfile']['name']);
     if ($filename == '') { $filename = $name; }
     $name_ext = "";
@@ -122,6 +123,11 @@ function action_attach_write()
         "ファイル形式を確認してください。");
       return;
     }
+    // check comment (ファイル自体の検証を通過してから行う)
+    if (mb_strlen($comment) > 500) {
+      konawiki_error("コメントが長すぎます。(500文字まで)");
+      return;
+    }
     // check db
     db_begin();
     $mtime = time();
@@ -137,12 +143,21 @@ function action_attach_write()
       return;
     } else {
       // insert into db
-      $sql = 
-        "INSERT INTO attach (log_id,name,ext,ctime,mtime)".
-        "             VALUES(     ?,   ?,  ?,    ?,    ?)";
-      $id = db_insert($sql, [
-          $log_id, $filename, $ext, $mtime, $mtime
-      ]);
+      if (konawiki_attach_ensure_comment_column()) {
+        $sql =
+          "INSERT INTO attach (log_id,name,ext,comment,ctime,mtime)".
+          "             VALUES(     ?,   ?,  ?,      ?,    ?,    ?)";
+        $id = db_insert($sql, [
+            $log_id, $filename, $ext, $comment, $mtime, $mtime
+        ]);
+      } else {
+        $sql =
+          "INSERT INTO attach (log_id,name,ext,ctime,mtime)".
+          "             VALUES(     ?,   ?,  ?,    ?,    ?)";
+        $id = db_insert($sql, [
+            $log_id, $filename, $ext, $mtime, $mtime
+        ]);
+      }
       $sql = "INSERT INTO attach_counters (id) VALUES (?)";
       db_exec($sql, [$id]);
     }
@@ -286,6 +301,48 @@ function action_attach_delete()
     konawiki_showMessage($body);
 }
 
+function action_attach_comment()
+{
+    if (!konawiki_checkEditToken()) {
+        konawiki_error("編集エラー。ページを戻って画面を更新してください。");
+        return;
+    }
+    if (!konawiki_auth()) return;
+    $id = konawiki_param('id', 0);
+    if (!is_numeric($id)) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    $id = intval($id);
+    $comment = trim((string)konawiki_param('comment', ''));
+    if (mb_strlen($comment) > 500) {
+        konawiki_error("コメントが長すぎます。(500文字まで)");
+        return;
+    }
+    $sql = "SELECT * FROM attach WHERE id=?";
+    $info = db_get1($sql, [$id]);
+    if (!isset($info['id'])) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    // 表示中のページの添付ファイルであることを確認する
+    // (ページが特定できない場合も、所属不明として更新しない)
+    $log_id = konawiki_getPageId();
+    if ($log_id === FALSE || intval($info['log_id']) !== intval($log_id)) {
+        konawiki_error("更新エラー。このページの添付ファイルではありません。");
+        return;
+    }
+    if (!konawiki_attach_set_comment($id, $comment)) {
+        konawiki_error("更新エラー。コメントを保存できませんでした。");
+        return;
+    }
+    $p = konawiki_getPageInfoById($info['log_id']);
+    $page = $p['name'];
+    $url = konawiki_getPageURL($page, 'attach');
+    $body = "<p class='box'><a href='$url'>コメントを更新しました</a></p>";
+    konawiki_showMessage($body);
+}
+
 function konawiki_getContentType($filename)
 {
     include_once(KONAWIKI_DIR_LIB."/mime.inc.php");
@@ -295,6 +352,7 @@ function konawiki_getContentType($filename)
 
 function konawiki_getAttachList($page)
 {
+    konawiki_attach_ensure_comment_column();
     $log_id = konawiki_getPageId($page);
     if ($log_id == FALSE) {
         return FALSE;
