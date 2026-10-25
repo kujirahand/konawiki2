@@ -262,11 +262,18 @@ $private['users_perm'] = ['review' => ['read' => TRUE, 'write' => TRUE]];
         self.assertEqual("経路経由で更新", self.attach_comment(attach_id))
 
     def test_03_equals_filename_collision(self):
-        self.page("Attach46Collision", "#attachfiles(data=2023.csv=集計結果)\n")
-        res = self.upload(self.admin, "Attach46Collision", "a.txt",
-                          b"plain text\n", comment="data用コメント",
-                          save_name="data")
-        self.assertIn("添付成功", res)
+        log_id = self.page("Attach46Collision",
+                           "#attachfiles(data=2023.csv=集計結果)\n")
+        # 拡張子なしの名前 "data" は Issue #48 以降アップロードでは作れないため、
+        # 過去に作られた行として DB 直接作成で再現する
+        # (実ファイルは元ファイル a.txt の拡張子で {id}.txt として置かれる形式)
+        with self.db() as db:
+            data_id = db.execute(
+                "INSERT INTO attach(log_id,name,ext,comment,ctime,mtime)"
+                " VALUES(?,?,?,?,1,1)",
+                (log_id, "data", "text/plain", "data用コメント")).lastrowid
+            db.execute("INSERT INTO attach_counters(id) VALUES(?)", (data_id,))
+        (self.root / "attach" / ("%d.txt" % data_id)).write_bytes(b"plain text\n")
         res = self.upload(self.admin, "Attach46Collision", "b.csv",
                           b"a,b\n1,2\n", comment="CSV用コメント",
                           save_name="data=2023.csv")

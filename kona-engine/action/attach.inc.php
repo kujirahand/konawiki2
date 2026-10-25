@@ -129,6 +129,16 @@ function action_attach_write()
         "ファイル形式を確認してください。");
       return;
     }
+    // アップロード時のファイル名も、名前変更 (Issue #22) と同じ検証を行う (Issue #48)
+    // 実ファイルは元ファイルの拡張子で {id}{拡張子} として保存され、ダウンロードは
+    // DB の名前の拡張子から実ファイルを組み立てるため、拡張子は元ファイルと
+    // 完全に一致させる。検証対象は、ファイル名欄が空の場合に使われる
+    // 元ファイル名も含む、最終的な保存名 $filename とする。
+    $filename_err = konawiki_attach_validate_rename($name, $filename);
+    if ($filename_err !== '') {
+      konawiki_error($filename_err);
+      return;
+    }
     // check comment (ファイル自体の検証を通過してから行う)
     if (mb_strlen($comment) > 500) {
       konawiki_error("コメントが長すぎます。(500文字まで)");
