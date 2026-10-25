@@ -154,6 +154,10 @@ function konawiki_attach_has_comment_column()
  */
 function konawiki_attach_comment_column_available($force = FALSE)
 {
+    if ($force) {
+        // 再確認に合わせて、移行失敗フラグも破棄する
+        unset($GLOBALS['konawiki_attach_comment_migration_failed']);
+    }
     if (!$force && isset($GLOBALS['konawiki_attach_comment_column'])) {
         return $GLOBALS['konawiki_attach_comment_column'];
     }
@@ -169,7 +173,10 @@ function konawiki_attach_comment_column_available($force = FALSE)
  * comment カラムの利用可否を確認し、無ければ ALTER TABLE で追加する。結果はキャッシュする。
  * 移行 (DDL) は書き込み経路 (アップロード・コメント保存) と明示的な移行呼び出しからのみ行う。
  * 表示経路では konawiki_attach_comment_column_available() を使うか何も呼ばないこと (Issue #46)。
- * キャッシュは konawiki_attach_comment_column_available() と共有する。
+ * キャッシュは konawiki_attach_comment_column_available() と共有するが、
+ * 「カラムが無い」という確認結果と「移行を試みて失敗した」状態は分けて保持する。
+ * 確認で FALSE がキャッシュされていても、ensure() は移行を試みる。
+ * 移行に失敗した場合のみフラグを立て、同一プロセス内では ALTER を繰り返さない。
  * @param boolean $force TRUE のときはキャッシュを使わず再確認する
  *                       (テーブル差し替えを行うテストなどから使う)
  * @return boolean comment カラムが利用可能なら TRUE
@@ -177,12 +184,22 @@ function konawiki_attach_comment_column_available($force = FALSE)
 function konawiki_attach_ensure_comment_column($force = FALSE)
 {
     $cache = 'konawiki_attach_comment_column';
-    if (!$force && isset($GLOBALS[$cache])) {
-        // 確認済みなら、移行失敗後に ALTER を繰り返さないようそのまま返す
-        return $GLOBALS[$cache];
+    $failed = 'konawiki_attach_comment_migration_failed';
+    if ($force) {
+        unset($GLOBALS[$failed]);
+    } else {
+        if (isset($GLOBALS[$cache]) && $GLOBALS[$cache]) {
+            return TRUE;
+        }
+        if (!empty($GLOBALS[$failed])) {
+            // 移行を試みて失敗した場合は、同一プロセス内で繰り返さない
+            return FALSE;
+        }
+        // キャッシュが FALSE (カラム無しを確認済み) の場合は移行を試みる
     }
     if (!db_table_exists('attach')) {
         $GLOBALS[$cache] = FALSE;
+        $GLOBALS[$failed] = TRUE;
         return FALSE;
     }
     if (konawiki_attach_has_comment_column()) {
@@ -196,6 +213,9 @@ function konawiki_attach_ensure_comment_column($force = FALSE)
         // 同時実行で既に追加された場合や、読み取り専用DBで追加できない場合は、
         // 再確認した結果を採用する
         $GLOBALS[$cache] = konawiki_attach_has_comment_column();
+        if (!$GLOBALS[$cache]) {
+            $GLOBALS[$failed] = TRUE;
+        }
     }
     return $GLOBALS[$cache];
 }

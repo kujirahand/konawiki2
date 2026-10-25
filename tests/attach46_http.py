@@ -243,6 +243,8 @@ $private['debug'] = TRUE;
             page="Attach46Other", action="attach", stat="comment",
             id=str(attach_id), comment="他ページ経由の更新",
             edit_token=self.token(main_form)))
+        self.assertNotIn("コメントを更新しました", res)
+        self.assertIn("このページの添付ファイルではありません", res)
         self.assertEqual("経路経由で更新", self.attach_comment(attach_id))
 
     def test_03_equals_filename_collision(self):
@@ -266,34 +268,50 @@ $private['debug'] = TRUE;
     def test_04_read_does_not_migrate_but_write_does(self):
         log_id = self.page("Attach46Legacy", "#attachfiles\n")
         # attach テーブルを旧定義 (comment なし) に差し替える。
-        # このテストが最後に実行されるため、旧行の復元はしない
+        # 後続のテストが追加されても影響しないよう、終了時 (finally) に
+        # 元のテーブルとカウンタを復元する
         with self.db() as db:
+            counters = db.execute(
+                "SELECT id, view, download FROM attach_counters").fetchall()
             db.execute("ALTER TABLE attach RENAME TO attach46_backup")
             db.execute("CREATE TABLE attach (id INTEGER PRIMARY KEY,"
                        " log_id INTEGER, name TEXT, ext TEXT,"
                        " ctime INTEGER, mtime INTEGER)")
             db.execute("INSERT INTO attach(log_id,name,ext,ctime,mtime)"
                        " VALUES(?,?,?,1,1)", (log_id, "legacy46.txt", "text/plain"))
-            db.execute("DROP TABLE attach46_backup")
-            # 差し替えで消えた旧行のカウンタが残ると、次のアップロードで
-            # attach_counters の id が衝突するため、あわせて消しておく
+            # 差し替えた旧行のカウンタが残ると、この後のアップロードで
+            # attach_counters の id が衝突するため、一旦消しておく
+            # (元の内容は finally で復元する)
             db.execute("DELETE FROM attach_counters")
-        self.assertNotIn("comment", self.attach_columns())
+        try:
+            self.assertNotIn("comment", self.attach_columns())
 
-        # 表示リクエストでは移行されない
-        self.assertIn("legacy46.txt", self.get(self.admin, "Attach46Legacy"))
-        self.assertIn("legacy46.txt",
-                      self.get(self.admin, "Attach46Legacy&attach"))
-        self.assertNotIn("comment", self.attach_columns())
+            # 表示リクエストでは移行されない
+            self.assertIn("legacy46.txt", self.get(self.admin, "Attach46Legacy"))
+            self.assertIn("legacy46.txt",
+                          self.get(self.admin, "Attach46Legacy&attach"))
+            self.assertNotIn("comment", self.attach_columns())
 
-        # 書き込み (アップロード) で移行される
-        res = self.upload(self.admin, "Attach46Legacy", "legacy2.txt",
-                          b"legacy2\n", comment="移行後コメント")
-        self.assertIn("添付成功", res)
-        self.assertIn("comment", self.attach_columns())
-        row = self.attach_row("legacy2.txt")
-        self.assertIsNotNone(row)
-        self.assertEqual("移行後コメント", self.attach_comment(row[0]))
+            # 書き込み (アップロード) で移行される
+            res = self.upload(self.admin, "Attach46Legacy", "legacy2.txt",
+                              b"legacy2\n", comment="移行後コメント")
+            self.assertIn("添付成功", res)
+            self.assertIn("comment", self.attach_columns())
+            row = self.attach_row("legacy2.txt")
+            self.assertIsNotNone(row)
+            self.assertEqual("移行後コメント", self.attach_comment(row[0]))
+        finally:
+            with self.db() as db:
+                exists = db.execute(
+                    "SELECT 1 FROM sqlite_master"
+                    " WHERE type='table' AND name='attach46_backup'").fetchone()
+                if exists:
+                    db.execute("DROP TABLE attach")
+                    db.execute("ALTER TABLE attach46_backup RENAME TO attach")
+                    db.execute("DELETE FROM attach_counters")
+                    db.executemany(
+                        "INSERT INTO attach_counters(id,view,download)"
+                        " VALUES(?,?,?)", counters)
 
 
 if __name__ == "__main__":

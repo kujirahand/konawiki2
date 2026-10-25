@@ -134,9 +134,9 @@ foreach ($list46 as $r) {
 test_eq(__LINE__, konawiki_attach_row_comment($legacy46_row), '',
     'attachfiles: #46 legacy row comment is empty');
 
-// 書き込み経路では移行する。表示で FALSE がキャッシュされているため、
-// 別リクエストになったことを模擬してキャッシュを破棄してから呼ぶ
-unset($GLOBALS['konawiki_attach_comment_column']);
+// 書き込み経路では移行する。表示の確認で FALSE がキャッシュされていても、
+// 「カラムが無い」ことと「移行を試みて失敗した」ことは分けて保持されるため、
+// 同じプロセス内でも ensure が移行を試みる (agyレビュー指摘)
 test_eq(__LINE__, konawiki_attach_set_comment($legacy46_id, '書き込みで移行'), TRUE,
     'attachfiles: #46 set_comment migrates');
 test_eq(__LINE__, konawiki_attach_has_comment_column(), TRUE,
