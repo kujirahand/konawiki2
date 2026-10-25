@@ -63,6 +63,7 @@ function plugin_comment_convert_sub($pluginname, $params)
         form_input_hidden("plugin", $pluginname).
         form_input_hidden("pid", $plug_key).
         form_input_hidden("comment-mode", "edit").
+        form_input_hidden("edit_token", konawiki_getEditToken(TRUE)).
         form_input_submit("Edit comments").
         "</form>";
       $showlink = konawiki_getPageURL(
@@ -111,6 +112,8 @@ __EOS;
 
 function plugin_comment_getInsertForm($pluginname, $pageurl, $pid)
 {
+  // CSRF対策 (#10): 未ログインでもセッション用トークンを発行する
+  $edit_token = konawiki_getEditToken(TRUE);
   $Name = konawiki_lang("Name");
   $msgComment = konawiki_lang('Comments');
     return <<<EOS__
@@ -125,6 +128,7 @@ function plugin_comment_getInsertForm($pluginname, $pageurl, $pid)
 <input type="submit" value="$msgComment" class="pure-button pure-button-primary"/>
 <input type="hidden" name="plugin" value="{$pluginname}"/>
 <input type="hidden" name="pid" value="$pid"/>
+<input type="hidden" name="edit_token" value="$edit_token"/>
 </div></form>
 EOS__;
 }
@@ -141,6 +145,12 @@ function plugin_comment_action_sub($pluginname, $params)
       $plug_key = $params[0];
   }
   if ($plug_key != $post_pid) return TRUE;
+  // CSRF対策 (#10): 投稿時・ログイン中の編集時ともに
+  // フォームで発行した edit_token を必須とする
+  if (!konawiki_checkEditToken()) {
+    $plugin_params["error"] = "意図せぬ操作が行われました。ページを戻って改めて操作を行ってください。";
+    return FALSE;
+  }
   // check auth
   $commentmode = konawiki_param("comment-mode");
   if ($commentmode == "edit") {

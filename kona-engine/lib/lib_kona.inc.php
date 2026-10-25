@@ -1123,6 +1123,14 @@ function konawiki_getEditToken($force = FALSE)
     if (konawiki_isLogin_write() || $force) {
         if (isset($konawiki['private']['edit_token'])) {
             $edit_token = $konawiki['private']['edit_token'];
+        } else if (isset($_SESSION['konawiki2_edit_token'])
+                && is_string($_SESSION['konawiki2_edit_token'])
+                && $_SESSION['konawiki2_edit_token'] !== '') {
+            // 既に発行済みのトークンを再利用する (#10)。
+            // 描画のたびに発行し直すと、先に開いたタブのフォームや
+            // 同一ページ内の複数フォームが使えなくなってしまう。
+            $edit_token = $_SESSION['konawiki2_edit_token'];
+            $konawiki['private']['edit_token'] = $edit_token;
         } else {
             $edit_token = bin2hex(random_bytes(32));
             $_SESSION['konawiki2_edit_token'] = $edit_token;
@@ -1138,7 +1146,15 @@ function konawiki_checkEditToken()
 {
     $ses_edit_token = isset($_SESSION['konawiki2_edit_token']) ? $_SESSION['konawiki2_edit_token'] : '';
     $get_edit_token = konawiki_param('edit_token', '');
-    if (($get_edit_token == '') || (!hash_equals($ses_edit_token,$get_edit_token))) {
+    // トークンが文字列でない場合 (配列など) や、セッション側に
+    // トークンが発行されていない場合は一致とみなさない (#10)
+    if (!is_string($ses_edit_token) || $ses_edit_token === '') {
+        return FALSE;
+    }
+    if (!is_string($get_edit_token) || $get_edit_token === '') {
+        return FALSE;
+    }
+    if (!hash_equals($ses_edit_token, $get_edit_token)) {
         return FALSE;
     }
     return TRUE;

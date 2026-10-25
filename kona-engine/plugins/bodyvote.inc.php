@@ -21,6 +21,7 @@ function plugin_bodyvote_convert($params)
     $res .= form_input_hidden('vote_id', $vote_id);
     $res .= form_input_hidden('plugin','bodyvote');
     $res .= form_input_hidden('pid', $pid);
+    $res .= form_input_hidden('edit_token', konawiki_getEditToken(TRUE));
     $res .= "<table border=0 cellpadding=2 cellspacing=0>\n";
     $res .= "<tr><td>選択肢</td><td></td><td>投票</td></tr>\n";
     foreach ($params as $line) {
@@ -46,9 +47,15 @@ function plugin_bodyvote_convert($params)
 
 function plugin_bodyvote_action($params)
 {
+    global $plugin_params;
     $post_id = konawiki_param("pid", 0);
     $pid = konawiki_getPluginInfo("bodyvote", "pid", 0);
     if ($post_id != $pid) return TRUE;
+    // CSRF対策 (#10): フォームで発行した edit_token を必須とする
+    if (!konawiki_checkEditToken()) {
+        $plugin_params["error"] = "意図せぬ操作が行われました。ページを戻って改めて操作を行ってください。";
+        return FALSE;
+    }
     // make params
     $res = array();
     foreach ($params as $line) {
