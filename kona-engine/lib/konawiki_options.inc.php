@@ -8,7 +8,7 @@ function konawiki_checkOptions() {
     // Locale
     kona_check_public('lang', konawiki_getBrowserLang()); // en or ja
     kona_check_public('timezone', 'Asia/Tokyo');
-    kona_check_private('data_format', 'Y-m-d');
+    kona_check_private('date_format', 'Y-m-d');
     kona_check_private('date_format_easy', 'm/d');
     kona_check_private('time_format', 'H:i:s');
 
@@ -76,13 +76,13 @@ function konawiki_checkOptions() {
     kona_check_private('users_db.dsn', "sqlite://$data_dir/konawiki_users.db");
     // # wiki parameters
     kona_check_private('auth.read.enabled', TRUE);
-    kona_check_private('caauthche.write.enabled', TRUE);
+    kona_check_private('auth.write.enabled', TRUE);
     kona_check_private('attach.enabled', TRUE);
     kona_check_public('max_upload_size', 1024 * 1024 * 5); // 5MB
     kona_check_private('login.time.limit', 60 * 60 * 24 * 90);
     // # login users
-    kona_check_private('auth.users', []);
-    kona_check_private('auth.users.perm', []);
+    kona_check_private('authusers', []);
+    kona_check_private('users_perm', []);
 
     // wiki parser setting
     kona_check_private('ul_mark1', '・');

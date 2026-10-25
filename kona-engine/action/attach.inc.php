@@ -87,6 +87,7 @@ function action_attach_write()
     $log_id = $log["id"];
     // check attach file
     $filename = trim(isset($_POST['filename']) ? $_POST['filename'] : '');
+    $comment = trim(isset($_POST['comment']) ? $_POST['comment'] : '');
     $name = basename($_FILES['userfile']['name']);
     if ($filename == '') { $filename = $name; }
     $name_ext = "";
@@ -128,30 +129,44 @@ function action_attach_write()
         "ファイル形式を確認してください。");
       return;
     }
+    // check comment (ファイル自体の検証を通過してから行う)
+    if (mb_strlen($comment) > 500) {
+      konawiki_error("コメントが長すぎます。(500文字まで)");
+      return;
+    }
     // check db
     db_begin();
     $mtime = time();
-    // check same file, overwrite?
-    $sql = 
-        "SELECT * FROM attach WHERE name=? AND ".
-        "log_id=?";
-    $res = db_get1($sql, [$name, $log_id]);
-    if (isset($res["id"])) {
-      // check password
+    // 同名のファイルが既にある場合は、連番を付けて保存する (Issue #22)
+    // 重複チェックは、実際に保存される名前 (指定されたファイル名) で行う
+    $filename_req = $filename;
+    $filename = konawiki_attach_unique_name($log_id, $filename);
+    // insert into db
+    $has_comment_col = konawiki_attach_ensure_comment_column();
+    if (!$has_comment_col && $comment !== '') {
+      // comment カラムを用意できない状態で、入力されたコメントを
+      // 無言で落としてアップロードを成功させない (Codexレビュー指摘)
       db_rollback();
-      action_attach_already_exists($res);
+      konawiki_error("コメントを保存できませんでした。時間をおいて再度お試しください。");
       return;
+    }
+    if ($has_comment_col) {
+      $sql =
+        "INSERT INTO attach (log_id,name,ext,comment,ctime,mtime)".
+        "             VALUES(     ?,   ?,  ?,      ?,    ?,    ?)";
+      $id = db_insert($sql, [
+          $log_id, $filename, $ext, $comment, $mtime, $mtime
+      ]);
     } else {
-      // insert into db
-      $sql = 
+      $sql =
         "INSERT INTO attach (log_id,name,ext,ctime,mtime)".
         "             VALUES(     ?,   ?,  ?,    ?,    ?)";
       $id = db_insert($sql, [
           $log_id, $filename, $ext, $mtime, $mtime
       ]);
-      $sql = "INSERT INTO attach_counters (id) VALUES (?)";
-      db_exec($sql, [$id]);
     }
+    $sql = "INSERT INTO attach_counters (id) VALUES (?)";
+    db_exec($sql, [$id]);
     // copy file
     $uploadfile = $uploaddir . "/{$id}{$name_ext}";
     if (!move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
@@ -171,43 +186,17 @@ function action_attach_write()
     $attach_link = "<a href='{$attach_}'>$name_htm</a>";
     $back_link = konawiki_getPageURL($page, "attach");
     // message
+    $numbered = '';
+    if ($filename !== $filename_req) {
+      $filename_req_htm = htmlspecialchars($filename_req);
+      $numbered = "<p>(同名のファイルがあったため「{$filename_req_htm}」は「{$name_htm}」になりました)</p>";
+    }
     $body = <<<__EOS__
 <h4>添付成功</h4>
 <blockquote>
 <p>[{$page_link}] に [{$attach_link}] を 添付しました。</p>
+{$numbered}
 <p>[<a href="{$back_link}">→一覧を確認する/→他のファイルを添付</a>]</p>
-</blockquote>
-__EOS__;
-    header('X-Frame-Options: SAMEORIGIN');
-    konawiki_showMessage($body);
-}
-
-function action_attach_already_exists($attach)
-{
-    extract($attach);
-    $baseurl = konawiki_public("baseurl");
-    $page = konawiki_getPage();
-    $page_enc = urlencode($page);
-    $page_htm = htmlspecialchars($page);
-    $name = htmlspecialchars($name);
-    $body = <<<__EOS__
-<h1>添付に失敗</h1>
-<p>[{$page_htm}] には既に [{$name}] が添付されています。
-名前を変更するか削除してください。</p>
-<blockquote>
-<form action="{$baseurl}">
-<input type="hidden" name="page" value="{$page}"/>
-<input type="hidden" name="action" value="attach"/>
-<input type="hidden" name="stat" value="delete"/>
-<input type="hidden" name="id" value="{$id}"/>
-<input type="submit" value="ファイルを削除する"/>
-</form>
-<form action="{$baseurl}">
-<input type="hidden" name="page" value="{$page}"/>
-<input type="hidden" name="action" value="attach"/>
-<input type="hidden" name="stat" value=""/>
-<input type="submit" value="別の名前で投稿する"/>
-</form>
 </blockquote>
 __EOS__;
     header('X-Frame-Options: SAMEORIGIN');
@@ -291,6 +280,115 @@ function action_attach_delete()
     konawiki_showMessage($body);
 }
 
+function action_attach_comment()
+{
+    if (!konawiki_checkEditToken()) {
+        konawiki_error("編集エラー。ページを戻って画面を更新してください。");
+        return;
+    }
+    if (!konawiki_auth()) return;
+    $id = konawiki_param('id', 0);
+    if (!is_numeric($id)) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    $id = intval($id);
+    $comment = trim((string)konawiki_param('comment', ''));
+    if (mb_strlen($comment) > 500) {
+        konawiki_error("コメントが長すぎます。(500文字まで)");
+        return;
+    }
+    $sql = "SELECT * FROM attach WHERE id=?";
+    $info = db_get1($sql, [$id]);
+    if (!isset($info['id'])) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    // 表示中のページの添付ファイルであることを確認する
+    // (ページが特定できない場合も、所属不明として更新しない)
+    $log_id = konawiki_getPageId();
+    if ($log_id === FALSE || intval($info['log_id']) !== intval($log_id)) {
+        konawiki_error("更新エラー。このページの添付ファイルではありません。");
+        return;
+    }
+    if (!konawiki_attach_set_comment($id, $comment)) {
+        konawiki_error("更新エラー。コメントを保存できませんでした。");
+        return;
+    }
+    $p = konawiki_getPageInfoById($info['log_id']);
+    $page = $p['name'];
+    $url = konawiki_getPageURL($page, 'attach');
+    $body = "<p class='box'><a href='$url'>コメントを更新しました</a></p>";
+    konawiki_showMessage($body);
+}
+
+/**
+ * 添付ファイルの名前を変更する (Issue #22)
+ */
+function action_attach_rename()
+{
+    if (!konawiki_checkEditToken()) {
+        konawiki_error("編集エラー。ページを戻って画面を更新してください。");
+        return;
+    }
+    if (!konawiki_auth()) return;
+    $id = konawiki_param('id', 0);
+    if (!is_scalar($id) || !preg_match('/^\d+$/', (string)$id)) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    $id = intval($id);
+    $sql = "SELECT * FROM attach WHERE id=?";
+    $info = db_get1($sql, [$id]);
+    if (!isset($info['id'])) {
+        konawiki_error("更新エラー。id が不正です。");
+        return;
+    }
+    // 表示中のページの添付ファイルであることを確認する
+    // (ページが特定できない場合も、所属不明として更新しない)
+    $log_id = konawiki_getPageId();
+    if ($log_id === FALSE || intval($info['log_id']) !== intval($log_id)) {
+        konawiki_error("更新エラー。このページの添付ファイルではありません。");
+        return;
+    }
+    $newname = trim((string)konawiki_param('newname', ''));
+    $p = konawiki_getPageInfoById($info['log_id']);
+    $page = $p['name'];
+    $url = konawiki_getPageURL($page, 'attach');
+    // 同名の場合は更新しない
+    if ($newname === (string)$info['name']) {
+        $body = "<p class='box'><a href='$url'>ファイル名は同じです</a></p>";
+        konawiki_showMessage($body);
+        return;
+    }
+    $err = konawiki_attach_validate_rename($info['name'], $newname);
+    if ($err !== '') {
+        konawiki_error($err);
+        return;
+    }
+    // 同名がある場合は連番を付けた名前にする (Issue #22)
+    $unique = konawiki_attach_unique_name($info['log_id'], $newname, $id);
+    if (!konawiki_attach_rename($id, $unique, $info['log_id'])) {
+        // 同時変更で重複が発生した場合も、その旨を表示する
+        $sql = "SELECT id FROM attach WHERE log_id=? AND name=? AND id<>?";
+        $dup = db_get1($sql, [$info['log_id'], $unique, $id]);
+        if (isset($dup['id'])) {
+            konawiki_error("変更エラー。同じ名前のファイルが既に添付されています。");
+            return;
+        }
+        konawiki_error("更新エラー。ファイル名を変更できませんでした。");
+        return;
+    }
+    $body = "<p class='box'><a href='$url'>ファイル名を変更しました</a>";
+    if ($unique !== $newname) {
+        // 連番が付いた場合は利用者に最終的な名前を伝える
+        $unique_htm = htmlspecialchars($unique);
+        $body .= "(同名のファイルがあったため「{$unique_htm}」になりました)";
+    }
+    $body .= "</p>";
+    konawiki_showMessage($body);
+}
+
 function konawiki_getContentType($filename)
 {
     include_once(KONAWIKI_DIR_LIB."/mime.inc.php");
@@ -300,6 +398,7 @@ function konawiki_getContentType($filename)
 
 function konawiki_getAttachList($page)
 {
+    konawiki_attach_ensure_comment_column();
     $log_id = konawiki_getPageId($page);
     if ($log_id == FALSE) {
         return FALSE;

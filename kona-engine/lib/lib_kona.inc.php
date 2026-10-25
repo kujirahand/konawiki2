@@ -454,7 +454,7 @@ function konawiki_getArray($var, $key, $default)
 function konawiki_private($name, $def = null)
 {
     global $private;
-    if (empty($private[$name])) {
+    if (!isset($private[$name])) {
         return $def;
     }
     return $private[$name];
@@ -859,7 +859,7 @@ function konawiki_date_html($value, $mode='easy')
     if ($value > $new_limit) {
         $opt = " <span class='new'>New!</span>";
     }
-    $fmt = konawiki_private("data_format", 'Y-m-d');
+    $fmt = konawiki_private("date_format", 'Y-m-d');
     $s = date($fmt, $value);
     //
     return "<span class='date'>{$s}</span>{$opt}";
@@ -1622,15 +1622,14 @@ function konawiki_checkPassword($user, $pass)
         }
     }
     if ($type == "md5" || $type == "x-php-md5") {
-        $hash = md5($user);
+        // ハッシュ値は大文字小文字を区別せずに比較する
+        return hash_equals(strtolower(md5($user)), strtolower($pass));
     }
     else if ($type == "sha1" || $type == "x-php-sha1") {
-        $hash = sha1($user);
+        return hash_equals(strtolower(sha1($user)), strtolower($pass));
     }
-    else {
-        $hash = $user;
-    }
-    return (hash_equals($hash, $pass));
+    // 平文は大文字小文字を区別して比較する
+    return (hash_equals($user, $pass));
 }
 
 /**

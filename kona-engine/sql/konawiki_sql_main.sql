@@ -55,6 +55,7 @@ CREATE TABLE attach
     log_id  INTEGER,
     name    TEXT,
     ext     TEXT,
+    comment TEXT DEFAULT '',
     ctime   INTEGER,
     mtime   INTEGER
 );

@@ -16,6 +16,7 @@
     method="POST">
   <div id="dropzone">
     <p>ファイル名: <input type="text" id="filename" name="filename" value=""></p>
+    <p>コメント: <input type="text" id="comment" name="comment" value="" size="40" maxlength="500"></p>
     <p>
       <input type="hidden" name="MAX_FILE_SIZE" value="{{ $max_upload_size }}" />
       <input type="file" id="userfile" name="userfile" size=40
@@ -49,6 +50,7 @@
   <table border=1 cellpadding=4>
     <tr>
       <td>直リンク</td>
+      <td>コメント</td>
       <td>日付</td>
       <td>削除</td>
       <td>Wikiに貼る時</td>
@@ -56,6 +58,7 @@
   {{ for $list as $i }}
     {{e: $name = $i['name']; $name_u = rawurlencode($name); }}
     {{e: $id = $i['id'] }}
+    {{e: $comment = isset($i['comment']) ? $i['comment'] : '' }}
     {{e: $link = konawiki_getPageURL($page, 'attach', '', "file=$name_u") }}
     {{e: $link_del = konawiki_getPageURL(
             $page, 'attach', 'delete', 
@@ -64,7 +67,29 @@
             $page, 'attach', 'up',
             "id=$id&edit_token=$edit_token"); }} 
     <tr>
-      <td><a href="{{$link}}">{{$name}}</a></td>
+      <td>
+        <a href="{{$link}}">{{$name}}</a>
+        <form action="{{$baseurl}}" method="POST" style="margin:0;">
+          <input type="hidden" name="page" value="{{$page}}"/>
+          <input type="hidden" name="action" value="attach"/>
+          <input type="hidden" name="stat" value="rename"/>
+          <input type="hidden" name="id" value="{{$id}}"/>
+          <input type="hidden" name="edit_token" value="{{$edit_token}}"/>
+          <input type="text" name="newname" value="{{$name}}" size="20" maxlength="255"/>
+          <input type="submit" value="名前変更"/>
+        </form>
+      </td>
+      <td>
+        <form action="{{$baseurl}}" method="POST" style="margin:0;">
+          <input type="hidden" name="page" value="{{$page}}"/>
+          <input type="hidden" name="action" value="attach"/>
+          <input type="hidden" name="stat" value="comment"/>
+          <input type="hidden" name="id" value="{{$id}}"/>
+          <input type="hidden" name="edit_token" value="{{$edit_token}}"/>
+          <input type="text" name="comment" value="{{$comment}}" size="20" maxlength="500"/>
+          <input type="submit" value="保存"/>
+        </form>
+      </td>
       <td>
         {{$i.mtime | datetime}}
         <a href="{{$link_up}}" class="pure-button">更新</a> 
@@ -87,6 +112,10 @@
 <h4>メモ</h4>
 <div>
   Wikiテキストで、<code>#attachfiles</code> と記述すると自動的に添付ファイルの一覧を表示します。
+  各ファイルのコメントは上の一覧で編集でき、<code>#attachfiles</code> の一覧に表示されます。
+  Wikiテキスト側で <code>#attachfiles(ファイル名=コメント)</code> と書くと、そのページだけコメントを上書きできます。
+  ファイル名は上の一覧で変更できます(拡張子は変更できません)。
+  ファイル名を変更すると、本文中の #ref(旧ファイル名) などの参照は自動では更新されません。
 </div>
 
 
