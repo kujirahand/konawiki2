@@ -103,7 +103,14 @@ test_eq(__LINE__, intval($found['id']), intval($id1), 'attach_rename: new name f
 
 // ---------------------------------------------------------------------
 // アクション
+// この節では edit_token の照合を検証対象にするため、書き込み認証は
+// 明示的に無効化して konawiki_auth() を通過させる (節の終わりで復元する)。
+// ※ auth.write.enabled の既定値 (TRUE) が効く環境でも同じ前提にするため、
+//   attachfiles.test.php のコメント節と同じ方法を取る。
 // ---------------------------------------------------------------------
+$test_saved_auth_write = isset($private['auth.write.enabled'])
+    ? $private['auth.write.enabled'] : null;
+$private['auth.write.enabled'] = FALSE;
 require_once KONAWIKI_DIR_FW_SIMPLE . '/fw_template_engine.lib.php';
 require_once KONAWIKI_DIR_ACTION . '/attach.inc.php';
 if (session_status() !== PHP_SESSION_ACTIVE) { $_SESSION = []; }
@@ -250,5 +257,7 @@ test_assert(__LINE__, !$gone, 'attach_rename: delete works after rename');
 @unlink($phys);
 
 // 後始末 (後続テストファイルへ状態を持ち越さない)
+if ($test_saved_auth_write === null) { unset($private['auth.write.enabled']); }
+else { $private['auth.write.enabled'] = $test_saved_auth_write; }
 $_GET = ['page' => 'AttachRenameTest']; $_POST = [];
 konawiki_clearCache();
